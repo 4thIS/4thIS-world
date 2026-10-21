@@ -1017,7 +1017,7 @@ git commit -m "feat: 캠퍼스 바깥 배치 계산과 정문 등장 지점 조�
 
 순수 계산(배치)은 Task 2에서 테스트했다. 이 파일은 three·React 연결이라 typecheck와 Task 5의 화면 확인으로 검증한다.
 
-- [ ] **Step 1: 구현**
+- [x] **Step 1: 구현**
 
 KayKit 모델은 모두 같은 `citybits_texture.png`를 쓰므로, 파스텔 텍스처는 이미지별로 한 번만 만든다(WeakMap 캐시). glTF 장면은 바운딩 박스로 "바닥 가운데 = 원점"이 되게 옮긴 뒤 `yaw`·`scale`을 곱한다.
 
@@ -1244,12 +1244,12 @@ export function Model({
 }
 ```
 
-- [ ] **Step 2: 타입·린트 확인**
+- [x] **Step 2: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/models.tsx
