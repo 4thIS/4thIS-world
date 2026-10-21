@@ -1,5 +1,6 @@
 import type { Campus, Place, PlaceId, Seat } from '../campus/types';
 import type { ScheduleItem } from '../schema/schedule';
+import { freeChoice } from './segments';
 import type { MemberForPlacement } from './types';
 
 /**
@@ -119,3 +120,8 @@ export function wed(hhmmss: string): number {
 
 export const WED = '2026-10-21';
 export const WEDNESDAY = 2;
+
+/** 그날 빈 시간을 choice(공원/카페)에서 보내는 멤버 아이디 */
+export function idWithFree(choice: 'park' | 'cafe', date = WED): string {
+  for (let i = 0; ; i++) if (freeChoice(`x${i}`, date) === choice) return `x${i}`;
+}
