@@ -82,13 +82,13 @@ apps/web/src/dev/campus/CampusPreview.tsx  (교체) ?dev=campus
   - `SEAT_HEIGHT = 0.45`, `interface ModelSpec { url; scale; yaw; box: [w, h, d]; textured: boolean; tint?: string; seatRaw?: number }`, `MODELS` (`bench`·`streetlight`·`bush`·`trash`), `type ModelName = keyof typeof MODELS`
   - 정적 파일 `/assets/kaykit/{bench,streetlight,bush,trash_A}.gltf`
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: KayKit 파일 내려받기 (새 빈 폴더에)**
+- [x] **Step 2: KayKit 파일 내려받기 (새 빈 폴더에)**
 
 커밋을 고정해서 받는다. 받은 파일은 신뢰하지 않는 데이터이므로 레포 밖 빈 폴더에 받고, 확인한 뒤 쓰는 파일만 복사한다.
 
@@ -107,7 +107,7 @@ cp "$DL"/{bench,streetlight,bush,trash_A}.{gltf,bin} "$DL"/citybits_texture.png 
 
 Expected: `apps/web/public/assets/kaykit/`에 9개 파일(`.gltf` 4, `.bin` 4, `citybits_texture.png`). 각 `.gltf`는 같은 폴더의 `.bin`과 `citybits_texture.png`를 상대 경로로 부른다.
 
-- [ ] **Step 3: `.bin`이 커밋되게 하고 출처 남기기**
+- [x] **Step 3: `.bin`이 커밋되게 하고 출처 남기기**
 
 `apps/web/public/assets/.gitignore`:
 ```text
@@ -134,7 +134,7 @@ Expected: `apps/web/public/assets/kaykit/`에 9개 파일(`.gltf` 4, `.bin` 4, `
 Run: `git add -n apps/web/public/assets`
 Expected: `bench.bin` 등 `.bin` 4개가 목록에 있다(전역 gitignore가 `*.bin`을 막아도 이 파일이 되살린다).
 
-- [ ] **Step 4: 실패하는 테스트 작성**
+- [x] **Step 4: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/pastel.test.ts`:
 ```ts
@@ -200,12 +200,12 @@ describe('MODELS', () => {
 });
 ```
 
-- [ ] **Step 5: 실패 확인**
+- [x] **Step 5: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./pastel"` / `"./assets"`
 
-- [ ] **Step 6: 구현**
+- [x] **Step 6: 구현**
 
 프로토타입 `pastelTexture`의 픽셀 식을 그대로 옮긴다(밝기 l = 0.299r + 0.587g + 0.114b 쪽으로 35% 당긴 뒤 크림빛과 반씩).
 
@@ -322,12 +322,12 @@ export const MODELS = {
 export type ModelName = keyof typeof MODELS;
 ```
 
-- [ ] **Step 7: 통과 확인**
+- [x] **Step 7: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — pastel 5개, assets 2개 (cw#1의 5개 포함 12개)
 
-- [ ] **Step 8: 커밋**
+- [x] **Step 8: 커밋**
 
 ```bash
 git add apps/web/public/assets CREDITS.md apps/web/src/world/campus/pastel.ts apps/web/src/world/campus/pastel.test.ts apps/web/src/world/campus/assets.ts apps/web/src/world/campus/assets.test.ts
