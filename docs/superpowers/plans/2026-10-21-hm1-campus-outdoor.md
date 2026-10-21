@@ -1269,7 +1269,7 @@ git commit -m "feat: glTF 모델 인스턴싱·파스텔 재질·로딩 실패 �
 
 드로우콜: 보도블록 1, 광장 3, 풀 1, 나무 2, 꽃 2, 연못 4.
 
-- [ ] **Step 1: 디오라마 판**
+- [x] **Step 1: 디오라마 판**
 
 프로토타입의 `slab` 3겹(잔디·흙 띠·흙)을 그대로 옮긴다. 잔디 윗면이 정확히 y = 0이 되게 위치를 계산한다(ExtrudeGeometry를 눕히면 윗면 = depth + bevel).
 
@@ -1342,7 +1342,7 @@ export function Ground() {
 }
 ```
 
-- [ ] **Step 2: 보도블록과 광장**
+- [x] **Step 2: 보도블록과 광장**
 
 `apps/web/src/world/campus/Paths.tsx`:
 ```tsx
@@ -1399,7 +1399,7 @@ export function Paths() {
 }
 ```
 
-- [ ] **Step 3: 풀·나무·꽃**
+- [x] **Step 3: 풀·나무·꽃**
 
 `apps/web/src/world/campus/Grass.tsx`:
 ```tsx
@@ -1586,7 +1586,7 @@ export function Flowers() {
 }
 ```
 
-- [ ] **Step 4: 연못 (원 충돌체와 같은 자리)**
+- [x] **Step 4: 연못 (원 충돌체와 같은 자리)**
 
 `apps/web/src/world/campus/Pond.tsx`:
 ```tsx
@@ -1664,12 +1664,12 @@ export function Pond() {
 }
 ```
 
-- [ ] **Step 5: 타입·린트 확인**
+- [x] **Step 5: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/Ground.tsx apps/web/src/world/campus/Paths.tsx apps/web/src/world/campus/Grass.tsx apps/web/src/world/campus/Trees.tsx apps/web/src/world/campus/Flowers.tsx apps/web/src/world/campus/Pond.tsx
