@@ -1692,7 +1692,7 @@ git commit -m "feat: 디오라마 판·보도블록·광장·풀·나무·꽃·�
   - `export function Campus(props: CampusProps)` — **cw#1과 같은 경로·이름·props**
   - `?dev=campus` 쿼리: `cam=x,y,z`, `target=x,y,z` (스크린샷용 카메라). 패널의 `data-testid="campus-log"`에 건물 클릭 결과가 찍힌다
 
-- [ ] **Step 1: 글자판·정문·게시판**
+- [x] **Step 1: 글자판·정문·게시판**
 
 `apps/web/src/world/campus/signTexture.ts`:
 ```ts
@@ -1841,7 +1841,7 @@ export function NoticeBoard() {
 }
 ```
 
-- [ ] **Step 2: KayKit 소품·임시 조명·건물 자리 상자**
+- [x] **Step 2: KayKit 소품·임시 조명·건물 자리 상자**
 
 KayKit 가로등은 팔이 모델의 -x 쪽이라 `lampSpots`가 계산한 `rotY`로 팔이 길을 향한다. 그림자는 해 하나(`directionalLight`)만 만든다.
 
@@ -1976,7 +1976,7 @@ export function BuildingBoxes({
 }
 ```
 
-- [ ] **Step 3: Campus 교체**
+- [x] **Step 3: Campus 교체**
 
 `apps/web/src/world/campus/Campus.tsx`:
 ```tsx
@@ -2013,7 +2013,7 @@ export function Campus({ focusedBuilding, onBuildingClick }: CampusProps) {
 }
 ```
 
-- [ ] **Step 4: 미리보기 페이지**
+- [x] **Step 4: 미리보기 페이지**
 
 `apps/web/src/dev/campus/CampusPreview.tsx`:
 ```tsx
@@ -2075,12 +2075,12 @@ export function CampusPreview() {
 }
 ```
 
-- [ ] **Step 5: 타입·린트·테스트**
+- [x] **Step 5: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 6: 브라우저로 확인**
+- [x] **Step 6: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -2090,11 +2090,11 @@ Expected:
 - 정문 아치 양쪽에 "4thIS 캠퍼스" 간판, 정문 동쪽에 "📋 게시판". 가로등 팔이 길 쪽으로 나와 있다. KayKit 소품은 원색이 아니라 연한 파스텔이다.
 - 건물 자리 반투명 분홍 상자를 누르면 패널에 `건물 클릭: eng`. 게시판은 모델만 있고 클릭은 cw#4의 BoardHotspot이 받는다. 콘솔에 에러가 없다(three의 `THREE.Clock` 사용 중단 안내 경고는 R3F 내부라 무시).
 
-- [ ] **Step 7: 로딩 실패 대체 확인**
+- [x] **Step 7: 로딩 실패 대체 확인**
 
 `assets.ts`의 `kaykit` 함수에서 `url` 끝의 `${file}.gltf`를 잠깐 `${file}X.gltf`로 바꾸고 새로고침 → 벤치·가로등·덤불·쓰레기통 자리에 연보라 상자가 보이고 콘솔에 `[campus] 모델을 불러오지 못해 상자로 대신합니다` 경고가 뜬다. 확인 뒤 **원래대로 되돌린다**(`git diff`가 비어 있어야 한다).
 
-- [ ] **Step 8: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 8: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 dev 서버를 켠 채로:
 
@@ -2113,7 +2113,7 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: `campus-overview.png` 전체 판, `campus-gate.png` 정문 간판 글자 "4thIS 캠퍼스"와 게시판 앞면, `campus-pond.png` 연못·벤치·꽃밭. 헤드리스는 소프트웨어 WebGL이라 느리다(정상).
 
-- [ ] **Step 9: 커밋**
+- [x] **Step 9: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus
