@@ -11,6 +11,7 @@ export { boardAt } from './board';
 export { FADE_MS, WALK_SPEED_MPS } from './constants';
 export { facingOf, nearestNode, pathLength, shortestPath } from './graph';
 export { STATUS, classStatus } from './status';
+export { demoMembers } from './demo';
 
 /** 좌석이 필요한 구간이면 그 장소 */
 function seatPlace(block: Block): PlaceId | null {
