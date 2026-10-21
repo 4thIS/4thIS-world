@@ -17,3 +17,14 @@ describe('rand01', () => {
     expect(rand01('m2', '2026-10-21', 3)).not.toBe(a);
   });
 });
+
+describe('rand01 분포', () => {
+  it('끝 숫자만 다른 연속 입력도 고르게 퍼진다', () => {
+    for (const seed of ['x0|2026-10-21', 'x3|2026-10-21', 'abc|2026-10-22']) {
+      let low = 0;
+      for (let slot = 405; slot < 480; slot++) if (rand01(seed, slot) < 1 / 3) low++;
+      expect(low / 75).toBeGreaterThan(0.18);
+      expect(low / 75).toBeLessThan(0.5);
+    }
+  });
+});
