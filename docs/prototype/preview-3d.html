@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4thIS-world 3D 미리보기</title>
+<style>
+  :root { --ink:#5b4d6b; --card:#ffffffd9; --pink:#ffb3c7; --lav:#c9bdf2; }
+  html,body { margin:0; height:100%; background:#fbeff6; font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:var(--ink); overflow:hidden; }
+  #c { display:block; width:100vw; height:100vh; }
+  .panel { position:fixed; left:16px; top:16px; width:250px; background:var(--card); backdrop-filter:blur(8px);
+           border-radius:22px; padding:16px 18px; box-shadow:0 10px 30px #c9a5c040; }
+  .panel h1 { font-size:16px; margin:0 0 4px; }
+  .panel p { font-size:12px; margin:0 0 12px; opacity:.75; line-height:1.5; }
+  .row { margin-bottom:12px; }
+  .row b { display:block; font-size:12px; margin-bottom:6px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { border:none; background:#f4ecfa; color:var(--ink); padding:6px 11px; border-radius:999px; font-size:12px; cursor:pointer; transition:.2s; font-family:inherit; }
+  .chip:hover { background:#ece1f7; }
+  .chip.on { background:var(--lav); color:#fff; box-shadow:0 3px 10px #b5a5ee80; }
+  .sw { width:24px; height:24px; border-radius:50%; border:3px solid #fff; cursor:pointer; box-shadow:0 1px 4px #0002; }
+  .sw.on { outline:2px solid var(--lav); }
+  .legend { position:fixed; right:16px; bottom:16px; background:var(--card); border-radius:16px; padding:10px 14px; font-size:12px; line-height:1.7; box-shadow:0 10px 30px #c9a5c040; }
+  #loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font-size:14px; pointer-events:none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading">캠퍼스 짓는 중… 🌷</div>
+
+<div class="panel">
+  <h1>🐾 캐릭터 꾸미기 (데모)</h1>
+  <p>맨 앞 캐릭터(공원 산책 중)를 바로 바꿔 볼 수 있어요. 드래그하면 회전, 휠로 확대합니다.</p>
+  <div class="row"><b>동물</b><div class="chips" id="animal"></div></div>
+  <div class="row"><b>악세서리</b><div class="chips" id="acc"></div></div>
+  <div class="row"><b>색</b><div class="chips" id="color"></div></div>
+</div>
+<div class="legend">
+  🐶 공원 산책 (공강)<br>🐱 벤치에서 쉬는 중<br>🐻 공학관 앞 (강의 대기)<br>🦆 정문 ↔ 공학관 등·하교
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#fbeff6');
+scene.fog = new THREE.Fog('#fbeff6', 45, 90);
+
+const camera = new THREE.PerspectiveCamera(32, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(20, 17, 21);
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 0, 0);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.42;
+controls.minDistance = 14; controls.maxDistance = 60;
+
+scene.add(new THREE.HemisphereLight('#fff6fb', '#c9e8c4', 1.3));
+const sun = new THREE.DirectionalLight('#fff3e6', 2.1);
+sun.position.set(14, 22, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left:-18, right:18, top:18, bottom:-18, near:1, far:60 });
+sun.shadow.radius = 4; sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+const mat = (c, o={}) => new THREE.MeshStandardMaterial({ color:c, roughness:.85, metalness:0, ...o });
+const shadowAll = o => o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+
+// ---------- 바닥: 둥근 디오라마 판 ----------
+function roundedRect(w, h, r) {
+  const s = new THREE.Shape(), x = -w/2, y = -h/2;
+  s.moveTo(x+r, y); s.lineTo(x+w-r, y); s.quadraticCurveTo(x+w, y, x+w, y+r);
+  s.lineTo(x+w, y+h-r); s.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  s.lineTo(x+r, y+h); s.quadraticCurveTo(x, y+h, x, y+h-r);
+  s.lineTo(x, y+r); s.quadraticCurveTo(x, y, x+r, y); return s;
+}
+function slab(w, h, r, depth, color, y) {
+  const g = new THREE.ExtrudeGeometry(roundedRect(w, h, r), { depth, bevelEnabled:true, bevelSize:.3, bevelThickness:.3, bevelSegments:4, curveSegments:12 });
+  g.rotateX(-Math.PI/2);
+  const m = new THREE.Mesh(g, mat(color)); m.position.y = y; m.receiveShadow = true; scene.add(m); return m;
+}
+slab(25, 25, 2.2, 1.6, '#e7c9a9', -3.6);   // 흙
+slab(24.6, 24.6, 2.0, .6, '#d9b38e', -1.6); // 흙 띠
+slab(24.6, 24.6, 2.0, .5, '#bfe6b4', -0.8); // 잔디
+
+// 잔디 결: 작은 풀잎 흩뿌리기
+{
+  const g = new THREE.ConeGeometry(.05, .28, 3);
+  const im = new THREE.InstancedMesh(g, mat('#a5d99a'), 900);
+  const d = new THREE.Object3D(); let n = 0;
+  for (let i = 0; i < 900; i++) {
+    const x = (Math.random()-.5)*22, z = (Math.random()-.5)*22;
+    if (Math.abs(x) < 1.6 || (z > 0 && z < 2.6) || (x > 2 && x < 10 && z < -2)) continue;
+    d.position.set(x, .14, z); d.rotation.set((Math.random()-.5)*.4, Math.random()*3, (Math.random()-.5)*.4);
+    d.updateMatrix(); im.setMatrixAt(n++, d.matrix);
+  }
+  im.count = n; scene.add(im);
+}
+
+// 보도블록 길 (정문 → 광장 → 공학관)
+const pavers = [];
+function pavePath(x0, z0, x1, z1, width) {
+  const cols = ['#fbeedd', '#f5e2cc', '#f9e8d6'];
+  const len = Math.hypot(x1-x0, z1-z0), steps = Math.round(len/.62), across = Math.round(width/.62);
+  const ang = Math.atan2(x1-x0, z1-z0);
+  for (let i = 0; i <= steps; i++) for (let j = 0; j < across; j++) {
+    const t = i/steps, off = (j - (across-1)/2)*.62 + (i%2 ? .15 : -.15);
+    const px = x0 + (x1-x0)*t + Math.cos(ang)*off, pz = z0 + (z1-z0)*t - Math.sin(ang)*off;
+    pavers.push([px, pz, cols[(i*7+j*3)%3], ang]);
+  }
+}
+pavePath(0, 11.4, 0, -1, 2.6);   // 정문 길
+pavePath(-1.3, 1.3, 10, 1.3, 2.6); // 동서 길
+{
+  const g = new RoundedBoxGeometry(.56, .1, .56, 2, .06);
+  for (const [x, z, c, a] of pavers) {
+    const m = new THREE.Mesh(g, mat(c)); m.position.set(x, .02, z); m.rotation.y = a; m.receiveShadow = true; scene.add(m);
+  }
+}
+// 광장 원형 타일
+{
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, .12, 48), mat('#f7e0d0'));
+  m.position.set(0, .03, 1.3); m.receiveShadow = true; scene.add(m);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2, .07, 8, 48), mat('#f0c9b5'));
+  ring.rotation.x = -Math.PI/2; ring.position.set(0, .1, 1.3); scene.add(ring);
+}
+
+// ---------- 소품: 나무 · 꽃 · 연못 · 정문 ----------
+function tree(x, z, s=1, tint='#a8dba0') {
+  const g = new THREE.Group();
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.16*s, .24*s, 1.4*s, 8), mat('#c9a17c'));
+  trunk.position.y = .7*s; g.add(trunk);
+  const leaf = mat(tint, { flatShading:true });
+  [[0,1.9,0,1],[.5,1.6,.2,.7],[-.45,1.65,-.25,.72],[.1,2.4,-.1,.65]].forEach(([a,b,c,r]) => {
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r*s, 1), leaf); m.position.set(a*s, b*s, c*s); g.add(m);
+  });
+  g.position.set(x, 0, z); shadowAll(g); scene.add(g); return g;
+}
+tree(-8, -7, 1.2); tree(-10, -3, 1, '#b5e3ad'); tree(-4.5, -9.5, .9, '#f6c4d4');
+tree(-9.5, 6, 1.1, '#f6c4d4'); tree(9, 8.5, 1, '#b5e3ad'); tree(10.2, 4.5, .8); tree(-3.5, 9.5, .8, '#f6c4d4');
+
+function flowers(cx, cz, n, rad) {
+  const cols = ['#ffb3c7', '#fff1a8', '#c9bdf2', '#ffd4b3', '#ffffff'];
+  const stem = new THREE.CylinderGeometry(.02, .02, .3, 4), head = new THREE.SphereGeometry(.11, 8, 6);
+  for (let i = 0; i < n; i++) {
+    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*rad;
+    const x = cx + Math.cos(a)*r, z = cz + Math.sin(a)*r;
+    const s = new THREE.Mesh(stem, mat('#8fc98a')); s.position.set(x, .15, z); scene.add(s);
+    const h = new THREE.Mesh(head, mat(cols[i%5])); h.position.set(x, .32, z); h.castShadow = true; scene.add(h);
+  }
+}
+flowers(-6.5, -1.5, 40, 1.4); flowers(4, 5.5, 30, 1.1); flowers(-2.8, 6.5, 22, .9); flowers(7, -9.5, 26, 1.2);
+
+// 연못
+const pond = new THREE.Group();
+{
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, .08, 40), mat('#bfe3f5', { roughness:.25 }));
+  water.scale.z = .7; pond.add(water);
+  for (let i = 0; i < 22; i++) {
+    const a = i/22*Math.PI*2;
+    const st = new THREE.Mesh(new THREE.DodecahedronGeometry(.32, 0), mat(i%2 ? '#e6e0ea' : '#d8d2e0', { flatShading:true }));
+    st.position.set(Math.cos(a)*2.75, .05, Math.sin(a)*2.75*.7); st.scale.y = .6; pond.add(st);
+  }
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(.35, .35, .03, 16, 1, false, 0, Math.PI*1.75), mat('#9fd49a'));
+  pad.position.set(.8, .06, .3); pond.add(pad);
+  pond.position.set(-6, .02, 4.5); shadowAll(pond); scene.add(pond);
+}
+
+// 정문 아치 + 간판
+function textSprite(txt, bg='#ffffff', fg='#7a5b8c', w=256) {
+  const c = document.createElement('canvas'); c.width = w; c.height = 96;
+  const x = c.getContext('2d');
+  x.fillStyle = bg; x.beginPath(); x.roundRect(6, 10, w-12, 70, 34); x.fill();
+  x.fillStyle = fg; x.font = 'bold 38px "Malgun Gothic", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(txt, w/2, 46);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:t, depthWrite:false, toneMapped:false, fog:false })); s.scale.set(w/96, 1, 1); return s;
+}
+{
+  const g = new THREE.Group();
+  [-2, 2].forEach(x => {
+    const p = new THREE.Mesh(new RoundedBoxGeometry(.7, 3.2, .7, 3, .12), mat('#fde2ea')); p.position.set(x, 1.6, 0); g.add(p);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(.42, 16, 12), mat('#ffb3c7')); cap.position.set(x, 3.4, 0); g.add(cap);
+  });
+  const beam = new THREE.Mesh(new RoundedBoxGeometry(4.9, .55, .5, 3, .15), mat('#c9bdf2')); beam.position.y = 2.75; g.add(beam);
+  g.position.set(0, 0, 11.3); shadowAll(g); scene.add(g);
+  const sign = textSprite('4thIS 캠퍼스', '#ffffff'); sign.position.set(0, 3.9, 11.3); scene.add(sign);
+}
+
+// 가로등 · 벤치 (KayKit) / 건물 (KayKit)
+const KAY = 'https://cdn.jsdelivr.net/gh/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0@main/addons/kaykit_city_builder_bits/Assets/gltf/';
+const loader = new GLTFLoader();
+// 원색 텍스처를 채도 낮추고 밝게 섞어 파스텔로 (모든 KayKit 모델이 같은 텍스처 하나를 씀)
+const pastelTex = new Map();
+function pastelTexture(tex) {
+  if (!tex || !tex.image) return tex;
+  if (pastelTex.has(tex.image)) return pastelTex.get(tex.image);
+  const img = tex.image, c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+  const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const l = .299*p[i] + .587*p[i+1] + .114*p[i+2];
+    const r = p[i] + (l - p[i])*.35, g = p[i+1] + (l - p[i+1])*.35, b = p[i+2] + (l - p[i+2])*.35;
+    p[i] = r + (255 - r)*.5; p[i+1] = g + (238 - g)*.5; p[i+2] = b + (245 - b)*.5;
+  }
+  x.putImageData(d, 0, 0);
+  const t = tex.clone(); t.image = c; t.needsUpdate = true; pastelTex.set(tex.image, t); return t;
+}
+const pastelize = root => root.traverse(m => {
+  if (m.isMesh) {
+    m.material = m.material.clone();
+    m.material.map = pastelTexture(m.material.map);
+    m.material.roughness = .85;
+    m.castShadow = m.receiveShadow = true;
+  }
+});
+function place(file, x, z, size, rotY=0) {
+  return new Promise(res => loader.load(KAY + file, gl => {
+    const o = gl.scene; pastelize(o);
+    const box = new THREE.Box3().setFromObject(o), dim = box.getSize(new THREE.Vector3());
+    const k = size / Math.max(dim.x, dim.z); o.scale.setScalar(k);
+    o.position.set(x, -box.min.y*k + .02, z); o.rotation.y = rotY;
+    scene.add(o); res(o);
+  }, undefined, () => res(null)));
+}
+const loads = [
+  place('building_B_withoutBase.gltf', 6, -6, 6.5),
+  place('building_D_withoutBase.gltf', -1.5, -7.5, 4.5),
+  place('bench.gltf', -6, 1.2, 1.9),
+  place('bench.gltf', 4, 3.2, 1.9, Math.PI),
+  place('streetlight.gltf', 1.9, 7, 1.2),
+  place('streetlight.gltf', -1.9, 3.8, 1.2),
+  place('bush.gltf', 2.6, -2.6, 1.3),
+  place('bush.gltf', 9.5, -2.6, 1.3),
+];
+const s1 = textSprite('공학관', '#ffb3c7', '#ffffff'); s1.position.set(6, 7.8, -6); scene.add(s1);
+const s2 = textSprite('인문관', '#c9bdf2', '#ffffff'); s2.position.set(-1.5, 6.4, -7.5); scene.add(s2);
+Promise.all(loads).then(() => document.getElementById('loading').remove());
+
+// ---------- 캐릭터: 코드로 조립 ----------
+const ANIMALS = { dog:'강아지', cat:'고양이', bear:'곰', duck:'오리' };
+const ACCS = { none:'없음', glasses:'안경', sunglasses:'썬글라스', hat:'밀짚모자', beanie:'비니', ribbon:'리본' };
+const COLORS = { dog:'#f6dcc0', cat:'#e2dcf3', bear:'#e9c7a8', duck:'#fff1a8', pink:'#ffd6e2', mint:'#cdeedd', sky:'#cfe6fb', white:'#fbf8f4' };
+
+function makeCharacter({ animal='dog', acc='none', color }) {
+  const base = color || COLORS[animal];
+  const fur = mat(base), dark = mat(new THREE.Color(base).multiplyScalar(.82)), ink = mat('#4a3a45', { roughness:.4 });
+  const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
+  const parts = {};
+
+  const torso = new THREE.Mesh(new THREE.SphereGeometry(.42, 24, 18), fur); torso.scale.set(1, .95, .9); torso.position.y = .55; body.add(torso);
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(.3, 20, 14), mat('#fffaf4')); belly.scale.set(1, 1, .5); belly.position.set(0, .5, .26); body.add(belly);
+
+  const head = new THREE.Group(); head.position.y = 1.25; body.add(head); parts.head = head;
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(.5, 28, 22), fur); skull.scale.set(1.05, .95, .95); head.add(skull);
+
+  // 눈 (하이라이트 포함) · 볼
+  const eyes = new THREE.Group(); head.add(eyes); parts.eyes = eyes;
+  [-.18, .18].forEach(x => {
+    const e = new THREE.Mesh(new THREE.SphereGeometry(.07, 14, 10), ink); e.position.set(x, .04, .45); e.scale.z = .6; eyes.add(e);
+    const h = new THREE.Mesh(new THREE.SphereGeometry(.022, 8, 6), mat('#ffffff', { emissive:'#ffffff', emissiveIntensity:.6 })); h.position.set(x+.025, .07, .5); eyes.add(h);
+    const ch = new THREE.Mesh(new THREE.CircleGeometry(.07, 16), mat('#ffb3c7', { transparent:true, opacity:.75 }));
+    ch.position.set(x*1.55, -.1, .43); ch.rotation.y = x > 0 ? .5 : -.5; head.add(ch);
+  });
+
+  // 동물별 얼굴 · 귀 · 꼬리
+  if (animal === 'duck') {
+    const beak = new THREE.Mesh(new THREE.SphereGeometry(.17, 16, 10), mat('#ffb37a')); beak.scale.set(1.3, .45, .9); beak.position.set(0, -.1, .48); head.add(beak);
+    const tuft = new THREE.Mesh(new THREE.TorusGeometry(.08, .025, 6, 12, Math.PI*1.4), mat(base)); tuft.position.set(0, .52, 0); tuft.rotation.y = Math.PI/2; head.add(tuft);
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(.14, .28, 10), fur); tail.rotation.x = -2.2; tail.position.set(0, .55, -.42); body.add(tail);
+    [-1, 1].forEach(s => { const w = new THREE.Mesh(new THREE.SphereGeometry(.2, 14, 10), dark); w.scale.set(.35, .8, 1); w.position.set(s*.42, .6, -.02); body.add(w); });
+  } else {
+    const muzzle = new THREE.Mesh(new THREE.SphereGeometry(.17, 16, 12), mat(animal === 'cat' ? '#fffaf4' : new THREE.Color(base).lerp(new THREE.Color('#fff'), .5)));
+    muzzle.scale.set(1.25, .8, .7); muzzle.position.set(0, -.12, .42); head.add(muzzle);
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(.055, 12, 8), animal === 'cat' ? mat('#ff9fb6') : ink); nose.scale.set(1.3, .9, 1); nose.position.set(0, -.07, .54); head.add(nose);
+    if (animal === 'dog') {
+      [-1, 1].forEach(s => { const ear = new THREE.Mesh(new THREE.SphereGeometry(.2, 16, 12), dark); ear.scale.set(.55, 1.15, .45); ear.position.set(s*.47, -.02, -.02); ear.rotation.z = s*.35; head.add(ear); });
+      const tail = new THREE.Mesh(new THREE.CapsuleGeometry(.07, .22, 4, 8), dark); tail.position.set(0, .7, -.42); tail.rotation.x = -.7; body.add(tail); parts.tail = tail;
+    } else if (animal === 'cat') {
+      [-1, 1].forEach(s => {
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(.16, .3, 4), fur); ear.position.set(s*.28, .45, 0); ear.rotation.z = -s*.3; head.add(ear);
+        const inner = new THREE.Mesh(new THREE.ConeGeometry(.08, .16, 4), mat('#ffc4d3')); inner.position.set(s*.28, .43, .07); inner.rotation.z = -s*.3; head.add(inner);
+        [0, 1].forEach(k => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.006, .006, .26, 4), ink); w.rotation.z = Math.PI/2 + s*(k ? .15 : -.05); w.position.set(s*.3, -.12 + k*.05, .47); head.add(w); });
+      });
+      const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, .45, -.35), new THREE.Vector3(0, .5, -.65), new THREE.Vector3(0, .9, -.7), new THREE.Vector3(.1, 1.05, -.55)]);
+      const tail = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, .06, 8), fur); body.add(tail); parts.tail = tail;
+    } else {
+      [-1, 1].forEach(s => {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(.15, 16, 12), dark); ear.position.set(s*.36, .4, -.02); ear.scale.z = .6; head.add(ear);
+        const inner = new THREE.Mesh(new THREE.SphereGeometry(.08, 12, 8), mat('#f7d9c4')); inner.position.set(s*.36, .4, .05); inner.scale.z = .4; head.add(inner);
+      });
+      const tail = new THREE.Mesh(new THREE.SphereGeometry(.1, 12, 8), fur); tail.position.set(0, .45, -.4); body.add(tail);
+    }
+  }
+
+  // 팔 · 발
+  parts.arms = [-1, 1].map(s => {
+    const a = new THREE.Mesh(new THREE.CapsuleGeometry(.09, .2, 4, 10), animal === 'duck' ? dark : fur);
+    a.position.set(s*.42, .62, .08); a.rotation.z = s*.5; if (animal !== 'duck') body.add(a); return a;
+  });
+  parts.feet = [-1, 1].map(s => {
+    const f = new THREE.Mesh(new THREE.SphereGeometry(.13, 14, 10), animal === 'duck' ? mat('#ffb37a') : dark);
+    f.scale.set(1, .55, 1.35); f.position.set(s*.18, .08, .08); root.add(f); return f;
+  });
+
+  // 악세서리 (머리에 붙음)
+  if (acc === 'glasses' || acc === 'sunglasses') {
+    const frame = mat(acc === 'glasses' ? '#9b86c9' : '#4f4766', { roughness:.4 });
+    [-.18, .18].forEach(x => {
+      if (acc === 'glasses') { const r = new THREE.Mesh(new THREE.TorusGeometry(.12, .018, 8, 24), frame); r.position.set(x, .04, .5); head.add(r); }
+      else { const l = new THREE.Mesh(new RoundedBoxGeometry(.27, .18, .04, 3, .06), mat('#4f4766', { roughness:.2 })); l.position.set(x, .05, .5); head.add(l); }
+    });
+    const br = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .12, 6), frame); br.rotation.z = Math.PI/2; br.position.set(0, .06, .52); head.add(br);
+  } else if (acc === 'hat') {
+    const straw = mat('#ffe3a3');
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(.62, .62, .04, 32), straw); brim.position.y = .38; head.add(brim);
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(.32, .36, .26, 32), straw); top.position.y = .52; head.add(top);
+    const band = new THREE.Mesh(new THREE.CylinderGeometry(.365, .365, .07, 32), mat('#ff9fb6')); band.position.y = .43; head.add(band);
+  } else if (acc === 'beanie') {
+    const b = new THREE.Mesh(new THREE.SphereGeometry(.52, 24, 16, 0, Math.PI*2, 0, Math.PI*.42), mat('#b9d9f7')); b.position.y = .06; head.add(b);
+    const cuff = new THREE.Mesh(new THREE.TorusGeometry(.43, .06, 8, 32), mat('#9cc7ef')); cuff.rotation.x = Math.PI/2; cuff.position.y = .26; head.add(cuff);
+    const pom = new THREE.Mesh(new THREE.IcosahedronGeometry(.11, 1), mat('#ffffff')); pom.position.y = .6; head.add(pom);
+  } else if (acc === 'ribbon') {
+    const rb = mat('#ff9fb6');
+    [-1, 1].forEach(s => { const w = new THREE.Mesh(new THREE.ConeGeometry(.12, .24, 12), rb); w.rotation.z = s*Math.PI/2; w.position.set(.25 + s*.12, .42, .1); head.add(w); });
+    const k = new THREE.Mesh(new THREE.SphereGeometry(.06, 10, 8), rb); k.position.set(.25, .42, .12); head.add(k);
+  }
+
+  shadowAll(root);
+  root.scale.setScalar(1.35);
+  root.userData = { body, parts, phase:Math.random()*10, blinkAt:2 + Math.random()*3 };
+  return root;
+}
+
+// 이름표
+function nameTag(name, status) {
+  const s = textSprite(`${name} · ${status}`, '#ffffffee', '#7a5b8c', 360);
+  s.scale.multiplyScalar(.7); return s;
+}
+
+// ---------- 배치 & 행동 ----------
+const chars = [];
+function spawn(cfg, behavior, name, status) {
+  const c = makeCharacter(cfg); scene.add(c);
+  const tag = nameTag(name, status); tag.position.y = 1.85; c.add(tag);
+  const rec = { obj:c, behavior, cfg, name, status }; chars.push(rec); return rec;
+}
+// 강아지: 연못 주변 산책 (공강)
+const hero = spawn({ animal:'dog', acc:'glasses' }, t => {
+  const a = t*.25, x = -6 + Math.cos(a)*3.9, z = 4.5 + Math.sin(a)*3.1;
+  return { x, z, dir:Math.atan2(-Math.sin(a)*3.9, Math.cos(a)*3.1), walk:true };
+}, '철수', '공강');
+// 고양이: 벤치에 앉음
+spawn({ animal:'cat', acc:'hat' }, t => ({ x:-6, z:1.55, dir:0, walk:false, sit:true }), '영희', '공강');
+// 곰: 공학관 앞에서 살짝씩
+spawn({ animal:'bear', acc:'sunglasses' }, t => ({ x:4 + Math.sin(t*.4)*.6, z:-1.6, dir:Math.PI + Math.sin(t*.4)*.6, walk:Math.abs(Math.cos(t*.4)) > .3 }), '민수', '2학년 강의');
+// 오리: 정문 ↔ 공학관 왕복 (등·하교)
+spawn({ animal:'duck', acc:'beanie' }, t => {
+  const route = [[0, 12], [0, 1.3], [5.5, 1.3], [5.5, -2.4]];
+  const L = route.length - 1, cyc = (t*.12) % (2*L), seg = cyc < L ? cyc : 2*L - cyc;
+  const i = Math.min(Math.floor(seg), L-1), f = seg - i, fwd = cyc < L;
+  const [x0, z0] = route[i], [x1, z1] = route[i+1];
+  const dx = (x1-x0)*(fwd?1:-1), dz = (z1-z0)*(fwd?1:-1);
+  return { x:x0+(x1-x0)*f, z:z0+(z1-z0)*f, dir:Math.atan2(dx, dz), walk:true };
+}, '지우', '등교 중');
+
+const clock = new THREE.Clock();
+function animate() {
+  const t = clock.getElapsedTime();
+  for (const c of chars) {
+    const { obj } = c, u = obj.userData, s = c.behavior(t), tt = t*7 + u.phase;
+    obj.position.set(s.x, 0, s.z);
+    obj.rotation.y += ((s.dir - obj.rotation.y + Math.PI*3) % (Math.PI*2) - Math.PI) * .15;
+    if (s.sit) {
+      u.body.position.y = .38 + Math.sin(t*1.5 + u.phase)*.015;
+      u.parts.feet.forEach((f, k) => { f.position.y = .42; f.position.z = .38; });
+      u.parts.head.rotation.z = Math.sin(t*.7)*.08;
+    } else if (s.walk) {
+      u.body.position.y = Math.abs(Math.sin(tt))*.12;
+      u.body.rotation.z = Math.sin(tt)*.06;
+      u.parts.feet.forEach((f, k) => { f.position.z = .08 + Math.sin(tt + k*Math.PI)*.16; f.position.y = .08 + Math.max(0, Math.sin(tt + k*Math.PI))*.08; });
+      u.parts.arms.forEach((a, k) => a.rotation.x = Math.sin(tt + k*Math.PI)*.6);
+    } else {
+      u.body.position.y = Math.sin(t*2 + u.phase)*.02;
+      u.body.rotation.z = 0;
+      u.parts.head.rotation.y = Math.sin(t*.6 + u.phase)*.35;
+    }
+    if (u.parts.tail) u.parts.tail.rotation.y = Math.sin(t*8)*.35;
+    // 눈 깜빡임
+    const blink = (t % u.blinkAt) < .12; u.parts.eyes.scale.y = blink ? .1 : 1;
+  }
+  // 연못 살랑
+  pond.children[0].position.y = Math.sin(t*1.2)*.01;
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight);
+});
+
+// ---------- 꾸미기 패널 ----------
+const state = { animal:'dog', acc:'glasses', color:null };
+function rebuildHero() {
+  const old = hero.obj, tag = old.children.find(o => o.isSprite);
+  scene.remove(old);
+  hero.obj = makeCharacter(state); hero.obj.add(tag); scene.add(hero.obj);
+  hero.obj.rotation.y = old.rotation.y;
+  renderPanel();
+}
+function chips(el, items, key) {
+  el.innerHTML = '';
+  for (const [k, label] of Object.entries(items)) {
+    const b = document.createElement('button'); b.className = 'chip' + (state[key] === k ? ' on' : ''); b.textContent = label;
+    b.onclick = () => { state[key] = k; if (key === 'animal') state.color = null; rebuildHero(); };
+    el.appendChild(b);
+  }
+}
+function renderPanel() {
+  chips(document.getElementById('animal'), ANIMALS, 'animal');
+  chips(document.getElementById('acc'), ACCS, 'acc');
+  const ce = document.getElementById('color'); ce.innerHTML = '';
+  const cur = state.color || COLORS[state.animal];
+  for (const c of new Set([COLORS[state.animal], COLORS.pink, COLORS.mint, COLORS.sky, COLORS.white])) {
+    const s = document.createElement('div'); s.className = 'sw' + (c === cur ? ' on' : ''); s.style.background = c;
+    s.onclick = () => { state.color = c; rebuildHero(); }; ce.appendChild(s);
+  }
+}
+renderPanel();
+</script>
+</body>
+</html>

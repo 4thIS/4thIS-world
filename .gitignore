@@ -1,0 +1,24 @@
+# 브레인스토밍 · 브라우저 도구 산출물
+.superpowers/
+.playwright-mcp/
+
+# 의존성 · 빌드
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# 로컬 데이터 · 비밀
+data/
+*.db
+*.db-*
+.env
+.env.*
+!.env.example
+
+# OS · 에디터
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
