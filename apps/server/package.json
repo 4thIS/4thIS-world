@@ -1,0 +1,16 @@
+{
+  "name": "@4this/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@4this/shared": "*",
+    "fastify": "^5.12.7",
+    "tsx": "^4.23.15"
+  }
+}

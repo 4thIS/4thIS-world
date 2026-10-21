@@ -1,0 +1,24 @@
+# 스펙 §12.2 파일 소유. 아래쪽 줄이 우선한다.
+# cw=박찬우 @ssenu · wj=이우진 (GitHub 아이디 확인 전까지 @ssenu가 대신 리뷰) · hm=박효민 @phmin819 · th=김태희 @kiimth236
+
+*                                   @ssenu
+
+/apps/server/                       @ssenu
+/Dockerfile                         @ssenu
+/docker-compose.yml                 @ssenu
+/.env.example                       @ssenu
+
+/packages/shared/src/campus/        @phmin819
+/apps/web/src/world/campus/         @phmin819
+/apps/web/src/dev/campus/           @phmin819
+/apps/web/public/assets/            @phmin819
+/CREDITS.md                         @phmin819
+
+/apps/web/src/world/characters/     @kiimth236
+/apps/web/src/dev/characters/       @kiimth236
+/apps/web/src/ui/                   @kiimth236
+
+# 공용 계약은 항상 cw 승인
+/packages/shared/src/schema/        @ssenu
+/apps/web/src/world/contracts.ts    @ssenu
+/apps/web/src/ui/contracts.ts       @ssenu
