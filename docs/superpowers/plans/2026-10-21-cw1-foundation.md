@@ -2458,7 +2458,8 @@ git commit -m "feat: 웹 뼈대·컴포넌트 계약·REST 클라이언트"
 ### Task 9: CI·코드 소유·PR 템플릿·README
 
 **Files:**
-- Create: `.github/workflows/ci.yml`, `.github/CODEOWNERS`, `.github/pull_request_template.md`, `README.md`
+- Create: `.github/workflows/ci.yml`, `.github/CODEOWNERS`, `.github/pull_request_template.md`
+- Modify: `README.md` (main에 이미 있는 소개 글 끝에 개발 안내를 덧붙인다)
 
 **Interfaces:**
 - Produces: PR마다 `typecheck → lint → format:check → test → build → (Dockerfile이 있으면) docker build`. CODEOWNERS로 폴더별 리뷰어 자동 지정
@@ -2549,18 +2550,10 @@ GitHub 아이디는 `docs/superpowers/plans/2026-10-21-00-overview.md`의 "팀" 
 ## 스크린샷 (화면·3D 변경이면)
 ```
 
-- [ ] **Step 4: README 작성**
+- [ ] **Step 4: README에 개발 안내 덧붙이기**
 
-`README.md`:
+`README.md`의 소개 부분(맨 위부터 "더 보기"까지)은 그대로 두고, 파일 끝에 아래 내용을 덧붙인다:
 ````markdown
-# 4thIS-world
-
-4thIS 동아리원이 주간 시간표와 동물 캐릭터를 등록하면, 파스텔 3D 캠퍼스에서 캐릭터들이
-지금 한국 시각의 시간표대로 강의실·연구실·식당·공원·카페를 오가는 실시간 웹입니다.
-
-- 설계: [`docs/superpowers/specs/2026-10-21-4this-world-design.md`](docs/superpowers/specs/2026-10-21-4this-world-design.md)
-- 구현 플랜: [`docs/superpowers/plans/`](docs/superpowers/plans/) — 먼저 `2026-10-21-00-overview.md`를 읽으세요
-
 ## 개발
 
 Node 24 이상이 필요합니다.
