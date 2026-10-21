@@ -3,6 +3,7 @@ import { Component, Suspense, useLayoutEffect, useMemo, useRef, type ReactNode }
 import {
   Box3,
   BoxGeometry,
+  CanvasTexture,
   Color,
   Matrix4,
   Mesh,
@@ -49,8 +50,24 @@ function pastelTexture(tex: Texture): Texture {
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
   pastelizePixels(data.data);
   ctx.putImageData(data, 0, 0);
-  const out = tex.clone();
-  out.image = canvas;
+  // tex.clone()은 원본과 source를 공유해서 out.image = canvas가 원본 이미지까지 바꾼다.
+  // 그래서 새 CanvasTexture를 만들고 설정만 옮긴다.
+  const out = new CanvasTexture(canvas);
+  out.name = tex.name;
+  out.mapping = tex.mapping;
+  out.channel = tex.channel;
+  out.wrapS = tex.wrapS;
+  out.wrapT = tex.wrapT;
+  out.magFilter = tex.magFilter;
+  out.minFilter = tex.minFilter;
+  out.anisotropy = tex.anisotropy;
+  out.generateMipmaps = tex.generateMipmaps;
+  out.flipY = tex.flipY;
+  out.colorSpace = tex.colorSpace;
+  out.offset.copy(tex.offset);
+  out.repeat.copy(tex.repeat);
+  out.center.copy(tex.center);
+  out.rotation = tex.rotation;
   out.needsUpdate = true;
   pastelTextures.set(img, out);
   return out;
