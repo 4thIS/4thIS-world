@@ -88,19 +88,22 @@ export function sampleAt(plan: DayPlan, memberId: string, t: number): Pose | nul
 }
 
 export const PROFESSOR_HOURS = { start: 9 * 60, end: 18 * 60 } as const;
+/** 교수님은 15분마다 20초 동안 일어나 기지개를 켠다 (§6.4) */
+export const PROFESSOR_STRETCH = { everyMin: 15, seconds: 20 } as const;
 
-/** 사자 교수님: 평일 09:00~18:00 연구동 2F 책상 */
+/** 사자 교수님: 평일 09:00~18:00 연구동 2F 책상. 가끔 일어나 기지개를 켠다 */
 export function professorAt(t: number, campus: Campus): Pose | null {
   const min = kstMinutes(t);
   if (kstWeekday(t) > 4 || min < PROFESSOR_HOURS.start || min >= PROFESSOR_HOURS.end) return null;
+  const stretching = min % PROFESSOR_STRETCH.everyMin < PROFESSOR_STRETCH.seconds / 60;
   const { pos, facing } = campus.professorSeat;
   return {
     position: [pos[0], FLOOR_HEIGHT, pos[1]],
     facing,
-    pose: 'sitType',
+    pose: stretching ? 'stand' : 'sitType',
     placeId: 'lab-2f',
     floor: 2,
-    status: '교수님',
+    status: stretching ? '기지개 쭉~' : '교수님',
     opacity: 1,
   };
 }

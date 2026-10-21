@@ -35,4 +35,15 @@ describe('professorAt', () => {
     expect(professorAt(at('2026-10-21T18:00:00+09:00'), CAMPUS)).toBeNull();
     expect(professorAt(at('2026-10-24T12:00:00+09:00'), CAMPUS)).toBeNull(); // 토요일
   });
+
+  it('15분마다 20초 동안 일어나 기지개를 켠다', () => {
+    expect(professorAt(at('2026-10-21T10:15:10+09:00'), CAMPUS)).toMatchObject({
+      pose: 'stand',
+      status: '기지개 쭉~',
+    });
+    expect(professorAt(at('2026-10-21T10:15:30+09:00'), CAMPUS)).toMatchObject({
+      pose: 'sitType',
+      status: '교수님',
+    });
+  });
 });
