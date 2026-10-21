@@ -264,6 +264,7 @@ settings (key TEXT PRIMARY KEY, value TEXT)
 | 메서드·경로 | 권한 | 설명 |
 |---|---|---|
 | `GET /world` | 누구나 | 승인 멤버의 `{id, username, look, schedules}` 전체와 서버 시각 |
+| `GET /auth/session` | 누구나 | 지금 세션 (`guest` / `member` / `admin`) |
 | `POST /auth/signup` | 누구나 | 가입 → `pending`, 바로 로그인 세션 발급 |
 | `POST /auth/login` · `POST /auth/logout` | 누구나 | httpOnly 쿠키 세션(30일) |
 | `POST /auth/admin` | 누구나 | `ADMIN_PASSWORD`로 관리자 세션 |
