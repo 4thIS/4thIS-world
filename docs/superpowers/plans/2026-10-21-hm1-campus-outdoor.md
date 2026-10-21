@@ -355,7 +355,7 @@ git commit -m "feat: KayKit 바깥 소품 에셋과 파스텔 색 계산"
   - `interface LampSpot { pos: Vec2; rotY: number }`, `lampSpots(segs, c, spacing = 5.5): LampSpot[]` (KayKit 가로등 팔 = 모델 -x가 길 쪽)
   - `type TreeKind = 'cherry' | 'green'`, `TREES: TreeSpot[]`, `FLOWER_BEDS: FlowerBed[]`, `BUSHES: Vec2[]`, `TRASH_CANS: Vec2[]`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts`:
 ```ts
@@ -568,12 +568,12 @@ describe('꾸밈 배치', () => {
  });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web; npm test -w @4this/shared`
 Expected: web FAIL — `Failed to resolve import "./layout"`; shared FAIL — `expected [] to include 'gateSpawn: 캠퍼스 밖'`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `rand01(seed, i, 'x')`처럼 비슷한 문자열을 연달아 해시하면 점이 줄지어 생긴다(직접 그려 보면 풀이 대각선 줄로 몰린다). 그래서 흩뿌리기는 seed 하나로 만든 수열 `seededRandom`을 쓴다. 나무·꽃밭·덤불 자리는 테스트가 "길·건물·연못·공원 산책 지점과 겹치지 않음"을 지키도록 고른 값이다.
 
@@ -988,12 +988,12 @@ export const TRASH_CANS: Vec2[] = [
    ];
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm test -w @4this/shared`
 Expected: PASS — layout 16개, shared 24개(validate 3개)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/layout.ts apps/web/src/world/campus/layout.test.ts packages/shared/src/campus
