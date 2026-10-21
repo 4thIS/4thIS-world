@@ -50,3 +50,37 @@
 - 설계 문서: [`docs/superpowers/specs/`](docs/superpowers/specs/)
 - 개발 계획(PR별 플랜): [`docs/superpowers/plans/`](docs/superpowers/plans/)
 - 브레인스토밍 때 만든 3D 미리보기: [`docs/prototype/preview-3d.html`](docs/prototype/preview-3d.html)
+
+## 개발
+
+Node 24 이상이 필요합니다.
+
+```bash
+npm install
+npm run dev        # 서버 :8080 + 웹 :5173 (http://localhost:5173)
+```
+
+| 명령                | 하는 일                                     |
+| ------------------- | ------------------------------------------- |
+| `npm run typecheck` | 모든 워크스페이스 타입 검사                 |
+| `npm run lint`      | ESLint                                      |
+| `npm run format`    | Prettier로 고치기 (`format:check`는 검사만) |
+| `npm test`          | 모든 워크스페이스 테스트                    |
+| `npm run build`     | 웹 빌드 (`apps/web/dist`)                   |
+
+## 구조
+
+| 경로                            | 내용                                          | 담당                    |
+| ------------------------------- | --------------------------------------------- | ----------------------- |
+| `packages/shared`               | 스키마·소켓 계약·캠퍼스 데이터·placement 엔진 | cw (캠퍼스 데이터는 hm) |
+| `apps/server`                   | Fastify + Socket.IO + SQLite                  | wj                      |
+| `apps/web/src/world/campus`     | 캠퍼스 3D                                     | hm                      |
+| `apps/web/src/world/characters` | 캐릭터 3D                                     | th                      |
+| `apps/web/src/world/sim`        | 시간표대로 움직이기·조종                      | cw                      |
+| `apps/web/src/ui`               | 화면 UI                                       | th                      |
+
+## 협업 규칙
+
+- 개인 브랜치 `cw` · `wj` · `hm` · `th` → `main`으로 PR. 머지는 **Create a merge commit**
+- 머지 뒤 다음 작업 전에 `git fetch origin && git merge origin/main`
+- CI 통과 + 다른 멤버 1명 승인. `packages/shared/src/schema`가 바뀌면 cw 승인 필수
