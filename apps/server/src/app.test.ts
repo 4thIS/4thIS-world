@@ -21,6 +21,17 @@ describe('buildApp', () => {
     expect(ApiErrorSchema.parse(res.json()).error).toBe('not_found');
   });
 
+  it('JSON이 깨지면 400 invalid', async () => {
+    const res = await t.app.inject({
+      method: 'POST',
+      url: API.login,
+      headers: { 'content-type': 'application/json' },
+      payload: '{oops',
+    });
+    expect(res.statusCode).toBe(400);
+    expect(ApiErrorSchema.parse(res.json()).error).toBe('invalid');
+  });
+
   it('events 이미터가 붙어 있다', () => {
     let called = 0;
     t.app.events.on('world:changed', () => called++);
