@@ -2124,12 +2124,12 @@ git commit -m "feat: 정문·게시판·바깥 소품과 캠퍼스 조립, ?dev=
 
 ### Task 6: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. shared 24개, web 28개(cw#1 5개 + pastel 5 + assets 2 + layout 16; 먼저 머지된 다른 PR이 있으면 더 많다). 빌드는 `✓ built`(500 kB 청크 경고는 무시).
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push -u origin hm
