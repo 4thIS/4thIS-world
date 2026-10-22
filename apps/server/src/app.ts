@@ -30,7 +30,11 @@ export interface AppOptions {
 
 /** 서버 앱을 만든다. 테스트는 listen 없이 app.inject()로 부른다 */
 export function buildApp({ config, db }: AppOptions): FastifyInstance {
-  const app = Fastify({ logger: false, trustProxy: config.trustProxy });
+  const app = Fastify({
+    logger: false,
+    // 같은 기기·사설망(nginx, Docker)의 프록시만 믿는다. true면 X-Forwarded-For 위조로 시도 제한을 우회할 수 있다
+    trustProxy: config.trustProxy ? 'loopback,uniquelocal' : false,
+  });
   app.decorate('config', config);
   app.decorate('db', db);
   app.decorate('events', new EventEmitter<ServerEvents>());

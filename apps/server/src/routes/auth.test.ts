@@ -133,6 +133,23 @@ describe('인증 라우트', () => {
     expect((await tryAdmin()).statusCode).toBe(429);
   });
 
+  it('TRUST_PROXY여도 X-Forwarded-For를 바꿔 시도 제한을 피할 수 없다', async () => {
+    const proxied = await makeTestApp({ trustProxy: true });
+    const codes: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      const res = await proxied.app.inject({
+        method: 'POST',
+        url: API.adminLogin,
+        payload: { password: 'x' },
+        remoteAddress: '203.0.113.9',
+        headers: { 'x-forwarded-for': `10.0.0.${i}` },
+      });
+      codes.push(res.statusCode);
+    }
+    expect(codes).toEqual([401, 401, 401, 401, 401, 429]);
+    await proxied.close();
+  });
+
   it('프로덕션에서는 쿠키에 Secure가 붙는다', async () => {
     const prod = await makeTestApp({ production: true });
     const res = await prod.app.inject({
