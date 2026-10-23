@@ -18,4 +18,8 @@ describe('validateCampus', () => {
     expect(errors).toContain('노드 island: 정문에서 닿지 않음');
     expect(errors).toContain('cafe: 좌석 0개 < 8');
   });
+
+  it('정문 등장 지점이 판(캠퍼스) 밖이면 잡아낸다', () => {
+    expect(validateCampus({ ...CAMPUS, gateSpawn: [0, 26] })).toContain('gateSpawn: 캠퍼스 밖');
+  });
 });

@@ -1,34 +1,31 @@
-import { BUILDING_IDS, CAMPUS, CAMPUS_HALF, FLOOR_HEIGHT } from '@4this/shared';
 import type { CampusProps } from '../contracts';
+import { BuildingBoxes } from './BuildingBoxes';
+import { Flowers } from './Flowers';
+import { Gate } from './Gate';
+import { Grass } from './Grass';
+import { Ground } from './Ground';
+import { Lights } from './Lights';
+import { NoticeBoard } from './NoticeBoard';
+import { OutdoorProps } from './OutdoorProps';
+import { Paths } from './Paths';
+import { Pond } from './Pond';
+import { Trees } from './Trees';
 
-/**
- * 임시 캠퍼스 (cw#1): 잔디 바닥 + 건물 자리 상자. hm#1~#4에서 실제 캠퍼스로 바꾼다.
- */
-export function Campus({ onBuildingClick }: CampusProps) {
+/** 4thIS 캠퍼스 전체 (지형·길·자연물·정문·소품·건물·조명) */
+export function Campus({ focusedBuilding, onBuildingClick }: CampusProps) {
   return (
     <group>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[20, 30, 10]} intensity={1.5} castShadow />
-      <mesh rotation-x={-Math.PI / 2} receiveShadow>
-        <planeGeometry args={[CAMPUS_HALF * 2, CAMPUS_HALF * 2]} />
-        <meshStandardMaterial color="#cdeec4" />
-      </mesh>
-      {BUILDING_IDS.map((id) => {
-        const b = CAMPUS.buildings[id];
-        const w = b.max[0] - b.min[0];
-        const d = b.max[1] - b.min[1];
-        const h = b.floors * FLOOR_HEIGHT;
-        return (
-          <mesh
-            key={id}
-            position={[(b.min[0] + b.max[0]) / 2, h / 2, (b.min[1] + b.max[1]) / 2]}
-            onClick={() => onBuildingClick?.(id)}
-          >
-            <boxGeometry args={[w, h, d]} />
-            <meshStandardMaterial color="#f9c9d4" transparent opacity={0.35} />
-          </mesh>
-        );
-      })}
+      <Lights />
+      <Ground />
+      <Paths />
+      <Grass />
+      <Trees />
+      <Flowers />
+      <Pond />
+      <Gate />
+      <NoticeBoard />
+      <OutdoorProps />
+      <BuildingBoxes focusedBuilding={focusedBuilding} onBuildingClick={onBuildingClick} />
     </group>
   );
 }

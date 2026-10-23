@@ -1,0 +1,2 @@
+# 전역 gitignore가 *.bin을 막아도 glTF 버퍼(.bin)는 꼭 커밋한다
+!*.bin

@@ -170,7 +170,7 @@ export const CAMPUS: Campus = {
     ],
   },
   gateNode: 'gate',
-  gateSpawn: [0, 26],
+  gateSpawn: [0, 24.5],
   boardPos: [3.5, 21],
   parkNode: 'park',
   parkSpots: [
