@@ -72,14 +72,14 @@ apps/web/src/dev/characters/CharacterGallery.tsx   (교체) ?dev=characters
   - `withStretch(frame, t, phase): PoseFrame` — 20초마다 2초 기지개 (사자 교수님)
   - `blinkScale(t, phase): number` (0.1 또는 1), `tailSwing(pose, t, phase): number` (±0.35)
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout th && git merge origin/main
 npm install
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/characters/poses.test.ts`:
 
@@ -181,12 +181,12 @@ describe('blinkScale · tailSwing', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- poses`
 Expected: FAIL — `Failed to resolve import "./poses"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 프로토타입의 걷기(통통 튀기 `|sin(t·7)|·0.12`, 몸 기울기, 발 번갈아, 팔 흔들기)와 앉기·두리번을 그대로 옮기고, 스펙 §6.2의 나머지 포즈를 더한다. 몸 단위는 스케일 전 값이다(머리 중심 y = 1.25).
 
@@ -393,12 +393,12 @@ export function tailSwing(pose: PoseKind, t: number, phase: number): number {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web -- poses`
 Expected: PASS — 9개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/characters/poses.ts apps/web/src/world/characters/poses.test.ts
@@ -422,7 +422,7 @@ git commit -m "feat: 캐릭터 포즈 8종 애니메이션 순수 함수"
   - `labelText(name: string | undefined, status: string | undefined, mode: LabelMode): string | null`
   - `EMOTE_DURATION_MS = 3000`, `EmoteFrame { scale; opacity; rise }`, `emoteFrame(elapsedMs: number): EmoteFrame | null`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/characters/overhead.test.ts`:
 
@@ -474,12 +474,12 @@ describe('emoteFrame', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- overhead`
 Expected: FAIL — `Failed to resolve import "./overhead"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/characters/overhead.ts`:
 
@@ -540,12 +540,12 @@ export function emoteFrame(elapsedMs: number): EmoteFrame | null {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web -- overhead`
 Expected: PASS — 4개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/characters/overhead.ts apps/web/src/world/characters/overhead.test.ts
@@ -570,7 +570,7 @@ git commit -m "feat: 이름표 거리 LOD와 이모지 말풍선 애니메이션
   - `OpacityStepContext` (React 컨텍스트, 기본 10), `useMat(color: string, kind?: MatKind)` — 부품 컴포넌트가 지금 캐릭터의 투명도에 맞는 재질을 얻는다
   - `cachedGeometry(key, make)`, `geo.sphere/dome/capsule/cone/cylinder/halfDisc/torus/circle/ring/ico/roundedBox/catTail`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/characters/cache.test.ts`:
 
@@ -625,12 +625,12 @@ describe('characterColors', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- cache`
 Expected: FAIL — `Failed to resolve import "./colors"`
 
-- [ ] **Step 3: 색 규칙 구현** (프로토타입: 진한 부분 = 털색 × 0.82, 주둥이 = 털색과 흰색 반반, 고양이는 분홍 코)
+- [x] **Step 3: 색 규칙 구현** (프로토타입: 진한 부분 = 털색 × 0.82, 주둥이 = 털색과 흰색 반반, 고양이는 분홍 코)
 
 `apps/web/src/world/characters/colors.ts`:
 
@@ -680,7 +680,7 @@ export function characterColors(look: CharacterLook): CharacterColors {
 }
 ```
 
-- [ ] **Step 4: 재질 캐시 구현**
+- [x] **Step 4: 재질 캐시 구현**
 
 반투명 재질은 `transparent: true` + `depthWrite: false`로 만든다. 출입 페이드 중에만 잠깐 쓰이므로 투명도를 11단계로 묶어도 눈에 띄지 않는다.
 
@@ -733,7 +733,7 @@ export function useMat(color: string, kind: MatKind = 'matte') {
 }
 ```
 
-- [ ] **Step 5: 지오메트리 캐시 구현**
+- [x] **Step 5: 지오메트리 캐시 구현**
 
 `RoundedBoxGeometry`는 three의 addons(`three/addons/geometries/RoundedBoxGeometry.js`)에 있다. 새 패키지는 필요 없다.
 
@@ -827,12 +827,12 @@ export const geo = {
 };
 ```
 
-- [ ] **Step 6: 통과 확인**
+- [x] **Step 6: 통과 확인**
 
 Run: `npm test -w @4this/web -- cache && npm run typecheck -w @4this/web`
 Expected: PASS — 6개, 타입 에러 0
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/src/world/characters/colors.ts apps/web/src/world/characters/materials.ts apps/web/src/world/characters/geometries.ts apps/web/src/world/characters/cache.test.ts
@@ -863,7 +863,7 @@ git commit -m "feat: 캐릭터 색 규칙과 재질·지오메트리 캐시"
 
 3D 메시는 단위 테스트 대신 Task 5의 타입 검사와 Task 6의 갤러리 스크린샷으로 확인한다.
 
-- [ ] **Step 1: 부품 계약과 공통 부품**
+- [x] **Step 1: 부품 계약과 공통 부품**
 
 `apps/web/src/world/characters/parts/types.ts`:
 
@@ -940,7 +940,7 @@ export function Muzzle({ colors }: PartProps) {
 }
 ```
 
-- [ ] **Step 2: 동물 5종** (강아지: 늘어진 귀·짧은 꼬리 / 고양이: 뾰족 귀·수염·말린 꼬리 / 곰: 동그란 귀·공 꼬리 / 오리: 부리·정수리 깃털·날개·주황 발 / 사자: 고리 모양 갈기·꼬리 끝 술)
+- [x] **Step 2: 동물 5종** (강아지: 늘어진 귀·짧은 꼬리 / 고양이: 뾰족 귀·수염·말린 꼬리 / 곰: 동그란 귀·공 꼬리 / 오리: 부리·정수리 깃털·날개·주황 발 / 사자: 고리 모양 갈기·꼬리 끝 술)
 
 `apps/web/src/world/characters/parts/dog.tsx`:
 
@@ -1217,7 +1217,7 @@ export type { AnimalParts, PartProps } from './types';
 export const ANIMAL_PARTS: Record<Animal | 'lion', AnimalParts> = { dog, cat, bear, duck, lion };
 ```
 
-- [ ] **Step 3: 악세서리 3부위** (사자 교수님의 안경·나비넥타이는 `PROFESSOR_LOOK`이 `eyes: 'glasses'`, `neck: 'bowtie'`라서 이 부품을 그대로 쓴다)
+- [x] **Step 3: 악세서리 3부위** (사자 교수님의 안경·나비넥타이는 `PROFESSOR_LOOK`이 `eyes: 'glasses'`, `neck: 'bowtie'`라서 이 부품을 그대로 쓴다)
 
 `apps/web/src/world/characters/accessories/head.tsx`:
 
@@ -1420,7 +1420,7 @@ function Bowtie() {
 }
 ```
 
-- [ ] **Step 4: 손에 드는 소품과 한국어 이름**
+- [x] **Step 4: 손에 드는 소품과 한국어 이름**
 
 `apps/web/src/world/characters/HeldProp.tsx`:
 
@@ -1552,12 +1552,12 @@ export const POSE_LABELS: Record<PoseKind, string> = {
 };
 ```
 
-- [ ] **Step 5: 타입·린트 확인**
+- [x] **Step 5: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/characters`
 Expected: 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/characters/parts apps/web/src/world/characters/accessories apps/web/src/world/characters/HeldProp.tsx apps/web/src/world/characters/labels.ts
@@ -1593,7 +1593,7 @@ group(ref, 발밑, dispose=null)          ← sim이 위치·방향을 넣는다
 
 drei `Html`은 두 가지를 지켜야 캐릭터 수만큼 `Attempted to synchronously unmount a root while React was already rendering` 경고가 나지 않는다: (1) `zIndexRange` 같은 배열 prop은 모듈 상수로 둔다, (2) `portal`을 고정 ref로 넘긴다(`useHtmlPortal`). 또 이름표·링은 붙였다 떼지 않고 `display`/`visible`만 바꾼다.
 
-- [ ] **Step 1: Html 포털·이름표·말풍선·링 작성**
+- [x] **Step 1: Html 포털·이름표·말풍선·링 작성**
 
 `apps/web/src/world/characters/useHtmlPortal.ts`:
 
@@ -1767,7 +1767,7 @@ export function HighlightRing({ visible }: { visible: boolean }) {
 }
 ```
 
-- [ ] **Step 2: Character 교체**
+- [x] **Step 2: Character 교체**
 
 `apps/web/src/world/characters/Character.tsx` — 파일 전체:
 
@@ -1961,17 +1961,17 @@ export function Character({
 }
 ```
 
-- [ ] **Step 3: 타입·테스트·빌드 확인**
+- [x] **Step 3: 타입·테스트·빌드 확인**
 
 Run: `npm run typecheck -w @4this/web && npm test -w @4this/web && npm run build`
 Expected: 타입 에러 0, 테스트 24개 통과(cw#1 5개 + 이 PR 19개), `✓ built`
 
-- [ ] **Step 4: 메인 화면 스모크 확인**
+- [x] **Step 4: 메인 화면 스모크 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173 접속
 Expected: 캠퍼스 가운데에 캡슐 대신 작은 강아지가 서서 두리번거리고, 가까이 확대하면 머리 위에 `샘플` 이름표가 보인다. 콘솔에 `unmount a root` 경고가 없다(서버가 없으면 `/api/auth/session` 502 에러만 보인다).
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/characters
@@ -1993,7 +1993,7 @@ git commit -m "feat: 동물 캐릭터 조립·이름표 LOD·이모지 말풍선
 
 갤러리: 5줄(강아지·고양이·곰·오리·사자 교수님) × 8칸(포즈) + 악세서리 조합 8개 줄. 앉는 포즈 아래에는 윗면이 `SEAT_HEIGHT`인 상자를 놓아 앉은 높이를 확인한다. 왼쪽 패널에서 색·머리·눈·목, 이모지 8종, 하이라이트 링, 반투명 0.4를 바꾼다. 캐릭터를 누르면 ❤️ 말풍선(onClick 확인).
 
-- [ ] **Step 1: 갤러리 작성**
+- [x] **Step 1: 갤러리 작성**
 
 `apps/web/src/dev/characters/CharacterGallery.tsx` — 파일 전체:
 
@@ -2225,12 +2225,12 @@ export function CharacterGallery() {
 }
 ```
 
-- [ ] **Step 2: 타입·린트 확인**
+- [x] **Step 2: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 3: 브라우저로 확인**
+- [x] **Step 3: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=characters
 Expected:
@@ -2241,7 +2241,7 @@ Expected:
 - 휠로 가까이 가면 `강아지 · 걷기`처럼 전체 이름표, 멀어지면 이름만, 아주 멀면 숨김.
 - 콘솔에 React 경고가 없다.
 
-- [ ] **Step 4: Playwright 스크린샷 (PR에 첨부)**
+- [x] **Step 4: Playwright 스크린샷 (PR에 첨부)**
 
 ```bash
 npx playwright@1.64.1 install chromium
@@ -2250,7 +2250,7 @@ npx playwright@1.64.1 screenshot --viewport-size "1400,900" --wait-for-timeout 4
 
 Expected: `gallery.png`에 왼쪽 패널과 40마리 격자 + 조합 8마리가 보인다. 헤드리스 브라우저는 소프트웨어 WebGL이라 1~2 fps로 느리다(정상). 이 파일은 커밋하지 않고 PR 본문에 붙인다.
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/dev/characters/CharacterGallery.tsx
@@ -2261,7 +2261,7 @@ git commit -m "feat: 캐릭터 갤러리 개발 페이지 (?dev=characters)"
 
 ### Task 7: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run format && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. `@4this/web` 테스트 24개(cw#1의 5개 포함, 먼저 머지된 다른 PR의 테스트가 있으면 그만큼 더 많다). 빌드는 `✓ built` (500 kB 청크 경고는 무시).
