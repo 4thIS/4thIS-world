@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
 import { rand01 } from '@4this/shared';
 import type { CharacterProps } from '../contracts';
@@ -50,6 +50,15 @@ export function Character({
   const armR = useRef<Group>(null);
   const footL = useRef<Group>(null);
   const footR = useRef<Group>(null);
+  const hovered = useRef(false);
+
+  // 호버 중에 언마운트되면 pointerout이 오지 않으니 여기서 커서를 되돌린다
+  useEffect(
+    () => () => {
+      if (hovered.current) document.body.style.cursor = '';
+    },
+    [],
+  );
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
@@ -87,10 +96,14 @@ export function Character({
         onClick();
       }}
       onPointerOver={() => {
-        if (onClick) document.body.style.cursor = 'pointer';
+        if (!onClick) return;
+        document.body.style.cursor = 'pointer';
+        hovered.current = true;
       }}
       onPointerOut={() => {
+        if (!hovered.current) return;
         document.body.style.cursor = '';
+        hovered.current = false;
       }}
     >
       <OpacityStepContext value={step}>
