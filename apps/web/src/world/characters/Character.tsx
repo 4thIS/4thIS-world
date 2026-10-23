@@ -1,4 +1,4 @@
-import { useFrame } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
 import { rand01 } from '@4this/shared';
@@ -14,7 +14,15 @@ import { HighlightRing } from './HighlightRing';
 import { OpacityStepContext, opacityStep, useMat } from './materials';
 import { NameTag } from './NameTag';
 import { ANIMAL_PARTS } from './parts';
-import { blinkScale, CHARACTER_SCALE, poseFrame, tailSwing, withStretch } from './poses';
+import {
+  blinkScale,
+  CHARACTER_SCALE,
+  poseFrame,
+  SIT_LIFT,
+  SITTING_POSES,
+  tailSwing,
+  withStretch,
+} from './poses';
 
 /** 발밑 기준 이름표·말풍선 높이(m) */
 const TAG_HEIGHT = 2.1 * CHARACTER_SCALE;
@@ -60,6 +68,15 @@ export function Character({
     [],
   );
 
+  // 호버 중에 완전히 투명해지면(visible=false) pointerout이 오지 않으니 여기서 되돌린다
+  const faded = step === 0;
+  useEffect(() => {
+    if (faded && hovered.current) {
+      document.body.style.cursor = '';
+      hovered.current = false;
+    }
+  }, [faded]);
+
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     let f = poseFrame(pose, t, phase);
@@ -84,28 +101,31 @@ export function Character({
   const belly = useMat(colors.belly);
   const foot = useMat(parts.footColor(colors));
   const { Face, Tail, Arm } = parts;
+  // 앉은 포즈는 몸이 올라가니 이름표·말풍선 앵커도 같이 올린다
+  const lift = SITTING_POSES.has(pose) ? SIT_LIFT * CHARACTER_SCALE : 0;
+  // 클릭 가능한 캐릭터만 R3F 상호작용 목록에 넣는다. 완전히 투명하면 아무것도 하지 않는다
+  const interactive = onClick
+    ? {
+        onClick: (e: ThreeEvent<MouseEvent>) => {
+          if (step === 0) return;
+          e.stopPropagation();
+          onClick();
+        },
+        onPointerOver: () => {
+          if (step === 0) return;
+          document.body.style.cursor = 'pointer';
+          hovered.current = true;
+        },
+        onPointerOut: () => {
+          if (!hovered.current) return;
+          document.body.style.cursor = '';
+          hovered.current = false;
+        },
+      }
+    : null;
 
   return (
-    <group
-      ref={ref}
-      dispose={null}
-      visible={step > 0}
-      onClick={(e) => {
-        if (!onClick) return;
-        e.stopPropagation();
-        onClick();
-      }}
-      onPointerOver={() => {
-        if (!onClick) return;
-        document.body.style.cursor = 'pointer';
-        hovered.current = true;
-      }}
-      onPointerOut={() => {
-        if (!hovered.current) return;
-        document.body.style.cursor = '';
-        hovered.current = false;
-      }}
-    >
+    <group ref={ref} dispose={null} visible={step > 0} {...interactive}>
       <OpacityStepContext value={step}>
         <HighlightRing visible={highlight} />
         <group scale={CHARACTER_SCALE}>
@@ -193,8 +213,8 @@ export function Character({
         </group>
       </OpacityStepContext>
 
-      <NameTag name={name} status={status} height={TAG_HEIGHT} opacity={opacity} />
-      {emote && <EmoteBubble key={emote.at} emote={emote} height={EMOTE_HEIGHT} />}
+      <NameTag name={name} status={status} height={TAG_HEIGHT + lift} opacity={opacity} />
+      {emote && <EmoteBubble key={emote.at} emote={emote} height={EMOTE_HEIGHT + lift} />}
     </group>
   );
 }
