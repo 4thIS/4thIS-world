@@ -68,6 +68,8 @@ export function validateCampus(c: Campus): string[] {
 
   const all: [string, Vec2][] = [
     ...Object.entries(nodes),
+    ['gateSpawn', c.gateSpawn],
+    ['boardPos', c.boardPos],
     ...c.parkSpots.map((s, i): [string, Vec2] => [`parkSpots[${i}]`, s.pos]),
     ...c.benchSpots.map((s, i): [string, Vec2] => [`benchSpots[${i}]`, s.pos]),
   ];

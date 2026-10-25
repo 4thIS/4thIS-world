@@ -1,0 +1,12 @@
+# 에셋 출처 (CREDITS)
+
+4thIS-world의 3D 소품은 아래 CC0(퍼블릭 도메인) 에셋을 쓴다. 출처 표기는 의무가 아니지만 감사의 뜻으로 남긴다.
+원본 색은 불러올 때 파스텔로 바꾼다(`apps/web/src/world/campus/pastel.ts`). 파일 자체는 고치지 않았다.
+
+| 팩                           | 만든 사람                          | 라이선스 | 받은 곳                                                                                                                                                              | 쓰는 파일 (`apps/web/public/assets/`)                                                                                   |
+| ---------------------------- | ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| KayKit City Builder Bits 1.0 | Kay Lousberg (www.kaylousberg.com) | CC0 1.0  | https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0 (커밋 `63976910ca04d16f0fc531b9c614244be8128713`, `addons/kaykit_city_builder_bits/Assets/gltf/`) | `kaykit/bench`, `kaykit/streetlight`, `kaykit/bush`, `kaykit/trash_A` (`.gltf` + `.bin`), `kaykit/citybits_texture.png` |
+
+나머지(지형·길·풀·나무·꽃·연못·정문·게시판·건물·칠판·교탁·배식대)는 코드로 만든다.
+
+- CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/

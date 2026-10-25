@@ -82,13 +82,13 @@ apps/web/src/dev/campus/CampusPreview.tsx  (교체) ?dev=campus
   - `SEAT_HEIGHT = 0.45`, `interface ModelSpec { url; scale; yaw; box: [w, h, d]; textured: boolean; tint?: string; seatRaw?: number }`, `MODELS` (`bench`·`streetlight`·`bush`·`trash`), `type ModelName = keyof typeof MODELS`
   - 정적 파일 `/assets/kaykit/{bench,streetlight,bush,trash_A}.gltf`
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: KayKit 파일 내려받기 (새 빈 폴더에)**
+- [x] **Step 2: KayKit 파일 내려받기 (새 빈 폴더에)**
 
 커밋을 고정해서 받는다. 받은 파일은 신뢰하지 않는 데이터이므로 레포 밖 빈 폴더에 받고, 확인한 뒤 쓰는 파일만 복사한다.
 
@@ -107,7 +107,7 @@ cp "$DL"/{bench,streetlight,bush,trash_A}.{gltf,bin} "$DL"/citybits_texture.png 
 
 Expected: `apps/web/public/assets/kaykit/`에 9개 파일(`.gltf` 4, `.bin` 4, `citybits_texture.png`). 각 `.gltf`는 같은 폴더의 `.bin`과 `citybits_texture.png`를 상대 경로로 부른다.
 
-- [ ] **Step 3: `.bin`이 커밋되게 하고 출처 남기기**
+- [x] **Step 3: `.bin`이 커밋되게 하고 출처 남기기**
 
 `apps/web/public/assets/.gitignore`:
 ```text
@@ -134,7 +134,7 @@ Expected: `apps/web/public/assets/kaykit/`에 9개 파일(`.gltf` 4, `.bin` 4, `
 Run: `git add -n apps/web/public/assets`
 Expected: `bench.bin` 등 `.bin` 4개가 목록에 있다(전역 gitignore가 `*.bin`을 막아도 이 파일이 되살린다).
 
-- [ ] **Step 4: 실패하는 테스트 작성**
+- [x] **Step 4: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/pastel.test.ts`:
 ```ts
@@ -200,12 +200,12 @@ describe('MODELS', () => {
 });
 ```
 
-- [ ] **Step 5: 실패 확인**
+- [x] **Step 5: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./pastel"` / `"./assets"`
 
-- [ ] **Step 6: 구현**
+- [x] **Step 6: 구현**
 
 프로토타입 `pastelTexture`의 픽셀 식을 그대로 옮긴다(밝기 l = 0.299r + 0.587g + 0.114b 쪽으로 35% 당긴 뒤 크림빛과 반씩).
 
@@ -322,12 +322,12 @@ export const MODELS = {
 export type ModelName = keyof typeof MODELS;
 ```
 
-- [ ] **Step 7: 통과 확인**
+- [x] **Step 7: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — pastel 5개, assets 2개 (cw#1의 5개 포함 12개)
 
-- [ ] **Step 8: 커밋**
+- [x] **Step 8: 커밋**
 
 ```bash
 git add apps/web/public/assets CREDITS.md apps/web/src/world/campus/pastel.ts apps/web/src/world/campus/pastel.test.ts apps/web/src/world/campus/assets.ts apps/web/src/world/campus/assets.test.ts
@@ -355,7 +355,7 @@ git commit -m "feat: KayKit 바깥 소품 에셋과 파스텔 색 계산"
   - `interface LampSpot { pos: Vec2; rotY: number }`, `lampSpots(segs, c, spacing = 5.5): LampSpot[]` (KayKit 가로등 팔 = 모델 -x가 길 쪽)
   - `type TreeKind = 'cherry' | 'green'`, `TREES: TreeSpot[]`, `FLOWER_BEDS: FlowerBed[]`, `BUSHES: Vec2[]`, `TRASH_CANS: Vec2[]`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts`:
 ```ts
@@ -568,12 +568,12 @@ describe('꾸밈 배치', () => {
  });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web; npm test -w @4this/shared`
 Expected: web FAIL — `Failed to resolve import "./layout"`; shared FAIL — `expected [] to include 'gateSpawn: 캠퍼스 밖'`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `rand01(seed, i, 'x')`처럼 비슷한 문자열을 연달아 해시하면 점이 줄지어 생긴다(직접 그려 보면 풀이 대각선 줄로 몰린다). 그래서 흩뿌리기는 seed 하나로 만든 수열 `seededRandom`을 쓴다. 나무·꽃밭·덤불 자리는 테스트가 "길·건물·연못·공원 산책 지점과 겹치지 않음"을 지키도록 고른 값이다.
 
@@ -988,12 +988,12 @@ export const TRASH_CANS: Vec2[] = [
    ];
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm test -w @4this/shared`
 Expected: PASS — layout 16개, shared 24개(validate 3개)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/layout.ts apps/web/src/world/campus/layout.test.ts packages/shared/src/campus
@@ -1017,7 +1017,7 @@ git commit -m "feat: 캠퍼스 바깥 배치 계산과 정문 등장 지점 조�
 
 순수 계산(배치)은 Task 2에서 테스트했다. 이 파일은 three·React 연결이라 typecheck와 Task 5의 화면 확인으로 검증한다.
 
-- [ ] **Step 1: 구현**
+- [x] **Step 1: 구현**
 
 KayKit 모델은 모두 같은 `citybits_texture.png`를 쓰므로, 파스텔 텍스처는 이미지별로 한 번만 만든다(WeakMap 캐시). glTF 장면은 바운딩 박스로 "바닥 가운데 = 원점"이 되게 옮긴 뒤 `yaw`·`scale`을 곱한다.
 
@@ -1244,12 +1244,12 @@ export function Model({
 }
 ```
 
-- [ ] **Step 2: 타입·린트 확인**
+- [x] **Step 2: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/models.tsx
@@ -1269,7 +1269,7 @@ git commit -m "feat: glTF 모델 인스턴싱·파스텔 재질·로딩 실패 �
 
 드로우콜: 보도블록 1, 광장 3, 풀 1, 나무 2, 꽃 2, 연못 4.
 
-- [ ] **Step 1: 디오라마 판**
+- [x] **Step 1: 디오라마 판**
 
 프로토타입의 `slab` 3겹(잔디·흙 띠·흙)을 그대로 옮긴다. 잔디 윗면이 정확히 y = 0이 되게 위치를 계산한다(ExtrudeGeometry를 눕히면 윗면 = depth + bevel).
 
@@ -1342,7 +1342,7 @@ export function Ground() {
 }
 ```
 
-- [ ] **Step 2: 보도블록과 광장**
+- [x] **Step 2: 보도블록과 광장**
 
 `apps/web/src/world/campus/Paths.tsx`:
 ```tsx
@@ -1399,7 +1399,7 @@ export function Paths() {
 }
 ```
 
-- [ ] **Step 3: 풀·나무·꽃**
+- [x] **Step 3: 풀·나무·꽃**
 
 `apps/web/src/world/campus/Grass.tsx`:
 ```tsx
@@ -1586,7 +1586,7 @@ export function Flowers() {
 }
 ```
 
-- [ ] **Step 4: 연못 (원 충돌체와 같은 자리)**
+- [x] **Step 4: 연못 (원 충돌체와 같은 자리)**
 
 `apps/web/src/world/campus/Pond.tsx`:
 ```tsx
@@ -1664,12 +1664,12 @@ export function Pond() {
 }
 ```
 
-- [ ] **Step 5: 타입·린트 확인**
+- [x] **Step 5: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/Ground.tsx apps/web/src/world/campus/Paths.tsx apps/web/src/world/campus/Grass.tsx apps/web/src/world/campus/Trees.tsx apps/web/src/world/campus/Flowers.tsx apps/web/src/world/campus/Pond.tsx
@@ -1692,7 +1692,7 @@ git commit -m "feat: 디오라마 판·보도블록·광장·풀·나무·꽃·�
   - `export function Campus(props: CampusProps)` — **cw#1과 같은 경로·이름·props**
   - `?dev=campus` 쿼리: `cam=x,y,z`, `target=x,y,z` (스크린샷용 카메라). 패널의 `data-testid="campus-log"`에 건물 클릭 결과가 찍힌다
 
-- [ ] **Step 1: 글자판·정문·게시판**
+- [x] **Step 1: 글자판·정문·게시판**
 
 `apps/web/src/world/campus/signTexture.ts`:
 ```ts
@@ -1841,7 +1841,7 @@ export function NoticeBoard() {
 }
 ```
 
-- [ ] **Step 2: KayKit 소품·임시 조명·건물 자리 상자**
+- [x] **Step 2: KayKit 소품·임시 조명·건물 자리 상자**
 
 KayKit 가로등은 팔이 모델의 -x 쪽이라 `lampSpots`가 계산한 `rotY`로 팔이 길을 향한다. 그림자는 해 하나(`directionalLight`)만 만든다.
 
@@ -1976,7 +1976,7 @@ export function BuildingBoxes({
 }
 ```
 
-- [ ] **Step 3: Campus 교체**
+- [x] **Step 3: Campus 교체**
 
 `apps/web/src/world/campus/Campus.tsx`:
 ```tsx
@@ -2013,7 +2013,7 @@ export function Campus({ focusedBuilding, onBuildingClick }: CampusProps) {
 }
 ```
 
-- [ ] **Step 4: 미리보기 페이지**
+- [x] **Step 4: 미리보기 페이지**
 
 `apps/web/src/dev/campus/CampusPreview.tsx`:
 ```tsx
@@ -2075,12 +2075,12 @@ export function CampusPreview() {
 }
 ```
 
-- [ ] **Step 5: 타입·린트·테스트**
+- [x] **Step 5: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 6: 브라우저로 확인**
+- [x] **Step 6: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -2090,11 +2090,11 @@ Expected:
 - 정문 아치 양쪽에 "4thIS 캠퍼스" 간판, 정문 동쪽에 "📋 게시판". 가로등 팔이 길 쪽으로 나와 있다. KayKit 소품은 원색이 아니라 연한 파스텔이다.
 - 건물 자리 반투명 분홍 상자를 누르면 패널에 `건물 클릭: eng`. 게시판은 모델만 있고 클릭은 cw#4의 BoardHotspot이 받는다. 콘솔에 에러가 없다(three의 `THREE.Clock` 사용 중단 안내 경고는 R3F 내부라 무시).
 
-- [ ] **Step 7: 로딩 실패 대체 확인**
+- [x] **Step 7: 로딩 실패 대체 확인**
 
 `assets.ts`의 `kaykit` 함수에서 `url` 끝의 `${file}.gltf`를 잠깐 `${file}X.gltf`로 바꾸고 새로고침 → 벤치·가로등·덤불·쓰레기통 자리에 연보라 상자가 보이고 콘솔에 `[campus] 모델을 불러오지 못해 상자로 대신합니다` 경고가 뜬다. 확인 뒤 **원래대로 되돌린다**(`git diff`가 비어 있어야 한다).
 
-- [ ] **Step 8: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 8: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 dev 서버를 켠 채로:
 
@@ -2113,7 +2113,7 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: `campus-overview.png` 전체 판, `campus-gate.png` 정문 간판 글자 "4thIS 캠퍼스"와 게시판 앞면, `campus-pond.png` 연못·벤치·꽃밭. 헤드리스는 소프트웨어 WebGL이라 느리다(정상).
 
-- [ ] **Step 9: 커밋**
+- [x] **Step 9: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus
@@ -2124,12 +2124,12 @@ git commit -m "feat: 정문·게시판·바깥 소품과 캠퍼스 조립, ?dev=
 
 ### Task 6: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. shared 24개, web 28개(cw#1 5개 + pastel 5 + assets 2 + layout 16; 먼저 머지된 다른 PR이 있으면 더 많다). 빌드는 `✓ built`(500 kB 청크 경고는 무시).
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push -u origin hm
