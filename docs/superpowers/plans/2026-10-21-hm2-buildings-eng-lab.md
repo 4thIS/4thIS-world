@@ -10,6 +10,8 @@
 
 **Tech Stack:** React 19.3 · three 0.186 (`mergeGeometries`) · @react-three/fiber 9 · @react-three/drei 10 · vitest 5 · Kenney Furniture Kit 2.0 (CC0)
 
+> **팀장 메모 (2026-10-26, 박찬우):** Task 1 앞에 **Task 0**(hm#1 테스트 속도)을 추가했다. 컴퓨터가 바쁠 때 `paverTiles` 테스트가 5초 제한에 걸려 가끔 실패한다(th 보고). 쌍마다 `expect`를 수십만 번 부르는 것이 원인이라, 가장 가까운 거리 하나만 검사하게 바꾼다.
+
 ## Global Constraints
 
 - Node `>=24`, npm workspaces, `package-lock.json` 커밋. TypeScript는 `~5.9.3` 고정.
@@ -56,6 +58,60 @@ apps/web/src/world/campus/
 ├─ LabInterior.tsx                  연구동 1F 로비·2F 연구실
 └─ Campus.tsx                       (수정) 공학관·연구동을 Building으로
 apps/web/src/dev/campus/CampusPreview.tsx  (수정) building=·floor= 쿼리, 층 버튼
+```
+
+---
+
+### Task 0: (팀장 추가) `paverTiles` 테스트를 빠르게
+
+**Files:**
+
+- Modify: `apps/web/src/world/campus/layout.test.ts`
+
+- [ ] **Step 1: 겹침 검사를 최솟값 한 번으로 바꾸기**
+
+`describe('paverTiles', …)` 안의 첫 번째 `it`를 아래로 바꾼다.
+
+바꾸기 전:
+
+```ts
+  it('충분히 많이 깔리고, 서로 0.42 m보다 가깝게 겹치지 않는다', () => {
+    expect(tiles.length).toBeGreaterThan(500);
+    for (let i = 0; i < tiles.length; i++) {
+      for (let j = i + 1; j < tiles.length; j++) {
+        const d = Math.hypot(tiles[i]!.x - tiles[j]!.x, tiles[i]!.z - tiles[j]!.z);
+        expect(d).toBeGreaterThanOrEqual(0.42);
+      }
+    }
+  });
+```
+
+바꾼 뒤:
+
+```ts
+  it('충분히 많이 깔리고, 서로 0.42 m보다 가깝게 겹치지 않는다', () => {
+    expect(tiles.length).toBeGreaterThan(500);
+    // 쌍마다 expect를 부르면 수십만 번이라 느리다. 가장 가까운 거리 하나만 검사한다
+    let min = Infinity;
+    for (let i = 0; i < tiles.length; i++) {
+      for (let j = i + 1; j < tiles.length; j++) {
+        min = Math.min(min, Math.hypot(tiles[i]!.x - tiles[j]!.x, tiles[i]!.z - tiles[j]!.z));
+      }
+    }
+    expect(min).toBeGreaterThanOrEqual(0.42);
+  });
+```
+
+- [ ] **Step 2: 통과와 시간 확인**
+
+Run: `npx vitest run --root apps/web src/world/campus/layout.test.ts`
+Expected: PASS, 전체 1초 안팎(바꾸기 전에는 이 테스트 하나가 0.7초 이상)
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add apps/web/src/world/campus/layout.test.ts
+git commit -m "test: paverTiles 겹침 검사를 최솟값 한 번으로 바꿔 시간 초과 막기"
 ```
 
 ---
