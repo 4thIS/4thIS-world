@@ -255,7 +255,7 @@ git commit -m "feat: 카메라 방향 컷어웨이 계산"
   - `interface Box2 { min; max }`, `rectMinus(outer, hole | null): Box2[]`, `interface StairSpec { start: Vec2; dir: WallSide; width }`, `stairHole(s): Box2`, `interface Block { center: [x, y, z]; size: [x, y, z] }`, `stairBlocks(s): Block[]`
   - `interface BuildingStyle { wall; trim; floor; stairs: StairSpec | null }`, `BUILDING_STYLES: Record<BuildingId, BuildingStyle>`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/buildingGeometry.test.ts`:
 ```ts
@@ -408,12 +408,12 @@ describe('BUILDING_STYLES 계단', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./buildingGeometry"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 남·북 벽이 모서리를 차지하고 동·서 벽은 그 사이에 낀다(모서리가 겹치지 않음). 창은 벽 길이를 약 2.6 m 칸으로 나눠 가운데에 하나씩 내고, 1층 문 벽에서는 문과 겹치는 창을 뺀다.
 
@@ -660,12 +660,12 @@ export const BUILDING_STYLES: Record<BuildingId, BuildingStyle> = {
 };
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — buildingGeometry 12개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/buildingGeometry.ts apps/web/src/world/campus/buildingGeometry.test.ts apps/web/src/world/campus/buildingStyles.ts
