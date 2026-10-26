@@ -62,14 +62,14 @@ apps/web/src/ui/
   - `useUi` — `{ screen: Screen | null; onboarding: boolean; open(screen, opts?: { onboarding?: boolean }); close() }`. `open`은 `onboarding`을 넘기지 않으면 false로 되돌린다
   - `type ErrorContext = 'login' | 'admin' | 'other'`, `errorMessage(err: unknown, context?): string`, `fieldErrors(issues): Record<string, string>`
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout th && git merge origin/main
 npm install
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/ui/store.test.ts`:
 
@@ -131,12 +131,12 @@ describe('fieldErrors', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- src/ui`
 Expected: FAIL — `Failed to resolve import "./store"` / `"./errors"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/ui/store.ts`:
 
@@ -207,12 +207,12 @@ export function fieldErrors(issues: readonly IssueLike[]): Record<string, string
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web -- src/ui`
 Expected: PASS — store 2개, errors 4개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui/store.ts apps/web/src/ui/store.test.ts apps/web/src/ui/errors.ts apps/web/src/ui/errors.test.ts
@@ -239,7 +239,7 @@ git commit -m "feat: UI 화면 스토어와 에러 문구"
 
 `ui.css`는 이 PR 전체가 쓰는 공통 스타일이다(꾸미기 레이아웃 포함). `UiRoot`가 import한다(Task 4).
 
-- [ ] **Step 1: 공통 스타일·모달·가짜 서버 작성**
+- [x] **Step 1: 공통 스타일·모달·가짜 서버 작성**
 
 `apps/web/src/ui/ui.css`:
 
@@ -719,7 +719,7 @@ export const ME_PENDING: Me = {
 export const ME_APPROVED: Me = { ...ME_PENDING, status: 'approved' };
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/ui/auth/auth.test.tsx`:
 
@@ -849,12 +849,12 @@ describe('AdminLoginForm', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- auth`
 Expected: FAIL — `Failed to resolve import "./AdminLoginForm"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/ui/auth/LoginForm.tsx`:
 
@@ -1102,12 +1102,12 @@ export function AdminLoginForm() {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web -- auth && npm run typecheck -w @4this/web`
 Expected: PASS — 9개, 타입 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui/ui.css apps/web/src/ui/common apps/web/src/ui/testing apps/web/src/ui/auth
@@ -1131,7 +1131,7 @@ git commit -m "feat: 로그인·가입·관리자 로그인 모달"
   - `LookPreview({ look })` — 작은 `<Canvas>`에서 천천히 도는 `<Character pose="idle">`
   - `CustomizeScreen()` — 가입 흐름이면 `randomLook()`으로, 아니면 내 생김새로 시작. 🎲 랜덤, 저장 `api.patchMe({ look })` → `setSession({ kind: 'member', me })` → 닫기
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/ui/customize/customize.test.tsx`:
 
@@ -1231,12 +1231,12 @@ describe('CustomizeScreen', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- customize`
 Expected: FAIL — `Failed to resolve import "./CustomizeScreen"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/ui/customize/LookChips.tsx`:
 
@@ -1447,12 +1447,12 @@ export function CustomizeScreen() {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web -- customize && npm run typecheck -w @4this/web`
 Expected: PASS — 6개, 타입 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/ui/customize
@@ -1478,7 +1478,7 @@ git commit -m "feat: 3D 미리보기 캐릭터 꾸미기 화면"
   - `ScreenHost()` — `useUi().screen` → 모달
   - `UiRoot()` — `.ui-root`(월드 위 전체 레이어, 빈 곳은 클릭이 월드로 통과) 안에 오른쪽 위 메뉴·배너·ScreenHost
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/ui/UiRoot.test.tsx`:
 
@@ -1564,12 +1564,12 @@ describe('UiRoot', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- UiRoot`
 Expected: FAIL — 게스트 버튼을 찾지 못한다(`Unable to find an accessible element with the role "button" and name "가입"`). cw#1의 `UiRoot`는 `null`을 돌려준다.
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/ui/account/AccountMenu.tsx`:
 
@@ -1739,12 +1739,12 @@ export function UiRoot() {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web -- src/ui`
 Expected: PASS — store 2, errors 4, auth 9, customize 6, UiRoot 6 (27개)
 
-- [ ] **Step 5: 실제 서버로 확인** (wj#1이 머지돼 있어야 한다)
+- [x] **Step 5: 실제 서버로 확인** (wj#1이 머지돼 있어야 한다)
 
 Run: `ADMIN_PASSWORD=admin1234 SESSION_SECRET=dev-secret-dev-secret-dev-secret-00 npm run dev` 후 http://localhost:5173
 Expected:
@@ -1755,7 +1755,7 @@ Expected:
 - `로그인` 모달의 `관리자 로그인` → 틀린 비밀번호면 "관리자 비밀번호가 맞지 않아요.", 맞으면 메뉴가 `🛠️ 관리자 ▾`로 바뀐다.
 - 창을 390px로 줄이면 꾸미기 모달이 미리보기 위·칩 아래로 쌓인다.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui
@@ -1766,7 +1766,7 @@ git commit -m "feat: 계정 메뉴·승인 대기 배너·모달 화면 전환"
 
 ### Task 5: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run format && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. `@4this/web` 테스트 51개(cw#1의 5개 포함, 먼저 머지된 다른 PR의 테스트가 있으면 그만큼 더 많다). 빌드는 `✓ built` (500 kB 청크 경고는 무시).
