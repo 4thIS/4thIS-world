@@ -81,6 +81,7 @@ Claude Code로 진행할 때:
   ```
   충돌은 자기 브랜치에서 merge 커밋으로 해결한다.
 - 브랜치 삭제, 태그 push, `git clean -fdx` 같이 되돌리기 어려운 명령은 쓰지 않는다.
+- **커밋과 PR에 Claude를 공동 작성자로 넣지 않는다.** 커밋 메시지에 `Co-Authored-By: Claude …` 줄을 달지 않고, 커밋·PR 본문에 `🤖 Generated with Claude Code` 같은 문구도 넣지 않는다. 작성자는 브랜치 주인 한 명이다.
 
 ## 공용 계약을 바꿔야 할 때
 
