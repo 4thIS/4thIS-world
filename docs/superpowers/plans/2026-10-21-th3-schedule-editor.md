@@ -1842,7 +1842,7 @@ export function CustomizeScreen() {
 Run: `npm test -w @4this/web -- src/ui`
 Expected: PASS — 56개(store 2, errors 4, auth 9, customize 7, UiRoot 7, grid 16, schedule 11)
 
-- [ ] **Step 5: 실제 서버로 확인** (wj#2가 머지돼 있어야 한다)
+- [x] **Step 5: 실제 서버로 확인** (wj#2가 머지돼 있어야 한다)
 
 Run: `ADMIN_PASSWORD=admin1234 SESSION_SECRET=dev-secret-dev-secret-dev-secret-00 npm run dev` 후 http://localhost:5173
 Expected:
