@@ -45,6 +45,11 @@ export function deleteSession(db: Db, id: string): void {
   db.prepare('DELETE FROM sessions WHERE id = ?').run(id);
 }
 
+/** 한 멤버의 세션을 모두 지운다 (비밀번호 변경·초기화). exceptId는 남긴다 */
+export function deleteMemberSessions(db: Db, memberId: string, exceptId?: string): void {
+  db.prepare('DELETE FROM sessions WHERE member_id = ? AND id != ?').run(memberId, exceptId ?? '');
+}
+
 /** 세션 토큰 → 사용자. 만료됐거나 없으면 guest (만료된 줄은 지운다) */
 export function resolveSession(db: Db, id: string | null, now = Date.now()): Auth {
   if (!id) return GUEST;
