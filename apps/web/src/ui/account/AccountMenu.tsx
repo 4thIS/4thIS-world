@@ -43,6 +43,7 @@ export function AccountMenu() {
   const items: MenuItem[] =
     session.kind === 'member'
       ? [
+          { label: '내 시간표', run: go('schedule') },
           { label: '캐릭터 꾸미기', run: go('customize') },
           { label: '로그아웃', run: logout },
         ]
