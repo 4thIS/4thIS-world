@@ -70,14 +70,14 @@ apps/web/src/ui/
   - `dragResult(drag, cell, kind): ScheduleItem`, `applyDrag(items, drag, result): ScheduleItem[]`
   - `overlapping(items): Set<number>` (겹치는 일정 모두), `sortedEntries(items): [index, item][]`, `cleanItems(items)` (제목 trim, 빈 제목 제거)
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout th && git merge origin/main
 npm install
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/ui/schedule/grid.test.ts`:
 
@@ -231,12 +231,12 @@ describe('sortedEntries · cleanItems', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- grid`
 Expected: FAIL — `Failed to resolve import "./grid"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/ui/schedule/grid.ts`:
 
@@ -376,12 +376,12 @@ export function cleanItems(items: readonly ScheduleItem[]): ScheduleItem[] {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web -- grid`
 Expected: PASS — 16개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui/schedule/grid.ts apps/web/src/ui/schedule/grid.test.ts
@@ -409,7 +409,7 @@ git commit -m "feat: 시간표 격자 순수 함수 (칸 변환·드래그 결�
 
 이 Task의 컴포넌트는 Task 3의 `ScheduleScreen` 테스트가 함께 확인한다. 여기서는 타입·린트만 본다.
 
-- [ ] **Step 1: 미디어 쿼리 훅과 종류 칩**
+- [x] **Step 1: 미디어 쿼리 훅과 종류 칩**
 
 `apps/web/src/ui/common/useMediaQuery.ts`:
 
@@ -462,7 +462,7 @@ export function KindChips({ value, onChange }: { value: Kind; onChange: (kind: K
 }
 ```
 
-- [ ] **Step 2: 주간 격자**
+- [x] **Step 2: 주간 격자**
 
 `apps/web/src/ui/schedule/WeekGrid.tsx`:
 
@@ -639,7 +639,7 @@ function Block({ item, index, selected, overlap, ghost = false }: BlockProps) {
 }
 ```
 
-- [ ] **Step 3: 모바일 목록 + 폼**
+- [x] **Step 3: 모바일 목록 + 폼**
 
 `apps/web/src/ui/schedule/ScheduleListEditor.tsx`:
 
@@ -830,12 +830,12 @@ export function ScheduleListEditor({ items, overlaps, onChange }: ScheduleListEd
 }
 ```
 
-- [ ] **Step 4: 타입·린트 확인**
+- [x] **Step 4: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/ui`
 Expected: 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/ui/common/useMediaQuery.ts apps/web/src/ui/schedule/KindChips.tsx apps/web/src/ui/schedule/WeekGrid.tsx apps/web/src/ui/schedule/ScheduleListEditor.tsx
@@ -859,7 +859,7 @@ git commit -m "feat: 주간 격자 드래그·종류 칩·모바일 목록 편�
   - `type Screen = 'login' | 'signup' | 'adminLogin' | 'customize' | 'schedule'`
   - `ScheduleScreen()` — 멤버가 아니면 안내만. 열리면 `GET`으로 불러오고, 데스크톱은 `KindChips` + `WeekGrid` + 선택 블록 제목·삭제(선택이 없어도 자리를 지켜 모달 높이가 흔들리지 않게 비활성으로 둔다), 모바일은 `ScheduleListEditor`. 겹치면 경고 + `저장` 비활성. 저장은 `PUT { items: cleanItems(items) }` → "저장했어요 ✨", 가입 흐름이면 닫기. 409 등 실패는 `errorMessage`
 
-- [ ] **Step 1: 스토어에 화면 추가**
+- [x] **Step 1: 스토어에 화면 추가**
 
 `apps/web/src/ui/store.ts`의 `Screen` 한 줄을 바꾼다.
 
@@ -875,7 +875,7 @@ new:
 export type Screen = 'login' | 'signup' | 'adminLogin' | 'customize' | 'schedule';
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 jsdom은 레이아웃을 계산하지 않으므로 격자의 `getBoundingClientRect`를 700×720px로 바꿔(요일 한 칸 100px, 30분 한 칸 20px) 포인터 좌표를 정한다.
 
@@ -1043,12 +1043,12 @@ describe('ScheduleScreen 모바일 (640px 미만)', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- schedule.test`
 Expected: FAIL — `Failed to resolve import "./ScheduleScreen"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/ui/schedule/schedule.css`:
 
@@ -1398,12 +1398,12 @@ export function ScheduleScreen() {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web -- schedule && npm run typecheck -w @4this/web`
 Expected: PASS — grid 16개 + schedule 11개, 타입 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui/store.ts apps/web/src/ui/schedule
@@ -1427,7 +1427,7 @@ git commit -m "feat: 내 시간표 화면 (불러오기·저장·겹침 표시·
   - 꾸미기 저장 뒤: 가입 흐름이면 `open('schedule', { onboarding: true })`, 아니면 닫기
   - 가입 → 꾸미기 → 시간표 → 저장하면 닫힘
 
-- [ ] **Step 1: 테스트 수정 (실패하게)**
+- [x] **Step 1: 테스트 수정 (실패하게)**
 
 `customize.test.tsx`에 "가입 흐름이면 저장 뒤 시간표로 넘어간다"를 더한 파일 전체:
 
@@ -1630,12 +1630,12 @@ describe('UiRoot', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- customize UiRoot`
 Expected: FAIL 3개 — customize의 `expected null to be 'schedule'`, UiRoot의 `Unable to find role="dialog" and name "내 시간표"`와 `Unable to find role="menuitem" and name "내 시간표"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/ui/ScreenHost.tsx` — 파일 전체:
 
@@ -1837,12 +1837,12 @@ export function CustomizeScreen() {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web -- src/ui`
 Expected: PASS — 56개(store 2, errors 4, auth 9, customize 7, UiRoot 7, grid 16, schedule 11)
 
-- [ ] **Step 5: 실제 서버로 확인** (wj#2가 머지돼 있어야 한다)
+- [x] **Step 5: 실제 서버로 확인** (wj#2가 머지돼 있어야 한다)
 
 Run: `ADMIN_PASSWORD=admin1234 SESSION_SECRET=dev-secret-dev-secret-dev-secret-00 npm run dev` 후 http://localhost:5173
 Expected:
@@ -1852,7 +1852,7 @@ Expected:
 - 메뉴 `내 시간표`로 다시 열면 저장한 일정이 그대로 있다. 저장하면 "저장했어요 ✨".
 - 창을 390px로 줄이면 목록 + 폼으로 바뀌고, 폼으로 추가·수정·삭제가 된다.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/ui
@@ -1863,7 +1863,7 @@ git commit -m "feat: 내 시간표 메뉴와 가입 → 꾸미기 → 시간표 
 
 ### Task 5: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run format && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. `@4this/web` 테스트 80개(cw#1의 5개 포함, 먼저 머지된 다른 PR의 테스트가 있으면 그만큼 더 많다). 빌드는 `✓ built` (500 kB 청크 경고는 무시).
