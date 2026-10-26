@@ -60,10 +60,12 @@ describe('UiRoot', () => {
     expect(calls[0]?.url).toBe('/api/auth/logout');
   });
 
-  it('가입 → 꾸미기 → 저장 흐름', async () => {
+  it('가입 → 꾸미기 → 시간표 흐름', async () => {
     mockApi({
       'POST /api/auth/signup': { body: { kind: 'member', me: ME_PENDING } },
       'PATCH /api/me': (body) => ({ body: { ...ME_PENDING, ...(body as object) } }),
+      'GET /api/me/schedules': { body: { items: [] } },
+      'PUT /api/me/schedules': (body) => ({ body }),
     });
     render(<UiRoot />);
     fireEvent.click(screen.getByRole('button', { name: '가입' }));
@@ -74,6 +76,18 @@ describe('UiRoot', () => {
     expect(await screen.findByRole('dialog', { name: '내 캐릭터 만들기' })).toBeTruthy();
     expect(screen.getByRole('status').textContent).toContain('승인 대기');
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    expect(await screen.findByRole('dialog', { name: '내 시간표' })).toBeTruthy();
+    await screen.findByTestId('week-grid');
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
     await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('멤버 메뉴에서 내 시간표를 연다', async () => {
+    mockApi({ 'GET /api/me/schedules': { body: { items: [] } } });
+    useSession.setState({ session: { kind: 'member', me: ME_APPROVED } });
+    render(<UiRoot />);
+    fireEvent.click(screen.getByRole('button', { name: /철수/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: '내 시간표' }));
+    expect(await screen.findByTestId('week-grid')).toBeTruthy();
   });
 });
