@@ -1,6 +1,7 @@
 import { buildApp } from './app';
 import { loadConfig } from './config';
 import { openDb } from './db';
+import { attachRealtime } from './realtime';
 
 const config = loadConfig();
 if (config.sessionSecret.length < 32) {
@@ -8,6 +9,7 @@ if (config.sessionSecret.length < 32) {
 }
 const db = openDb(config.dbPath);
 const app = buildApp({ config, db });
+attachRealtime(app);
 
 let closing = false;
 async function shutdown(signal: string) {
