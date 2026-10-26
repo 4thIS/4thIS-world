@@ -12,6 +12,7 @@ const MESSAGES: Record<ApiErrorCode, string> = {
   username_taken: '이미 쓰고 있는 이름이에요. 다른 이름을 골라 주세요.',
   overlap: '겹치는 일정이 있어요.',
   rate_limited: '시도가 너무 많아요. 1분 뒤에 다시 해 주세요.',
+  internal: '서버에 문제가 생겼어요. 잠시 뒤 다시 해 주세요.',
 };
 
 /** API 에러 → 화면에 보여 줄 한국어 문구 */

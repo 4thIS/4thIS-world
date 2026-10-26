@@ -47,7 +47,7 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       return reply.status(status).send(body('invalid', error.message));
     }
     request.log.error(error);
-    return reply.status(500).send(body('invalid', '서버 오류가 발생했습니다'));
+    return reply.status(500).send(body('internal', '서버 오류가 발생했습니다'));
   });
   app.setNotFoundHandler((request, reply) => {
     reply.status(404).send(body('not_found', `${request.method} ${request.url} 경로가 없습니다`));

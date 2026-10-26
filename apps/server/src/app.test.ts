@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { API, ApiErrorSchema } from '@4this/shared';
-import { makeTestApp, type TestApp } from './testing';
+import { buildApp } from './app';
+import { openDb } from './db';
+import { makeTestApp, testConfig, type TestApp } from './testing';
 
 describe('buildApp', () => {
   let t: TestApp;
@@ -30,6 +32,19 @@ describe('buildApp', () => {
     });
     expect(res.statusCode).toBe(400);
     expect(ApiErrorSchema.parse(res.json()).error).toBe('invalid');
+  });
+
+  it('예상하지 못한 오류는 500 internal', async () => {
+    const db = openDb(':memory:');
+    const app = buildApp({ config: testConfig(), db });
+    app.get('/api/boom', async () => {
+      throw new Error('터짐');
+    });
+    const res = await app.inject({ method: 'GET', url: '/api/boom' });
+    expect(res.statusCode).toBe(500);
+    expect(ApiErrorSchema.parse(res.json()).error).toBe('internal');
+    await app.close();
+    db.close();
   });
 
   it('events 이미터가 붙어 있다', () => {
