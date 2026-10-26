@@ -25,6 +25,8 @@ export function ScheduleScreen() {
   const [kind, setKind] = useState<Kind>('lecture1');
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const [busy, setBusy] = useState(false);
+  /** 저장이 끝날 때마다 늘려 목록 편집기를 새로 띄운다: 서버가 정렬해 돌려주면 편집 중 번호가 어긋난다 */
+  const [saveCount, setSaveCount] = useState(0);
   /** 서버 시간표를 한 번이라도 불러왔는지. 실패한 채 저장하면 서버 목록을 덮어쓴다 */
   const [loaded, setLoaded] = useState(false);
   const overlaps = useMemo(() => overlapping(items), [items]);
@@ -78,6 +80,7 @@ export function ScheduleScreen() {
     try {
       const res = await api.putMySchedules({ items: cleanItems(items) });
       setItems(res.items);
+      setSaveCount((n) => n + 1);
       setSelected(null);
       setStatus({ kind: 'saved' });
       if (onboarding) close();
@@ -100,6 +103,7 @@ export function ScheduleScreen() {
           <p className="ui-note">불러오는 중…</p>
         ) : mobile ? (
           <ScheduleListEditor
+            key={saveCount}
             items={items}
             overlaps={overlaps}
             onChange={(next) => change(next, null)}

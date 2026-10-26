@@ -165,4 +165,39 @@ describe('ScheduleScreen 모바일 (640px 미만)', () => {
     fireEvent.click(screen.getByRole('button', { name: '일정 추가' }));
     expect(screen.getByRole('alert').textContent).toBe('끝 시각이 시작보다 늦어야 해요.');
   });
+
+  it('저장 뒤에는 고치던 일정을 놓아 준다 (서버가 정렬해 돌려줘도 다른 일정을 덮지 않게)', async () => {
+    const MON: ScheduleItem = { day: 0, start: '09:00', end: '10:00', kind: 'lecture1' };
+    const WED: ScheduleItem = { day: 2, start: '09:00', end: '10:00', kind: 'lecture1' };
+    mockApi({
+      'GET /api/me/schedules': { body: { items: [MON, WED] } },
+      'PUT /api/me/schedules': (body) => ({
+        body: {
+          items: [...(body as { items: ScheduleItem[] }).items].sort(
+            (a, b) => a.day - b.day || a.start.localeCompare(b.start),
+          ),
+        },
+      }),
+    });
+    render(<ScheduleScreen />);
+    await screen.findByText('월 09:00~10:00 · 1학년 강의');
+
+    fireEvent.change(screen.getByLabelText('요일'), { target: { value: '1' } });
+    fireEvent.change(screen.getByLabelText('시작'), { target: { value: '6' } }); // 09:00
+    fireEvent.change(screen.getByLabelText('끝'), { target: { value: '8' } }); // 10:00
+    fireEvent.click(screen.getByRole('button', { name: '일정 추가' }));
+
+    // 목록이 정렬돼 있으니 화요일 줄은 두 번째 수정 버튼이다
+    fireEvent.click(screen.getAllByRole('button', { name: '수정' })[1]!);
+    expect(screen.getByRole('button', { name: '수정 완료' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    await screen.findByText('저장했어요 ✨');
+
+    expect(screen.getByRole('button', { name: '일정 추가' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '수정 완료' })).toBeNull();
+    expect(screen.getByText('월 09:00~10:00 · 1학년 강의')).toBeTruthy();
+    expect(screen.getByText('화 09:00~10:00 · 1학년 강의')).toBeTruthy();
+    expect(screen.getByText('수 09:00~10:00 · 1학년 강의')).toBeTruthy();
+  });
 });
