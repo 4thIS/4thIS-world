@@ -6,6 +6,7 @@ import {
   MeshStandardMaterial,
   type Material,
   type Mesh,
+  type Object3D,
 } from 'three';
 import { CAMPUS, FLOOR_HEIGHT, type BuildingId, type Vec2 } from '@4this/shared';
 import { WALL_SIDES } from './buildingGeometry';
@@ -35,6 +36,8 @@ interface SideMaterials {
 }
 
 const GLASS_OPACITY = 0.45;
+/** 이보다 흐린 면(컷어웨이된 벽은 0.1)은 클릭을 통과시킨다 */
+const CLICK_MIN_OPACITY = 0.3;
 
 /**
  * 데이터(CAMPUS.buildings[id])로 조립한 건물: 바닥판·외벽(창문 구멍)·문·계단·옥상 난간.
@@ -114,6 +117,15 @@ export function Building({
   const roofY = b.floors * FLOOR_HEIGHT;
   const click = (e: ThreeEvent<MouseEvent>) => {
     if (!onClick) return;
+    // three/R3F 레이캐스트는 visible을 보지 않는다. 숨긴 층이나 흐려진 벽은
+    // 클릭을 가로채지 않고 안쪽 캐릭터·바닥으로 흘려보낸다.
+    for (let o: Object3D | null = e.object; o; o = o.parent) {
+      if (!o.visible) return;
+      if (o === e.eventObject) break;
+    }
+    const mat = (e.object as Mesh).material as Material | Material[] | undefined;
+    const first = Array.isArray(mat) ? mat[0] : mat;
+    if (first && first.opacity < CLICK_MIN_OPACITY) return;
     e.stopPropagation();
     onClick(id);
   };
