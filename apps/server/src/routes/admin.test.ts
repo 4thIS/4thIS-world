@@ -1,3 +1,7 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   AdminMemberSchema,
@@ -7,7 +11,7 @@ import {
   WorldResponseSchema,
 } from '@4this/shared';
 import { adminCookie, countWorldChanged, makeTestApp, signupAs, type TestApp } from '../testing';
-import { ADMIN_ROUTES } from './admin';
+import { ADMIN_ROUTES, backupFileName } from './admin';
 
 describe('관리자 API', () => {
   let t: TestApp;
@@ -97,5 +101,29 @@ describe('관리자 API', () => {
     expect(res.json()).toEqual({ ok: true });
     expect(changes()).toBe(1);
     expect(t.db.prepare('SELECT count(*) FROM members').pluck().get()).toBe(0);
+  });
+
+  it('백업은 SQLite 파일을 첨부로 내려준다', async () => {
+    await signupAs(t, '철수', { approve: true });
+    const res = await as('GET', API.adminBackup);
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-disposition']).toBe(`attachment; filename="${backupFileName()}"`);
+    expect(res.rawPayload.subarray(0, 15).toString()).toBe('SQLite format 3');
+
+    const dir = mkdtempSync(join(tmpdir(), 'world-backup-test-'));
+    try {
+      const file = join(dir, 'restored.db');
+      writeFileSync(file, res.rawPayload);
+      const restored = new Database(file, { readonly: true });
+      expect(restored.prepare('SELECT username FROM members').pluck().all()).toEqual(['철수']);
+      restored.close();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('백업 파일 이름은 KST 날짜', () => {
+    // 2026-10-21 15:30 UTC = 2026-10-22 00:30 KST
+    expect(backupFileName(Date.UTC(2026, 9, 21, 15, 30))).toBe('world-20261022.db');
   });
 });

@@ -1,7 +1,12 @@
+import { createReadStream } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import {
   AdminPatchMemberRequestSchema,
   API,
+  kstDate,
   type AdminMember,
   type AdminMembersResponse,
   type MemberStatus,
@@ -27,6 +32,11 @@ export const ADMIN_ROUTES = {
   approve: `${API.adminMembers}/:id/approve`,
   reject: `${API.adminMembers}/:id/reject`,
 } as const;
+
+/** 백업 파일 이름: world-YYYYMMDD.db (KST 날짜) */
+export function backupFileName(now = Date.now()): string {
+  return `world-${kstDate(now).replaceAll('-', '')}.db`;
+}
 
 export function registerAdminRoutes(app: FastifyInstance): void {
   const { db, events } = app;
@@ -87,5 +97,25 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     deleteMember(db, member.id);
     events.emit('world:changed');
     return { ok: true as const };
+  });
+
+  /** SQLite 온라인 백업 → 임시 파일 → 다운로드 → 임시 폴더 삭제 */
+  app.get(API.adminBackup, async (request, reply) => {
+    requireAdmin(request);
+    const dir = await mkdtemp(join(tmpdir(), 'world-backup-'));
+    const file = join(dir, 'world.db');
+    try {
+      await db.backup(file);
+    } catch (error) {
+      await rm(dir, { recursive: true, force: true });
+      throw error;
+    }
+    const stream = createReadStream(file);
+    stream.on('close', () => void rm(dir, { recursive: true, force: true }));
+    return reply
+      .header('content-type', 'application/vnd.sqlite3')
+      .header('content-disposition', `attachment; filename="${backupFileName()}"`)
+      .header('cache-control', 'no-store')
+      .send(stream);
   });
 }
