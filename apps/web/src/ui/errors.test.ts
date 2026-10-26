@@ -16,6 +16,12 @@ describe('errorMessage', () => {
     expect(errorMessage(err)).toBe('로그인이 필요해요.');
   });
 
+  it('서버 내부 오류는 입력 문제가 아니라고 알려 준다', () => {
+    const msg = errorMessage(new ApiError(500, 'internal', 'x'));
+    expect(msg).toContain('서버에 문제가 생겼어요');
+    expect(msg).not.toContain('입력값');
+  });
+
   it('네트워크 에러는 연결 문구', () => {
     expect(errorMessage(new TypeError('Failed to fetch'))).toContain('서버에 연결할 수 없어요');
   });
