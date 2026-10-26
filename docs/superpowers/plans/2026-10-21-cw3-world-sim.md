@@ -87,14 +87,14 @@ apps/web/src/
 - Consumes: `api.world()`(cw#1), `computeDay`, `kstDate`, `kstMidnight`, `DAY_MS`, `CAMPUS`
 - Produces: 위 `useWorld`, `worldNow`
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout cw && git merge origin/main
 npm install
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성** — `apps/web/src/store/world.test.ts`
+- [x] **Step 2: 실패하는 테스트 작성** — `apps/web/src/store/world.test.ts`
 
 ```ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -189,12 +189,12 @@ describe('useWorld', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- world`
 Expected: FAIL — `Failed to resolve import "./world" from "src/store/world.test.ts"`
 
-- [ ] **Step 4: 구현** — `apps/web/src/store/world.ts`
+- [x] **Step 4: 구현** — `apps/web/src/store/world.ts`
 
 ```ts
 import { create } from 'zustand';
@@ -307,12 +307,12 @@ export const useWorld = create<WorldState>()((set, get) => ({
 export const worldNow = () => useWorld.getState().now();
 ```
 
-- [ ] **Step 5: 통과·타입 확인**
+- [x] **Step 5: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — web 11개(기존 5 + 6), 타입 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/store/world.ts apps/web/src/store/world.test.ts
@@ -331,7 +331,7 @@ git commit -m "feat: 월드 스토어 — GET /world, 서버 시계 오프셋, �
 - Consumes: `sampleAt`, `professorAt`, `PLACE_IDS`, `FloorKey`(`world/contracts.ts`)
 - Produces: 위 `motion.ts`·`occupancy.ts` 목록
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/sim/motion.test.ts`:
 
@@ -480,12 +480,12 @@ describe('hiddenByCutaway', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- sim`
 Expected: FAIL — `Failed to resolve import "./motion"` / `"./occupancy"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/sim/motion.ts`:
 
@@ -641,12 +641,12 @@ export function hiddenByCutaway(
 }
 ```
 
-- [ ] **Step 4: 통과·타입 확인**
+- [x] **Step 4: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — 21개, 타입 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/sim
@@ -665,7 +665,7 @@ git commit -m "feat: 이동 보간·표시 값·층 점유·컷어웨이 가림 
 - Consumes: `WEEKDAY_LABELS`, `kstWeekday`, `kstMinutes`, `kstDate`, `fromMinutes`, `rand01`, `FLOOR_HEIGHT`
 - Produces: 위 `labels.ts`·`camera.ts` 목록. 하늘 아이콘 경계는 스펙 §5.5(06/09/17/19시)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/sim/labels.test.ts`:
 
@@ -756,12 +756,12 @@ describe('followPosition', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- sim`
 Expected: FAIL — `Failed to resolve import "./labels"` / `"./camera"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/sim/labels.ts`:
 
@@ -892,12 +892,12 @@ export function followPosition(camera: Vec3, target: Vec3, k: number): Vec3 {
 }
 ```
 
-- [ ] **Step 4: 통과·타입 확인**
+- [x] **Step 4: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — 27개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/sim
@@ -917,7 +917,7 @@ git commit -m "feat: 시계·하늘 아이콘·위치 문구·교수님 대사·
 - Consumes: `useWorld`, `formatClock`, `skyIconAt`, `peopleIn`, `snapshotAt`, `OverlayProps`/`BuildingPanelProps`(`ui/contracts.ts`)
 - Produces: `useNow(intervalMs)`. `useOverlayProps()`의 `topBar = { clock: '수 14:10', skyIcon }`(1초마다), `building = { building, name, floors, hiddenAboveFloor, onFloor: setHiddenAboveFloor, people, onClose: () => focusBuilding(null) } | null`
 
-- [ ] **Step 1: 실패하는 테스트 작성** — `apps/web/src/store/overlay.test.ts`
+- [x] **Step 1: 실패하는 테스트 작성** — `apps/web/src/store/overlay.test.ts`
 
 ```ts
 import { act, cleanup, renderHook } from '@testing-library/react';
@@ -987,12 +987,12 @@ describe('useOverlayProps (cw#3 범위)', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- overlay`
 Expected: FAIL — `expected { clock: '', skyIcon: '☀️' } to deeply equal { clock: '수 14:10', skyIcon: '☀️' }`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/store/clock.ts`:
 
@@ -1071,12 +1071,12 @@ export function useOverlayProps(): OverlayProps {
 }
 ```
 
-- [ ] **Step 4: 통과·타입 확인**
+- [x] **Step 4: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — 30개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/store
@@ -1095,7 +1095,7 @@ git commit -m "feat: 오버레이 상단 시계·하늘 아이콘·건물 패널
 - Consumes: `useWorld`, `sampleAt`, `ANIMAL_ICON`, `describeWhere`, `formatClock`
 - Produces: `hasWebGL(): boolean`, `<TextFallback />` — 5초마다(멤버가 바뀌면 즉시) `🐶 철수 — 공학관 2층 · 2학년 강의` 형태로 다시 그린다
 
-- [ ] **Step 1: 실패하는 테스트 작성** — `apps/web/src/world/sim/TextFallback.test.tsx`
+- [x] **Step 1: 실패하는 테스트 작성** — `apps/web/src/world/sim/TextFallback.test.tsx`
 
 ```tsx
 import { act, cleanup, render, screen } from '@testing-library/react';
@@ -1155,12 +1155,12 @@ describe('TextFallback', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- TextFallback`
 Expected: FAIL — `Failed to resolve import "./TextFallback"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/sim/webgl.ts`:
 
@@ -1248,12 +1248,12 @@ export function TextFallback() {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — 33개 (jsdom이 `HTMLCanvasElement.getContext` 미구현 경고를 stderr에 찍는 것은 정상)
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/sim
@@ -1275,7 +1275,7 @@ git commit -m "feat: WebGL 미지원 시 '누가 어디 있나' 텍스트 목록
 - Produces: `registry.ts`, `resolvePose.ts`(cw#3 판: `sampleAt` 그대로), `WorldCanvas({ autoLoad, children })`
 - 동작: 처음 나타날 때·2.5 m 넘게 튈 때(층 이동·정문 출입, 이때는 투명도 0)는 바로 옮기고, 그 밖에는 지수 감쇠로 따라간다. 부재(`null`)·컷어웨이로 숨긴 층이면 `group.visible = false`. 내 캐릭터는 `highlight`. 캐릭터를 누르면 `focusMember(id)` → 카메라가 따라간다(16 m까지 당김). 건물을 누르면 `focusBuilding(id)` → 카메라가 건물로 다가가고 도착하면 자유 회전
 
-- [ ] **Step 1: 객체 등록·포즈 결정**
+- [x] **Step 1: 객체 등록·포즈 결정**
 
 `apps/web/src/world/sim/registry.ts`:
 
@@ -1306,7 +1306,7 @@ export function resolvePose(memberId: string, t: number): Pose | null {
 }
 ```
 
-- [ ] **Step 2: 멤버 캐릭터**
+- [x] **Step 2: 멤버 캐릭터**
 
 `apps/web/src/world/sim/MemberAvatar.tsx`:
 
@@ -1408,7 +1408,7 @@ export function SimMembers() {
 }
 ```
 
-- [ ] **Step 3: 사자 교수님** — 위치는 바깥 group을 움직이고, 말풍선은 drei `Html`로 머리 위에 4초 띄운다(Character의 `emote`는 이모지 전용이라 쓰지 않는다)
+- [x] **Step 3: 사자 교수님** — 위치는 바깥 group을 움직이고, 말풍선은 drei `Html`로 머리 위에 4초 띄운다(Character의 `emote`는 이모지 전용이라 쓰지 않는다)
 
 `apps/web/src/world/sim/Professor.tsx`:
 
@@ -1496,7 +1496,7 @@ export function Professor() {
 }
 ```
 
-- [ ] **Step 4: 카메라·Campus용 느린 값**
+- [x] **Step 4: 카메라·Campus용 느린 값**
 
 `apps/web/src/world/sim/CameraRig.tsx`:
 
@@ -1626,7 +1626,7 @@ export function useWorldTick(): { now: number; occupied: ReadonlySet<FloorKey> }
 }
 ```
 
-- [ ] **Step 5: WorldCanvas 조립** — `apps/web/src/world/WorldCanvas.tsx` 전체
+- [x] **Step 5: WorldCanvas 조립** — `apps/web/src/world/WorldCanvas.tsx` 전체
 
 ```tsx
 import { OrbitControls } from '@react-three/drei';
@@ -1693,12 +1693,12 @@ export function WorldCanvas({
 }
 ```
 
-- [ ] **Step 6: 타입·빌드 확인**
+- [x] **Step 6: 타입·빌드 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run build`
 Expected: 타입 에러 0, `✓ built`
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/src/world
@@ -1717,7 +1717,7 @@ git commit -m "feat: 매 프레임 sampleAt으로 캐릭터 배치·보간, 교�
 - Consumes: `demoMembers`(cw#2), `useWorld.setWorld/setClock`, `WorldCanvas({ autoLoad: false, children })`, `UiRoot`(th)
 - Produces: `?dev=sim` — 서버 없이 가짜 멤버 n명(기본 30)으로 월드를 돌린다. `&at=HH:MM`(오늘 KST 시작 시각), `&speed=N`(배속). 왼쪽 아래에 `30명 · ×1 · 60 fps`
 
-- [ ] **Step 1: 개발 페이지** — `apps/web/src/dev/sim/SimDevPage.tsx`
+- [x] **Step 1: 개발 페이지** — `apps/web/src/dev/sim/SimDevPage.tsx`
 
 ```tsx
 import { useFrame } from '@react-three/fiber';
@@ -1793,7 +1793,7 @@ export function SimDevPage() {
 }
 ```
 
-- [ ] **Step 2: App 연결** — `apps/web/src/App.tsx` 전체 (cw#1 파일에 `?dev=sim` 한 줄과 import 한 줄을 더한 것)
+- [x] **Step 2: App 연결** — `apps/web/src/App.tsx` 전체 (cw#1 파일에 `?dev=sim` 한 줄과 import 한 줄을 더한 것)
 
 ```tsx
 import { useEffect } from 'react';
@@ -1827,12 +1827,12 @@ export function App() {
 }
 ```
 
-- [ ] **Step 3: 전체 검사**
+- [x] **Step 3: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과 — shared 71개, web 33개 (server 테스트 수는 그때까지 머지된 wj PR에 따라 다르다)
 
-- [ ] **Step 4: 화면 확인**
+- [x] **Step 4: 화면 확인**
 
 Run: `npm run dev -w @4this/web` 후 브라우저로 http://localhost:5173/?dev=sim&at=12:10&speed=30
 Expected:
@@ -1844,14 +1844,14 @@ Expected:
 
 스크린샷을 PR에 붙인다. 개발자 도구에서 `WebGL` 끄기(Chrome: `chrome://flags` → WebGL 비활성 또는 `--disable-webgl`로 실행)로 텍스트 목록도 한 번 확인한다.
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/dev/sim apps/web/src/App.tsx
 git commit -m "feat: ?dev=sim 30명 시뮬레이션 개발 페이지와 FPS 표시"
 ```
 
-- [ ] **Step 6: push·PR** (cw#2·hm#1·th#1이 머지된 뒤)
+- [x] **Step 6: push·PR** (cw#2·hm#1·th#1이 머지된 뒤)
 
 ```bash
 git fetch origin && git merge origin/main
