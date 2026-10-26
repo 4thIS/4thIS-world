@@ -25,6 +25,9 @@ const bubbleStyle = {
 } as const;
 
 /** 사자 교수님 NPC: 평일 09–18시 연구동 2F. 누르면 말풍선 한 줄 (§6.4) */
+/** drei Html 기본 zIndex(1677만대)는 화면 UI를 덮는다. 캐릭터 이름표와 같은 범위로 낮춘다 */
+const BUBBLE_Z_RANGE: [number, number] = [20, 0];
+
 export function Professor() {
   const ref = useRef<Group>(null);
   const shown = useRef<DisplayState>(HIDDEN_DISPLAY);
@@ -72,7 +75,8 @@ export function Professor() {
         onClick={onClick}
       />
       {line && display.visible && (
-        <Html position={[0, 2.4, 0]} center>
+        // 이름표·말풍선처럼 모달·메뉴 아래에 깔리고 클릭을 가로채지 않게 한다
+        <Html position={[0, 2.4, 0]} center zIndexRange={BUBBLE_Z_RANGE} pointerEvents="none">
           <div style={bubbleStyle}>{line}</div>
         </Html>
       )}
