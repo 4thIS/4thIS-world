@@ -9,6 +9,7 @@ import type { Db } from './db';
 import { registerErrorHandlers } from './errors';
 import { registerAuthRoutes } from './routes/auth';
 import { registerMeRoutes } from './routes/me';
+import { registerWorldRoutes } from './routes/world';
 
 /** 서버 안에서 주고받는 이벤트. wj#3의 소켓 계층이 world:changed를 받아 브로드캐스트한다 */
 export type ServerEvents = { 'world:changed': [] };
@@ -53,6 +54,7 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
     });
     api.get(API.health, async () => ({ ok: true }));
     registerAuthRoutes(api);
+    registerWorldRoutes(api);
     registerMeRoutes(api);
   });
 
