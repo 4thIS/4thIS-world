@@ -1,12 +1,12 @@
 # 스펙 §12.2 파일 소유. 아래쪽 줄이 우선한다.
-# cw=박찬우 @ssenu · wj=이우진 (GitHub 아이디 확인 전까지 @ssenu가 대신 리뷰) · hm=박효민 @phmin819 · th=김태희 @kiimth236
+# cw=박찬우 @ssenu · wj=이우진 @leemonta9482 · hm=박효민 @phmin819 · th=김태희 @kiimth236
 
 *                                   @ssenu
 
-/apps/server/                       @ssenu
-/Dockerfile                         @ssenu
-/docker-compose.yml                 @ssenu
-/.env.example                       @ssenu
+/apps/server/                       @leemonta9482
+/Dockerfile                         @leemonta9482
+/docker-compose.yml                 @leemonta9482
+/.env.example                       @leemonta9482
 
 /packages/shared/src/campus/        @phmin819
 /apps/web/src/world/campus/         @phmin819
