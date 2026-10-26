@@ -125,13 +125,13 @@ git commit -m "test: paverTiles 겹침 검사를 최솟값 한 번으로 바꿔 
 **Interfaces:**
 - Produces: `CUTAWAY_DOT = 0.3`, `CUTAWAY_OPACITY = 0.1`, `CUTAWAY_SECONDS = 0.25`, `wallFacesCamera(normal: Vec2, center: Vec2, camera: Vec2): boolean`, `targetOpacity(facing: boolean): number`, `approach(current: number, target: number, dt: number): number`, `edgeOpacity(wallOpacity: number): number`
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/cutaway.test.ts`:
 ```ts
@@ -182,12 +182,12 @@ describe('edgeOpacity', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./cutaway"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/world/campus/cutaway.ts`:
 ```ts
@@ -227,12 +227,12 @@ export function edgeOpacity(wallOpacity: number): number {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — cutaway 6개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/cutaway.ts apps/web/src/world/campus/cutaway.test.ts
