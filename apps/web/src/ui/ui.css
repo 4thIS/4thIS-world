@@ -352,6 +352,19 @@
   overflow: hidden;
 }
 
+/* WebGL이 없는 브라우저의 미리보기 */
+.ui-preview--flat {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+}
+
+.ui-preview__emoji {
+  font-size: 88px;
+  line-height: 1;
+}
+
 @media (max-width: 639px) {
   .ui-customize {
     grid-template-columns: 1fr;
