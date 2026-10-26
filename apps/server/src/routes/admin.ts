@@ -111,7 +111,10 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       throw error;
     }
     const stream = createReadStream(file);
-    stream.on('close', () => void rm(dir, { recursive: true, force: true }));
+    // 정리에 실패해도(Windows의 EBUSY 등) 서버가 죽지 않게 한다. 임시 파일이 남을 뿐이다
+    stream.on('close', () => {
+      rm(dir, { recursive: true, force: true, maxRetries: 3 }).catch(() => {});
+    });
     return reply
       .header('content-type', 'application/vnd.sqlite3')
       .header('content-disposition', `attachment; filename="${backupFileName()}"`)
