@@ -122,7 +122,7 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
   app.addHook('preClose', async () => {
     clearInterval(timer);
     app.events.off('world:changed', onWorldChanged);
-    io.disconnectSockets(true);
+    // 소켓에 끊김 패킷을 보내지 않고 전송만 닫는다. 그래야 클라이언트가 자동으로 다시 붙는다 (io server disconnect면 재연결하지 않는다)
     io.engine.close();
   });
 
