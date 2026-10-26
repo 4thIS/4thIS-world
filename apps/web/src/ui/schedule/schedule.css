@@ -1,0 +1,167 @@
+/* 내 시간표: 주간 격자·블록·목록 편집기 */
+
+.sch-kind {
+  background: color-mix(in srgb, var(--kind) 55%, #fff);
+}
+
+.sch-kind[aria-pressed='true'] {
+  background: var(--kind);
+  color: var(--ink);
+  box-shadow: 0 0 0 2px var(--lavender);
+}
+
+.sch-grid {
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #f0e6f5;
+  overflow: hidden;
+}
+
+.sch-grid__head {
+  display: grid;
+  grid-template-columns: 48px repeat(7, 1fr);
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  background: #fbf5fd;
+}
+
+.sch-grid__scroll {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  max-height: min(56vh, 520px);
+  overflow-y: auto;
+}
+
+.sch-grid__times {
+  position: relative;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.sch-grid__times span {
+  position: absolute;
+  right: 6px;
+  transform: translateY(-1px);
+}
+
+.sch-grid__body {
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+  /* 30분 줄은 옅게, 1시간 줄은 조금 진하게, 요일 사이는 세로줄 */
+  background-image:
+    linear-gradient(to right, #f1e8f6 1px, transparent 1px),
+    linear-gradient(to bottom, #efe3f4 1px, transparent 1px),
+    linear-gradient(to bottom, #f8f2fa 1px, transparent 1px);
+  background-size:
+    calc(100% / 7) 100%,
+    100% 40px,
+    100% 20px;
+}
+
+.sch-block {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--kind);
+  box-shadow: 0 2px 6px rgba(150, 110, 150, 0.18);
+  font-size: 11px;
+  line-height: 1.25;
+  cursor: grab;
+}
+
+.sch-block b {
+  font-size: 12px;
+}
+
+.sch-block small {
+  opacity: 0.7;
+}
+
+.sch-block--selected {
+  outline: 2px solid var(--lavender);
+  z-index: 2;
+}
+
+.sch-block--overlap {
+  background: #ffc2cf;
+  outline: 2px solid #ff6f8e;
+}
+
+.sch-block--ghost {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.sch-block__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.sch-block__edge--start {
+  top: 0;
+}
+
+.sch-block__edge--end {
+  bottom: 0;
+}
+
+.sch-selected {
+  align-items: flex-end;
+}
+
+.sch-selected__title {
+  flex: 1;
+}
+
+/* 모바일 목록 + 폼 */
+.sch-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sch-list__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 13px;
+}
+
+.sch-list__text {
+  flex: 1;
+}
+
+.sch-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.sch-form {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: #fbf5fd;
+}
+
+.sch-form__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
