@@ -29,6 +29,8 @@ export const ERROR_CODES = [
   'username_taken',
   'overlap',
   'rate_limited',
+  /** 서버 안에서 난 예상하지 못한 오류 (500) */
+  'internal',
 ] as const;
 export type ApiErrorCode = (typeof ERROR_CODES)[number];
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { API, PutSchedulesRequestSchema, SignupRequestSchema } from './api';
+import { API, ApiErrorSchema, PutSchedulesRequestSchema, SignupRequestSchema } from './api';
 import { SessionSchema } from './member';
 
 describe('API 경로', () => {
@@ -39,5 +39,13 @@ describe('SessionSchema', () => {
   it('kind로 구분한다', () => {
     expect(SessionSchema.parse({ kind: 'guest' })).toEqual({ kind: 'guest' });
     expect(SessionSchema.safeParse({ kind: 'member' }).success).toBe(false);
+  });
+});
+
+describe('ApiErrorSchema', () => {
+  it('서버 내부 오류는 internal 코드로 구분한다', () => {
+    expect(ApiErrorSchema.parse({ error: 'internal', message: '서버 오류' }).error).toBe(
+      'internal',
+    );
   });
 });
