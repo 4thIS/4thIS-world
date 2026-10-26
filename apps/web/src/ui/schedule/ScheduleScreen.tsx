@@ -25,6 +25,8 @@ export function ScheduleScreen() {
   const [kind, setKind] = useState<Kind>('lecture1');
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   const [busy, setBusy] = useState(false);
+  /** 서버 시간표를 한 번이라도 불러왔는지. 실패한 채 저장하면 서버 목록을 덮어쓴다 */
+  const [loaded, setLoaded] = useState(false);
   const overlaps = useMemo(() => overlapping(items), [items]);
   const isMember = session.kind === 'member';
 
@@ -36,6 +38,7 @@ export function ScheduleScreen() {
       .then((res) => {
         if (!alive) return;
         setItems(res.items);
+        setLoaded(true);
         setStatus({ kind: 'ready' });
       })
       .catch((err: unknown) => {
@@ -160,7 +163,7 @@ export function ScheduleScreen() {
             type="button"
             className="ui-btn ui-btn--primary"
             onClick={save}
-            disabled={busy || status.kind === 'loading' || overlaps.size > 0}
+            disabled={busy || !loaded || status.kind === 'loading' || overlaps.size > 0}
           >
             {busy ? '저장하는 중…' : '저장'}
           </button>

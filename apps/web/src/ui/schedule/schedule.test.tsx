@@ -113,6 +113,15 @@ describe('ScheduleScreen 격자', () => {
     fireEvent.click(screen.getByRole('button', { name: '저장' }));
     await vi.waitFor(() => expect(useUi.getState().screen).toBeNull());
   });
+
+  it('불러오기에 실패하면 저장을 막는다 (서버 시간표를 빈 목록으로 덮어쓰지 않게)', async () => {
+    mockApi({ 'GET /api/me/schedules': apiError(500, 'internal') });
+    render(<ScheduleScreen />);
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      '서버에 문제가 생겼어요. 잠시 뒤 다시 해 주세요.',
+    );
+    expect(screen.getByRole('button', { name: '저장' })).toHaveProperty('disabled', true);
+  });
 });
 
 describe('ScheduleScreen 모바일 (640px 미만)', () => {
