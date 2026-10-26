@@ -119,6 +119,9 @@
   top: 64px;
   left: 16px;
   width: 260px;
+  /* 화면 절반에서 여백을 뺀 높이까지만 키우고, 넘치면 패널 안에서 스크롤 */
+  max-height: calc(50vh - 90px);
+  overflow-y: auto;
   display: grid;
   gap: 10px;
   padding: 12px 16px 16px;
@@ -153,6 +156,15 @@
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+/* 가운데 버튼·이모지 바만 누를 수 있게: 빈 자리는 월드로 통과 */
+.ui-root > .ov-bottom {
+  pointer-events: none;
+}
+
+.ov-bottom > * {
+  pointer-events: auto;
 }
 
 .ov-control {
@@ -239,15 +251,17 @@
     font-size: 18px;
   }
 
+  /* 상단 바와 조종 바 사이를 두 등분 (8px 간격) */
   .ov-side {
     top: 58px;
     left: 10px;
     right: 10px;
     width: auto;
+    max-height: calc(33vh - 88px);
   }
 
   .ov-side + .ov-side {
-    top: 200px;
+    top: calc(33vh - 22px);
     bottom: auto;
   }
 }

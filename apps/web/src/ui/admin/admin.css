@@ -42,6 +42,12 @@ a.ui-btn {
   color: var(--ink-soft);
 }
 
+/* 390px 폭에서 글자 단위로 줄바꿈되지 않게 */
+.adm-pending__item .ui-btn,
+.adm-pending__item small {
+  white-space: nowrap;
+}
+
 .adm-spacer {
   flex: 1;
 }
