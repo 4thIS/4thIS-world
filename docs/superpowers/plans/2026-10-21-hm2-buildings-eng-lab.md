@@ -687,7 +687,7 @@ git commit -m "feat: 건물 벽·창·문·바닥판·계단 계산"
   - `MODELS`에 `desk`, `chairDesk`, `laptop`, `computerScreen`, `computerKeyboard`, `bookcaseOpen`, `bookcaseClosedWide`, `books`, `pottedPlant`, `plantSmall`, `trashcan`. `KENNEY_SCALE = 2`
   - `DESK_TOP = 0.77`, `TABLE_TOP = 0.75`, `forward(facing): Vec2`, `ahead(seat, d): Vec2`, `chairAt(seat, y): ModelItem`, `facingSeat(seat, d, y): ModelItem`, `centroid(seats): Vec2`, `interface TableBox { center: Vec2; size: Vec2 }`, `tableBetween(seats, gap = 0.65, minSize = 0.8): TableBox`, `interface ClassroomFurniture { chairs; desks; laptops; screens; keyboards }`, `classroomFurniture(seats, y): ClassroomFurniture`
 
-- [ ] **Step 1: Kenney Furniture Kit 내려받기 (새 빈 폴더에)**
+- [x] **Step 1: Kenney Furniture Kit 내려받기 (새 빈 폴더에)**
 
 ```bash
 DL=$(mktemp -d)   # 새 빈 폴더
@@ -703,7 +703,7 @@ ls apps/web/public/assets/kenney | wc -l    # 11
 
 (링크가 바뀌었으면 https://kenney.nl/assets/furniture-kit 페이지의 Download 버튼 주소를 쓴다. zip 안의 `Models/GLTF format/*.glb`만 쓴다.)
 
-- [ ] **Step 2: 모델 목록과 출처**
+- [x] **Step 2: 모델 목록과 출처**
 
 Kenney 모델은 바운딩 박스 원점이 모서리이고 앞면(사람 쪽)이 +z다(의자는 앉은 사람이 +z를 봄, 책상·모니터·책장은 앞면이 +z). `<Model>`이 바닥 가운데로 옮기므로 `yaw`는 모두 0이다. 대체 상자 크기 = 원본 바운딩 박스 × 배율.
 
@@ -786,7 +786,7 @@ Kenney 모델은 바운딩 박스 원점이 모서리이고 앞면(사람 쪽)�
  
 ```
 
-- [ ] **Step 3: 실패하는 테스트 작성**
+- [x] **Step 3: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/furniture.test.ts`:
 ```ts
@@ -875,12 +875,12 @@ describe('centroid / tableBetween', () => {
 });
 ```
 
-- [ ] **Step 4: 실패 확인**
+- [x] **Step 4: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./furniture"`
 
-- [ ] **Step 5: 구현**
+- [x] **Step 5: 구현**
 
 `apps/web/src/world/campus/furniture.ts`:
 ```ts
@@ -985,12 +985,12 @@ export function classroomFurniture(seats: readonly Seat[], y: number): Classroom
 }
 ```
 
-- [ ] **Step 6: 통과 확인**
+- [x] **Step 6: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — furniture 7개, assets 2개(의자 `chairDesk` 앉는 면 0.45 m 포함)
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/public/assets/kenney CREDITS.md apps/web/src/world/campus/assets.ts apps/web/src/world/campus/furniture.ts apps/web/src/world/campus/furniture.test.ts
