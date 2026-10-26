@@ -7,6 +7,7 @@ import { readSessionToken, resolveSession, type Auth } from './auth/session';
 import type { Config } from './config';
 import type { Db } from './db';
 import { registerErrorHandlers } from './errors';
+import { registerAdminRoutes } from './routes/admin';
 import { registerAuthRoutes } from './routes/auth';
 import { registerMeRoutes } from './routes/me';
 import { registerWorldRoutes } from './routes/world';
@@ -56,6 +57,7 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
     registerAuthRoutes(api);
     registerWorldRoutes(api);
     registerMeRoutes(api);
+    registerAdminRoutes(api);
   });
 
   return app;
