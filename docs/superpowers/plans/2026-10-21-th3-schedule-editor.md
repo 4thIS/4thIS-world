@@ -10,6 +10,9 @@
 
 **Tech Stack:** React 19.3 · zustand 5 · vitest 5 · @testing-library/react 16 (`fireEvent.pointerDown/Move/Up`) · jsdom
 
+> **팀장 메모 (2026-10-26, 박찬우):** Task 4의 `CustomizeScreen.tsx`·`customize.test.tsx` 코드를 고쳐 두었다.
+> 가입 직후 꾸미기 화면이 `randomLook()`을 새로 뽑으면 서버가 가입 때 저장한 캐릭터와 달라진다(PR #7 리뷰 ①, 계정 메뉴는 🐻인데 꾸미기는 🐶). 이제 **항상 `session.me.look`으로 시작**한다. 🎲 랜덤 버튼은 그대로다. 이 플랜 코드대로 하면 반영된다.
+
 ## Global Constraints
 
 - Node `>=24`, npm workspaces, `package-lock.json` 커밋. TypeScript는 `~5.9.3` 고정.
@@ -1476,19 +1479,11 @@ describe('CustomizeScreen', () => {
     expect(screen.getByRole('button', { name: '비니' }).getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('가입 흐름에서는 랜덤 조합으로 시작한다', () => {
+  it('가입 흐름에서도 서버에 저장된 생김새로 시작한다', () => {
     useUi.getState().open('customize', { onboarding: true });
-    const random = vi.spyOn(Math, 'random').mockReturnValue(0.99);
     render(<CustomizeScreen />);
-    expect(preview()).toEqual({
-      animal: 'duck',
-      color: 'gray',
-      head: 'cap',
-      eyes: 'sunglasses',
-      neck: 'bowtie',
-    });
+    expect(preview()).toEqual(ME_PENDING.look);
     expect(screen.getByRole('heading').textContent).toBe('내 캐릭터 만들기');
-    random.mockRestore();
   });
 
   it('🎲 랜덤은 항상 유효한 조합', () => {
@@ -1779,15 +1774,15 @@ import { LookChips } from './LookChips';
 import { LookPreview } from './LookPreview';
 
 /**
- * 캐릭터 꾸미기. 가입 직후(onboarding)에는 랜덤 조합으로 시작하고,
- * 그 밖에는 지금 내 생김새로 시작한다.
+ * 캐릭터 꾸미기. 항상 서버에 저장된 내 생김새로 시작한다.
+ * 가입 직후에도 서버가 가입 때 뽑아 저장한 랜덤 조합이 보이므로, 저장하지 않고 닫아도 화면과 같다.
  */
 export function CustomizeScreen() {
   const session = useSession((s) => s.session);
   const setSession = useSession((s) => s.setSession);
   const { onboarding, open, close } = useUi();
   const [look, setLook] = useState<Look>(() =>
-    onboarding ? randomLook() : session.kind === 'member' ? session.me.look : DEFAULT_LOOK,
+    session.kind === 'member' ? session.me.look : DEFAULT_LOOK,
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
