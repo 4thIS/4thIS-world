@@ -47,7 +47,10 @@ export function AccountMenu() {
           { label: '캐릭터 꾸미기', run: go('customize') },
           { label: '로그아웃', run: logout },
         ]
-      : [{ label: '로그아웃', run: logout }];
+      : [
+          { label: '관리자 화면', run: go('admin') },
+          { label: '로그아웃', run: logout },
+        ];
   const title =
     session.kind === 'member'
       ? `${ANIMAL_EMOJI[session.me.look.animal]} ${session.me.username}`

@@ -7,7 +7,7 @@ import { useUi } from '../store';
 
 /** 관리자 로그인 모달 (ADMIN_PASSWORD 하나로 들어간다) */
 export function AdminLoginForm() {
-  const close = useUi((s) => s.close);
+  const { open, close } = useUi();
   const setSession = useSession((s) => s.setSession);
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function AdminLoginForm() {
     setError(null);
     try {
       setSession(await api.adminLogin({ password }));
-      close();
+      open('admin');
     } catch (err) {
       setError(errorMessage(err, 'admin'));
     } finally {
