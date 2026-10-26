@@ -68,7 +68,7 @@ apps/web/src/dev/campus/CampusPreview.tsx  (수정) building=·floor= 쿼리, �
 
 - Modify: `apps/web/src/world/campus/layout.test.ts`
 
-- [ ] **Step 1: 겹침 검사를 최솟값 한 번으로 바꾸기**
+- [x] **Step 1: 겹침 검사를 최솟값 한 번으로 바꾸기**
 
 `describe('paverTiles', …)` 안의 첫 번째 `it`를 아래로 바꾼다.
 
@@ -102,12 +102,12 @@ apps/web/src/dev/campus/CampusPreview.tsx  (수정) building=·floor= 쿼리, �
   });
 ```
 
-- [ ] **Step 2: 통과와 시간 확인**
+- [x] **Step 2: 통과와 시간 확인**
 
 Run: `npx vitest run --root apps/web src/world/campus/layout.test.ts`
 Expected: PASS, 전체 1초 안팎(바꾸기 전에는 이 테스트 하나가 0.7초 이상)
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/layout.test.ts
