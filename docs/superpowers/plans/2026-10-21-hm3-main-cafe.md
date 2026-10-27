@@ -10,6 +10,8 @@
 
 **Tech Stack:** React 19.3 · three 0.186 · @react-three/fiber 9 · @react-three/drei 10 · vitest 5 · Kenney Furniture Kit 2.0 (CC0)
 
+> **팀장 메모 (2026-10-27, 박찬우):** Task 1 앞에 **Task 0**(옥상 반투명)을 추가했다. PR #18 리뷰에서 공학관 옥상 바닥판이 불투명해 기본 화면에서 3층 강의실이 안 보였다. 층 보기는 "전체" 그대로 두고, 옥상(바닥판+난간)을 반투명하게 해서 위에서 맨 위층 실내가 보이게 한다. 본관·카페도 같은 `Building`을 쓰므로 이 Task 하나로 네 건물에 모두 적용된다.
+
 ## Global Constraints
 
 - Node `>=24`, npm workspaces, `package-lock.json` 커밋. TypeScript는 `~5.9.3` 고정.
@@ -49,6 +51,63 @@ apps/web/src/world/campus/
 ├─ CafeInterior.tsx                 카페 실내 + 바깥 테라스
 ├─ Campus.tsx                       (수정) 본관·카페도 Building, 테라스
 └─ BuildingBoxes.tsx                (삭제)
+```
+
+---
+
+### Task 0: (팀장 추가) 옥상을 반투명하게
+
+**Files:**
+
+- Modify: `apps/web/src/world/campus/Building.tsx`
+
+옥상을 불투명도 0.25로 그린다. `CLICK_MIN_OPACITY`(0.3)보다 낮아서 옥상을 눌러도 클릭이 아래층 캐릭터·바닥으로 그대로 간다. 옥상이 그림자를 드리우면 맨 위층이 어두워지므로 `castShadow`는 뺀다.
+
+- [ ] **Step 1: 상수 추가** — `const CLICK_MIN_OPACITY = 0.3;` 바로 아래에 넣는다.
+
+```tsx
+/** 옥상(바닥판+난간)은 늘 반투명하게 둬서 위에서 맨 위층 실내가 보이게 한다. CLICK_MIN_OPACITY보다 낮아 클릭도 통과한다 */
+const ROOF_OPACITY = 0.25;
+```
+
+- [ ] **Step 2: 옥상 메시 바꾸기**
+
+바꾸기 전:
+
+```tsx
+      <mesh geometry={shell.roof} visible={hiddenAboveFloor === null} castShadow receiveShadow>
+        <meshStandardMaterial color={style.trim} roughness={0.85} />
+      </mesh>
+```
+
+바꾼 뒤:
+
+```tsx
+      {/* 그림자를 드리우면 맨 위층이 어두워지므로 옥상은 그림자를 만들지 않는다 */}
+      <mesh geometry={shell.roof} visible={hiddenAboveFloor === null} receiveShadow>
+        <meshStandardMaterial
+          color={style.trim}
+          roughness={0.85}
+          transparent
+          opacity={ROOF_OPACITY}
+          depthWrite={false}
+        />
+      </mesh>
+```
+
+- [ ] **Step 3: 확인**
+
+Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/Building.tsx`
+Expected: 에러 0
+
+Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=sim&at=10:30
+Expected: 기본 카메라에서 공학관 옥상이 비쳐 3층 책상·노트북이 위에서 보인다. 연구동도 2층 실내가 위에서 보인다.
+
+- [ ] **Step 4: 커밋**
+
+```bash
+git add apps/web/src/world/campus/Building.tsx
+git commit -m "feat: 옥상을 반투명하게 해서 위에서 맨 위층 실내가 보이게 하기"
 ```
 
 ---
