@@ -1602,7 +1602,7 @@ git commit -m "feat: 데이터로 조립하는 건물 모듈과 컷어웨이·�
   - `Campus`: 공학관·연구동은 `<Building>`, 본관·카페는 `<BuildingBoxes ids={['main', 'cafe']}>`. `hiddenAboveFloor`는 `focusedBuilding`에만
   - `?dev=campus&building=eng&floor=2`: 시작 포커스·층, 패널에 "1F까지 / 2F까지 / … / 전체 / 닫기" 버튼
 
-- [ ] **Step 1: 공학관·연구동 실내**
+- [x] **Step 1: 공학관·연구동 실내**
 
 `apps/web/src/world/campus/EngInterior.tsx`:
 ```tsx
@@ -1727,7 +1727,7 @@ export function LabInterior({ floor }: { floor: number }) {
 }
 ```
 
-- [ ] **Step 2: Campus 연결**
+- [x] **Step 2: Campus 연결**
 
 `apps/web/src/world/campus/Campus.tsx` (바뀐 부분):
 ```diff
@@ -1788,7 +1788,7 @@ export function LabInterior({ floor }: { floor: number }) {
  }
 ```
 
-- [ ] **Step 3: 미리보기 페이지에 건물·층 조작 추가**
+- [x] **Step 3: 미리보기 페이지에 건물·층 조작 추가**
 
 `apps/web/src/dev/campus/CampusPreview.tsx`:
 ```tsx
@@ -1885,12 +1885,12 @@ export function CampusPreview() {
 }
 ```
 
-- [ ] **Step 4: 타입·린트·테스트**
+- [x] **Step 4: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 5: 브라우저로 확인**
+- [x] **Step 5: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -1899,7 +1899,7 @@ Expected:
 - 공학관 1층 서쪽 벽에 문과 차양, 연구동 1층 남쪽 벽에 문. 계단이 계단참 옆에 있다.
 - 공학관을 누르면 바닥 둘레에 분홍 띠가 깜빡이고 이름표가 커지며, 패널에 층 버튼이 생긴다. "1F까지"를 누르면 2·3층과 옥상이 사라지고 1층 강의실이 보인다.
 
-- [ ] **Step 6: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 6: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 ```bash
 npx playwright@1.64.1 install chromium   # 처음 한 번
@@ -1918,7 +1918,7 @@ Expected:
 - `eng-1f.png`: 북쪽 벽 초록 칠판·교탁·"1학년" 표지판, 의자 6개가 모두 칠판(북쪽)을 보고, 책상 위 노트북·모니터 화면이 의자 쪽을 본다.
 - `lab-2f.png`: 가운데 큰 테이블 둘레 의자 6개와 노트북 6대, 동쪽에 책장 파티션 너머 교수님 책상(모니터가 서쪽 = 의자 쪽), 남쪽 벽 책장 2개, 1층은 어두운 로비.
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus
