@@ -1011,7 +1011,7 @@ git commit -m "feat: Kenney 가구 에셋과 좌석 기준 가구 배치 계산"
   - `interface BuildingProps { id: BuildingId; hiddenAboveFloor: number | null; focused: boolean; onClick?: (id) => void; interior?: (floor: number) => ReactNode; floorColors?: Partial<Record<number, string>> }`, `<Building ... />` — 벽 면마다 재질 1개(투명도 공유), 창유리는 (면 × 층)마다 재질 1개(hm#4에서 층별 밤 불빛에 쓴다), 포커스 시 바닥 둘레 깜빡이는 띠와 큰 이름표
   - `<Blackboard pos rotY width? />`, `<Lectern pos rotY />`, `<WallSign pos rotY text bg? width? />`, `<Table center size y color? top? />`
 
-- [ ] **Step 1: 껍데기 지오메트리**
+- [x] **Step 1: 껍데기 지오메트리**
 
 벽 조각 상자들을 (벽 면 × 층)마다 `mergeGeometries`로 하나로 합친다. 테두리선은 벽 바깥 면에서 1 cm 띄운 `LineSegments`, 창유리는 바깥 법선을 보는 평면이다.
 
@@ -1232,7 +1232,7 @@ export function disposeShell(s: ShellGeometry) {
 }
 ```
 
-- [ ] **Step 2: Building 컴포넌트**
+- [x] **Step 2: Building 컴포넌트**
 
 `useFrame`에서 벽 면마다 `wallFacesCamera` → `approach`로 불투명도를 옮기고, 0.99보다 낮으면 `depthWrite`를 꺼서 뒤쪽 실내가 보이게 한다. 테두리선 재질은 `edgeOpacity`로, 0이면 `visible = false`(드로우콜 없음).
 
@@ -1447,7 +1447,7 @@ function FocusRing({ min, max, color }: { min: Vec2; max: Vec2; color: string })
 }
 ```
 
-- [ ] **Step 3: 코드 가구 (칠판·교탁·벽 표지판·테이블)**
+- [x] **Step 3: 코드 가구 (칠판·교탁·벽 표지판·테이블)**
 
 `apps/web/src/world/campus/CodeProps.tsx`:
 ```tsx
@@ -1574,12 +1574,12 @@ export function Table({
 }
 ```
 
-- [ ] **Step 4: 타입·린트 확인**
+- [x] **Step 4: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/shellGeometry.ts apps/web/src/world/campus/Building.tsx apps/web/src/world/campus/CodeProps.tsx
