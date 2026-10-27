@@ -117,6 +117,8 @@ export function Building({
   const roofY = b.floors * FLOOR_HEIGHT;
   const click = (e: ThreeEvent<MouseEvent>) => {
     if (!onClick) return;
+    // 이미 포커스된 건물 안을 누르면 고른 층 보기와 선택한 멤버가 초기화되므로 가로채지 않는다.
+    if (focused) return;
     // three/R3F 레이캐스트는 visible을 보지 않는다. 숨긴 층이나 흐려진 벽은
     // 클릭을 가로채지 않고 안쪽 캐릭터·바닥으로 흘려보낸다.
     for (let o: Object3D | null = e.object; o; o = o.parent) {
@@ -149,7 +151,12 @@ export function Building({
               return (
                 <group key={side}>
                   <mesh geometry={g.wall} material={mats[side].wall} castShadow receiveShadow />
-                  <lineSegments geometry={g.outline} material={mats[side].edge} />
+                  {/* 테두리선은 장식이다. Line 레이캐스트 임계값(1 m) 때문에 벽 전체가 클릭을 가로채므로 끈다. */}
+                  <lineSegments
+                    geometry={g.outline}
+                    material={mats[side].edge}
+                    raycast={() => null}
+                  />
                   {g.glass && <mesh geometry={g.glass} material={mats[side].glass[i]} />}
                 </group>
               );
