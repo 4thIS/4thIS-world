@@ -85,13 +85,13 @@ apps/server/
   - `flushStates(): ControlState[] | null` — 바뀐 게 없으면 `null`
   - `expireIdle(): string[]` — `controlIdleMs` 동안 입력 없던 멤버들
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 Run: `git fetch origin && git checkout wj && git merge origin/main`
 
 Expected: wj#2가 머지된 main과 합쳐진다
 
-- [ ] **Step 2: 의존성 설치**
+- [x] **Step 2: 의존성 설치**
 
 ```bash
 npm install -w @4this/server socket.io@^4.8.4
@@ -133,7 +133,7 @@ Expected: 설치 성공
 }
 ```
 
-- [ ] **Step 3: 실패하는 테스트 작성**
+- [x] **Step 3: 실패하는 테스트 작성**
 
 `vi.useFakeTimers()` + `vi.setSystemTime()`으로 `Date.now`를 고정하고 `vi.advanceTimersByTime()`으로 시간을 움직인다. 허브는 기본 `now = Date.now`라 가짜 시계를 그대로 따른다.
 
@@ -268,13 +268,13 @@ describe('RealtimeHub', () => {
 });
 ```
 
-- [ ] **Step 4: 실패 확인**
+- [x] **Step 4: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/realtime-hub.test.ts`
 
 Expected: FAIL — `Cannot find module './realtime-hub' imported from …`
 
-- [ ] **Step 5: 구현**
+- [x] **Step 5: 구현**
 
 조종권은 `memberId → { socketId, lastInput, state }` 맵 하나로 표현한다. "마지막 탭이 갖는다"는 `startControl`이 덮어쓰는 것으로, "조종 소켓이 끊기면 해제"는 `releaseBySocket`으로 처리한다. 이동 제한은 소켓마다 1초 창을 둔다(창이 지나면 카운트를 0으로).
 
@@ -457,7 +457,7 @@ export class RealtimeHub {
 }
 ```
 
-- [ ] **Step 6: 통과 확인**
+- [x] **Step 6: 통과 확인**
 
 Run: `npm test -w @4this/server -- src/realtime-hub.test.ts`
 
@@ -467,7 +467,7 @@ Run: `npm run typecheck -w @4this/server`
 
 Expected: 타입 에러 0
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/server/package.json apps/server/src/realtime-hub.ts apps/server/src/realtime-hub.test.ts package-lock.json
@@ -493,7 +493,7 @@ git commit -m "feat: 실시간 접속자·조종권·횟수 제한 규칙"
   - `attachRealtime(app: FastifyInstance, opts?: RealtimeOptions): WorldServer` — **`app.ready()`/`listen()` 전에** 부른다(`preClose` 훅을 등록하므로). 앱을 닫으면 타이머·소켓·엔진을 정리한다
   - `testing.ts`: `makeTestApp(overrides?, beforeReady?: (app: FastifyInstance) => void)`
 
-- [ ] **Step 1: 테스트 도우미 수정**
+- [x] **Step 1: 테스트 도우미 수정**
 
 `attachRealtime`은 `preClose` 훅을 등록하므로 `app.ready()` 전에 불려야 한다. `makeTestApp`에 그 자리를 만든다. 고친 뒤 파일 전체:
 
@@ -596,7 +596,7 @@ export function countWorldChanged(t: TestApp): () => number {
 }
 ```
 
-- [ ] **Step 2: 실패하는 통합 테스트 작성**
+- [x] **Step 2: 실패하는 통합 테스트 작성**
 
 테스트마다 앱을 포트 0에 띄우고 `transports: ['websocket']`, `extraHeaders: { cookie }`로 접속한다. 서버 시계 `clock`은 테스트가 직접 올린다(60초를 기다리지 않는다). 타이머 주기는 20 ms로 줄인다. 같은 1초 안에 보낸 이동은 시계를 움직이지 않으므로 정확히 15개만 받아들여진다.
 
@@ -860,13 +860,13 @@ describe('실시간 (Socket.IO 통합)', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/realtime.test.ts`
 
 Expected: FAIL — `Cannot find module './realtime' imported from …`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 포인트:
 
@@ -1009,7 +1009,7 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/server -- src/realtime.test.ts`
 
@@ -1019,7 +1019,7 @@ Run: `npm test -w @4this/server`
 
 Expected: PASS 123개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/server/src
@@ -1039,7 +1039,7 @@ git commit -m "feat: Socket.IO presence·조종·이모지·world:changed"
 - Consumes: `attachRealtime(app)` (Task 2)
 - Produces: `npm run dev`(웹 :5173 → `/socket.io` 프록시 → 서버 :8080)에서 소켓이 붙는 서버. `[wj#3] Socket.IO` PR — cw#4(실시간 클라이언트)가 기다린다
 
-- [ ] **Step 1: 진입점 수정**
+- [x] **Step 1: 진입점 수정**
 
 `buildApp` 바로 다음, `listen` 전에 붙인다. 고친 뒤 파일 전체:
 
@@ -1078,13 +1078,13 @@ await app.listen({ port: config.port, host: '0.0.0.0' });
 console.log(`4thIS-world server on :${config.port} (db: ${config.dbPath})`);
 ```
 
-- [ ] **Step 2: 타입 검사**
+- [x] **Step 2: 타입 검사**
 
 Run: `npm run typecheck -w @4this/server`
 
 Expected: 타입 에러 0
 
-- [ ] **Step 3: 실제 서버에 붙어 보기**
+- [x] **Step 3: 실제 서버에 붙어 보기**
 
 ```bash
 cd apps/server
@@ -1112,7 +1112,7 @@ Run: `cd apps/server && node probe.mjs && rm probe.mjs`
 
 Expected: `time { serverTime: … }` 다음 `presence {"members":[],"spectators":1}`
 
-- [ ] **Step 4: 전체 검사**
+- [x] **Step 4: 전체 검사**
 
 Run: `npm run format && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 
@@ -1120,7 +1120,7 @@ Expected: 모두 통과 (shared 23개, server 123개, web 5개)
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 
-- [ ] **Step 5: push와 PR**
+- [x] **Step 5: push와 PR**
 
 ```bash
 git push origin wj
