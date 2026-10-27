@@ -1929,12 +1929,12 @@ git commit -m "feat: 공학관·연구동 실내 가구와 캠퍼스 연결"
 
 ### Task 6: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. web 53개(hm#1까지 28 + cutaway 6 + buildingGeometry 12 + furniture 7; 다른 PR이 먼저 머지됐으면 더 많다).
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push origin hm
