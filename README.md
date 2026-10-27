@@ -50,6 +50,7 @@
 - 설계 문서: [`docs/superpowers/specs/`](docs/superpowers/specs/)
 - 개발 계획(PR별 플랜): [`docs/superpowers/plans/`](docs/superpowers/plans/)
 - 브레인스토밍 때 만든 3D 미리보기: [`docs/prototype/preview-3d.html`](docs/prototype/preview-3d.html)
+- 배포·백업·복원: [`docs/deploy.md`](docs/deploy.md) — `docker compose up -d` 한 번으로 실행
 
 ## 개발
 
