@@ -9,15 +9,15 @@ import { LookChips } from './LookChips';
 import { LookPreview } from './LookPreview';
 
 /**
- * 캐릭터 꾸미기. 가입 직후(onboarding)에는 랜덤 조합으로 시작하고,
- * 그 밖에는 지금 내 생김새로 시작한다.
+ * 캐릭터 꾸미기. 항상 서버에 저장된 내 생김새로 시작한다.
+ * 가입 직후에도 서버가 가입 때 뽑아 저장한 랜덤 조합이 보이므로, 저장하지 않고 닫아도 화면과 같다.
  */
 export function CustomizeScreen() {
   const session = useSession((s) => s.session);
   const setSession = useSession((s) => s.setSession);
-  const { onboarding, close } = useUi();
+  const { onboarding, open, close } = useUi();
   const [look, setLook] = useState<Look>(() =>
-    onboarding ? randomLook() : session.kind === 'member' ? session.me.look : DEFAULT_LOOK,
+    session.kind === 'member' ? session.me.look : DEFAULT_LOOK,
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -36,7 +36,9 @@ export function CustomizeScreen() {
     try {
       const me = await api.patchMe({ look });
       setSession({ kind: 'member', me });
-      close();
+      // 가입 흐름이면 다음은 시간표
+      if (onboarding) open('schedule', { onboarding: true });
+      else close();
     } catch (err) {
       setError(errorMessage(err));
     } finally {

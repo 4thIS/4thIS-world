@@ -12,13 +12,16 @@
     "@4this/shared": "*",
     "@fastify/cookie": "^11.1.3",
     "@fastify/rate-limit": "^11.2.1",
+    "@fastify/static": "^10.1.7",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "fastify": "^5.12.7",
     "nanoid": "^6.0.2",
+    "socket.io": "^4.8.4",
     "tsx": "^4.23.15"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^9.6.0"
+    "@types/better-sqlite3": "^9.6.0",
+    "socket.io-client": "^4.8.4"
   }
 }

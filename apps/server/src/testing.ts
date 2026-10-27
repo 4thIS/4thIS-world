@@ -25,11 +25,15 @@ export interface TestApp {
   close: () => Promise<void>;
 }
 
-/** 메모리 DB로 앱을 만든다 */
-export async function makeTestApp(overrides: Partial<Config> = {}): Promise<TestApp> {
+/** 메모리 DB로 앱을 만든다. beforeReady에서 훅·플러그인을 더 붙일 수 있다 (예: attachRealtime) */
+export async function makeTestApp(
+  overrides: Partial<Config> = {},
+  beforeReady?: (app: FastifyInstance) => void,
+): Promise<TestApp> {
   const config = testConfig(overrides);
   const db = openDb(':memory:');
   const app = buildApp({ config, db });
+  beforeReady?.(app);
   await app.ready();
   return {
     app,

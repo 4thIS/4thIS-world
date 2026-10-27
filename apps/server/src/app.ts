@@ -6,11 +6,12 @@ import { API } from '@4this/shared';
 import { readSessionToken, resolveSession, type Auth } from './auth/session';
 import type { Config } from './config';
 import type { Db } from './db';
-import { registerErrorHandlers } from './errors';
+import { registerErrorHandlers, sendNotFound } from './errors';
 import { registerAdminRoutes } from './routes/admin';
 import { registerAuthRoutes } from './routes/auth';
 import { registerMeRoutes } from './routes/me';
 import { registerWorldRoutes } from './routes/world';
+import { registerWebStatic } from './static';
 
 /** 서버 안에서 주고받는 이벤트. wj#3의 소켓 계층이 world:changed를 받아 브로드캐스트한다 */
 export type ServerEvents = { 'world:changed': [] };
@@ -59,6 +60,10 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
     registerMeRoutes(api);
     registerAdminRoutes(api);
   });
+
+  // WEB_DIST가 있으면 웹 빌드를 같이 서빙한다 (컨테이너 1개 배포)
+  if (config.webDist) registerWebStatic(app, config.webDist);
+  else app.setNotFoundHandler(sendNotFound);
 
   return app;
 }

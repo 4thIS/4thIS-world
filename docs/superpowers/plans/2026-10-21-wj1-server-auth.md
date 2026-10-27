@@ -74,13 +74,13 @@ apps/server/
   - `interface Config { port: number; dbPath: string; adminPassword: string; sessionSecret: string; webDist: string | null; production: boolean; trustProxy: boolean }`
   - `loadConfig(env?: Record<string, string | undefined>): Config` — 기본 인자 `process.env`. `ADMIN_PASSWORD`·`SESSION_SECRET`이 없거나 공백이면 `Error('<KEY> 환경변수가 필요합니다. .env.example을 참고해 설정하세요.')`, `PORT`가 0~65535 정수가 아니면 `Error('PORT 값이 올바르지 않습니다: …')`
 
-- [ ] **Step 1: 브랜치를 최신 main에 맞춘다**
+- [x] **Step 1: 브랜치를 최신 main에 맞춘다**
 
 Run: `git fetch origin && git checkout wj && git merge origin/main`
 
 Expected: cw#1이 들어온 상태 (`apps/server/src/app.ts`에 `buildApp()`과 health 라우트)
 
-- [ ] **Step 2: 서버 의존성 설치**
+- [x] **Step 2: 서버 의존성 설치**
 
 ```bash
 npm install -w @4this/server better-sqlite3@^13.0.3 @fastify/cookie@^11.1.3 @fastify/rate-limit@^11.2.1 bcryptjs@^3.0.3 nanoid@^6.0.2
@@ -122,7 +122,7 @@ Expected: 설치 성공. better-sqlite3 13은 주요 플랫폼 바이너리(preb
 
 개발 중 생기는 DB 폴더(`apps/server/data/`)와 `*.db`는 루트 `.gitignore`(`data/`, `*.db`, `*.db-*`)가 이미 막는다.
 
-- [ ] **Step 3: 실패하는 테스트 작성**
+- [x] **Step 3: 실패하는 테스트 작성**
 
 `apps/server/src/config.test.ts`:
 
@@ -184,13 +184,13 @@ describe('loadConfig', () => {
 });
 ```
 
-- [ ] **Step 4: 실패 확인**
+- [x] **Step 4: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/config.test.ts`
 
 Expected: FAIL — `Cannot find module './config' imported from …`
 
-- [ ] **Step 5: 구현**
+- [x] **Step 5: 구현**
 
 `apps/server/src/config.ts`:
 
@@ -239,7 +239,7 @@ export function loadConfig(env: Env = process.env): Config {
 }
 ```
 
-- [ ] **Step 6: 통과 확인**
+- [x] **Step 6: 통과 확인**
 
 Run: `npm test -w @4this/server -- src/config.test.ts`
 
@@ -249,7 +249,7 @@ Run: `npm run typecheck -w @4this/server`
 
 Expected: 타입 에러 0
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/server/package.json apps/server/src/config.ts apps/server/src/config.test.ts package-lock.json
@@ -274,7 +274,7 @@ git commit -m "feat: 서버 설정 로드와 필수 환경변수 검사"
   - `migrate(db: Db): void`, `openDb(path: string): Db` — `':memory:'`면 폴더를 만들지 않는다. WAL, `foreign_keys = ON`, `busy_timeout = 5000`
   - 테이블: `members(id, username UNIQUE COLLATE NOCASE, password_hash, status CHECK, look JSON, created_at)`, `schedules(id, member_id → members ON DELETE CASCADE, day, "start", "end", kind, title)`, `sessions(id, member_id → members ON DELETE CASCADE, is_admin, expires_at)`, `settings(key, value)`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/server/src/db.test.ts`:
 
@@ -341,13 +341,13 @@ describe('openDb', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/db.test.ts`
 
 Expected: FAIL — `Cannot find module './db' imported from …`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `start`·`end`는 SQL 키워드와 헷갈리지 않게 큰따옴표로 감싼다. 아이디는 `COLLATE NOCASE`라서 `Kim`과 `kim`을 같은 아이디로 본다. 세션·시간표는 멤버를 지우면 같이 지워진다(탈퇴·관리자 삭제가 단순해진다).
 
@@ -420,13 +420,13 @@ export function openDb(path: string): Db {
 }
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/server -- src/db.test.ts`
 
 Expected: PASS 4개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/server/src/db.ts apps/server/src/db.test.ts
@@ -454,7 +454,7 @@ git commit -m "feat: SQLite 연결과 스키마 마이그레이션"
   - `testing.ts`: `testConfig(overrides?)`, `makeTestApp(overrides?): Promise<TestApp>` (`{ app, db, config, close }`), `sidCookie(res): string` (`'sid=<값>'`)
   - `main.ts`: `loadConfig()` → `openDb(config.dbPath)` → `buildApp({ config, db })` → `listen`. SIGTERM·SIGINT를 받으면 `app.close()` → `db.close()` → 종료 코드 0 (wj#4의 `docker stop`이 이것을 쓴다)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `buildApp`이 이제 `{ config, db }`를 받는다. cw#1의 `app.test.ts`를 바꾼다:
 
@@ -553,13 +553,13 @@ describe('세션 미들웨어', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/app.test.ts src/auth/session.test.ts`
 
 Expected: FAIL — `Cannot find module './testing' imported from …`
 
-- [ ] **Step 3: 오류 헬퍼 구현**
+- [x] **Step 3: 오류 헬퍼 구현**
 
 모든 오류는 `ApiErrorSchema`(`{ error, message, detail? }`) 모양이다. Fastify가 내는 오류(깨진 JSON 400, 시도 제한 429)도 여기서 바꾼다. `ERROR_CODES`에 서버 오류용 코드가 없어서 500은 `invalid` + "서버 오류" 문구로 보낸다(최종 보고의 계약 제안 참고).
 
@@ -623,7 +623,7 @@ export function registerErrorHandlers(app: FastifyInstance): void {
 }
 ```
 
-- [ ] **Step 4: 멤버 저장소 구현**
+- [x] **Step 4: 멤버 저장소 구현**
 
 `apps/server/src/members.ts`:
 
@@ -679,7 +679,7 @@ export function isUniqueViolation(error: unknown): boolean {
 }
 ```
 
-- [ ] **Step 5: 세션 구현**
+- [x] **Step 5: 세션 구현**
 
 쿠키 값은 `@fastify/cookie`가 `SESSION_SECRET`으로 서명한다(`signed: true`). 서명이 틀리면 `readSessionToken`이 `null`을 돌려서 guest가 된다. 거절(`rejected`)·대기(`pending`) 멤버도 `member`로 보고, 승인 여부는 각 라우트가 `member.status`로 판단한다.
 
@@ -789,7 +789,7 @@ export function requireAdmin(request: FastifyRequest): void {
 }
 ```
 
-- [ ] **Step 6: 앱 조립**
+- [x] **Step 6: 앱 조립**
 
 `decorateRequest`는 Fastify 5에서 객체 기본값을 받지 않으므로 이름만 등록하고 훅에서 채운다. 세션 훅과 라우트는 `app.register(async (api) => …)` 안에 둔다. 다음 Task에서 채울 인증 라우트 파일은 세션 조회만 먼저 만든다:
 
@@ -919,7 +919,7 @@ export function sidCookie(res: LightMyRequestResponse): string {
 }
 ```
 
-- [ ] **Step 7: 진입점을 새 시그니처에 맞춘다**
+- [x] **Step 7: 진입점을 새 시그니처에 맞춘다**
 
 `buildApp`이 설정·DB를 받으므로 `main.ts`도 바꾼다. 종료 신호를 받으면 요청을 마무리하고 DB를 닫는다:
 
@@ -956,7 +956,7 @@ await app.listen({ port: config.port, host: '0.0.0.0' });
 console.log(`4thIS-world server on :${config.port} (db: ${config.dbPath})`);
 ```
 
-- [ ] **Step 8: 통과 확인**
+- [x] **Step 8: 통과 확인**
 
 Run: `npm test -w @4this/server`
 
@@ -966,7 +966,7 @@ Run: `npm run typecheck -w @4this/server`
 
 Expected: 타입 에러 0
 
-- [ ] **Step 9: 커밋**
+- [x] **Step 9: 커밋**
 
 ```bash
 git add apps/server/src
@@ -994,7 +994,7 @@ git commit -m "feat: 오류 형식, 세션 미들웨어, buildApp(config, db)"
   - login·adminLogin: IP당 분당 5회, 6번째부터 429 `rate_limited`
   - `auth/password.ts`: `hashPassword(pw): Promise<string>`(bcrypt cost 10), `verifyPassword(pw, hash): Promise<boolean>`, `burnPasswordCheck(pw): Promise<void>`(없는 아이디도 같은 시간), `safeEqual(a, b): boolean`(sha256 후 `timingSafeEqual`)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/server/src/routes/auth.test.ts`:
 
@@ -1195,13 +1195,13 @@ describe('buildApp', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/server -- src/routes/auth.test.ts src/app.test.ts`
 
 Expected: FAIL — 가입·로그인 테스트가 `expected 404 to be 200`, 깨진 JSON 테스트가 `expected 404 to be 400`
 
-- [ ] **Step 3: 비밀번호 도우미 구현**
+- [x] **Step 3: 비밀번호 도우미 구현**
 
 `apps/server/src/auth/password.ts`:
 
@@ -1234,7 +1234,7 @@ export function safeEqual(a: string, b: string): boolean {
 }
 ```
 
-- [ ] **Step 4: 인증 라우트 구현**
+- [x] **Step 4: 인증 라우트 구현**
 
 시도 제한은 `@fastify/rate-limit`을 `global: false`로 붙여 두었으므로(Task 3 `app.ts`) 라우트 옵션 `config.rateLimit`으로 켠다. 제한에 걸리면 플러그인이 429 오류를 던지고, `registerErrorHandlers`가 `rate_limited`로 바꾼다. 로그인한 상태에서 다시 가입·로그인하면 이전 세션 줄을 지운다.
 
@@ -1334,13 +1334,13 @@ export function registerAuthRoutes(app: FastifyInstance): void {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/server`
 
 Expected: PASS 30개 (config 5, db 4, app 4, auth/session 5, routes/auth 12)
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/server/src
@@ -1360,13 +1360,13 @@ git commit -m "feat: 가입·로그인·로그아웃·관리자 로그인과 시
 - Consumes: Task 1~4
 - Produces: `[wj#1] 서버 뼈대와 인증` PR. th#2(가입·로그인 화면)와 wj#2가 이 PR을 기다린다
 
-- [ ] **Step 1: 필수 환경변수 없이 실행 → 시작하지 않는지 확인**
+- [x] **Step 1: 필수 환경변수 없이 실행 → 시작하지 않는지 확인**
 
 Run: `npm run start -w @4this/server`
 
 Expected: `Error: ADMIN_PASSWORD 환경변수가 필요합니다. .env.example을 참고해 설정하세요.`로 바로 종료
 
-- [ ] **Step 2: 실제로 띄워서 가입까지 확인**
+- [x] **Step 2: 실제로 띄워서 가입까지 확인**
 
 ```bash
 cd apps/server
@@ -1386,7 +1386,7 @@ Expected: `{"ok":true}`, 그리고 `set-cookie: sid=…; Max-Age=2592000; Path=/
 
 서버 터미널에서 Ctrl+C → `SIGINT 받음, 서버를 닫습니다`가 찍히고 종료되는지 본다. 끝나면 `apps/server/data/`를 지워도 된다(루트 `.gitignore`의 `data/`라 커밋되지 않는다).
 
-- [ ] **Step 3: 전체 검사**
+- [x] **Step 3: 전체 검사**
 
 Run: `npm run format && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 
@@ -1394,7 +1394,7 @@ Expected: 모두 통과 (shared 23개, server 30개, web 5개)
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 
-- [ ] **Step 4: push와 PR**
+- [x] **Step 4: push와 PR**
 
 ```bash
 git push -u origin wj

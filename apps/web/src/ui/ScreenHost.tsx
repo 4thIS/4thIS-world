@@ -2,6 +2,7 @@ import { AdminLoginForm } from './auth/AdminLoginForm';
 import { LoginForm } from './auth/LoginForm';
 import { SignupForm } from './auth/SignupForm';
 import { CustomizeScreen } from './customize/CustomizeScreen';
+import { ScheduleScreen } from './schedule/ScheduleScreen';
 import { useUi } from './store';
 
 /** UI 스토어의 screen 값에 맞는 모달 하나를 그린다 (라우터 대신) */
@@ -18,5 +19,7 @@ export function ScreenHost() {
       return <AdminLoginForm />;
     case 'customize':
       return <CustomizeScreen />;
+    case 'schedule':
+      return <ScheduleScreen />;
   }
 }

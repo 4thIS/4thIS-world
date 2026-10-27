@@ -43,19 +43,11 @@ describe('CustomizeScreen', () => {
     expect(screen.getByRole('button', { name: '비니' }).getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('가입 흐름에서는 랜덤 조합으로 시작한다', () => {
+  it('가입 흐름에서도 서버에 저장된 생김새로 시작한다', () => {
     useUi.getState().open('customize', { onboarding: true });
-    const random = vi.spyOn(Math, 'random').mockReturnValue(0.99);
     render(<CustomizeScreen />);
-    expect(preview()).toEqual({
-      animal: 'duck',
-      color: 'gray',
-      head: 'cap',
-      eyes: 'sunglasses',
-      neck: 'bowtie',
-    });
+    expect(preview()).toEqual(ME_PENDING.look);
     expect(screen.getByRole('heading').textContent).toBe('내 캐릭터 만들기');
-    random.mockRestore();
   });
 
   it('🎲 랜덤은 항상 유효한 조합', () => {
@@ -75,6 +67,15 @@ describe('CustomizeScreen', () => {
     await vi.waitFor(() => expect(useUi.getState().screen).toBeNull());
     expect(calls[0]).toMatchObject({ method: 'PATCH', body: { look: saved.look } });
     expect(useSession.getState().session).toEqual({ kind: 'member', me: saved });
+  });
+
+  it('가입 흐름이면 저장 뒤 시간표로 넘어간다', async () => {
+    mockApi({ 'PATCH /api/me': { body: ME_PENDING } });
+    useUi.getState().open('customize', { onboarding: true });
+    render(<CustomizeScreen />);
+    fireEvent.click(screen.getByRole('button', { name: '저장' }));
+    await vi.waitFor(() => expect(useUi.getState().screen).toBe('schedule'));
+    expect(useUi.getState().onboarding).toBe(true);
   });
 
   it('저장 실패는 알려 주고 화면을 유지한다', async () => {
