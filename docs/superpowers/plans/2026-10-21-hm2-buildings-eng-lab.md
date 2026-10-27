@@ -68,7 +68,7 @@ apps/web/src/dev/campus/CampusPreview.tsx  (수정) building=·floor= 쿼리, �
 
 - Modify: `apps/web/src/world/campus/layout.test.ts`
 
-- [ ] **Step 1: 겹침 검사를 최솟값 한 번으로 바꾸기**
+- [x] **Step 1: 겹침 검사를 최솟값 한 번으로 바꾸기**
 
 `describe('paverTiles', …)` 안의 첫 번째 `it`를 아래로 바꾼다.
 
@@ -102,12 +102,12 @@ apps/web/src/dev/campus/CampusPreview.tsx  (수정) building=·floor= 쿼리, �
   });
 ```
 
-- [ ] **Step 2: 통과와 시간 확인**
+- [x] **Step 2: 통과와 시간 확인**
 
 Run: `npx vitest run --root apps/web src/world/campus/layout.test.ts`
 Expected: PASS, 전체 1초 안팎(바꾸기 전에는 이 테스트 하나가 0.7초 이상)
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/layout.test.ts
@@ -125,13 +125,13 @@ git commit -m "test: paverTiles 겹침 검사를 최솟값 한 번으로 바꿔 
 **Interfaces:**
 - Produces: `CUTAWAY_DOT = 0.3`, `CUTAWAY_OPACITY = 0.1`, `CUTAWAY_SECONDS = 0.25`, `wallFacesCamera(normal: Vec2, center: Vec2, camera: Vec2): boolean`, `targetOpacity(facing: boolean): number`, `approach(current: number, target: number, dt: number): number`, `edgeOpacity(wallOpacity: number): number`
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/cutaway.test.ts`:
 ```ts
@@ -182,12 +182,12 @@ describe('edgeOpacity', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./cutaway"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/world/campus/cutaway.ts`:
 ```ts
@@ -227,12 +227,12 @@ export function edgeOpacity(wallOpacity: number): number {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — cutaway 6개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/cutaway.ts apps/web/src/world/campus/cutaway.test.ts
@@ -255,7 +255,7 @@ git commit -m "feat: 카메라 방향 컷어웨이 계산"
   - `interface Box2 { min; max }`, `rectMinus(outer, hole | null): Box2[]`, `interface StairSpec { start: Vec2; dir: WallSide; width }`, `stairHole(s): Box2`, `interface Block { center: [x, y, z]; size: [x, y, z] }`, `stairBlocks(s): Block[]`
   - `interface BuildingStyle { wall; trim; floor; stairs: StairSpec | null }`, `BUILDING_STYLES: Record<BuildingId, BuildingStyle>`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/buildingGeometry.test.ts`:
 ```ts
@@ -408,12 +408,12 @@ describe('BUILDING_STYLES 계단', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./buildingGeometry"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 남·북 벽이 모서리를 차지하고 동·서 벽은 그 사이에 낀다(모서리가 겹치지 않음). 창은 벽 길이를 약 2.6 m 칸으로 나눠 가운데에 하나씩 내고, 1층 문 벽에서는 문과 겹치는 창을 뺀다.
 
@@ -660,12 +660,12 @@ export const BUILDING_STYLES: Record<BuildingId, BuildingStyle> = {
 };
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — buildingGeometry 12개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/buildingGeometry.ts apps/web/src/world/campus/buildingGeometry.test.ts apps/web/src/world/campus/buildingStyles.ts
@@ -687,7 +687,7 @@ git commit -m "feat: 건물 벽·창·문·바닥판·계단 계산"
   - `MODELS`에 `desk`, `chairDesk`, `laptop`, `computerScreen`, `computerKeyboard`, `bookcaseOpen`, `bookcaseClosedWide`, `books`, `pottedPlant`, `plantSmall`, `trashcan`. `KENNEY_SCALE = 2`
   - `DESK_TOP = 0.77`, `TABLE_TOP = 0.75`, `forward(facing): Vec2`, `ahead(seat, d): Vec2`, `chairAt(seat, y): ModelItem`, `facingSeat(seat, d, y): ModelItem`, `centroid(seats): Vec2`, `interface TableBox { center: Vec2; size: Vec2 }`, `tableBetween(seats, gap = 0.65, minSize = 0.8): TableBox`, `interface ClassroomFurniture { chairs; desks; laptops; screens; keyboards }`, `classroomFurniture(seats, y): ClassroomFurniture`
 
-- [ ] **Step 1: Kenney Furniture Kit 내려받기 (새 빈 폴더에)**
+- [x] **Step 1: Kenney Furniture Kit 내려받기 (새 빈 폴더에)**
 
 ```bash
 DL=$(mktemp -d)   # 새 빈 폴더
@@ -703,7 +703,7 @@ ls apps/web/public/assets/kenney | wc -l    # 11
 
 (링크가 바뀌었으면 https://kenney.nl/assets/furniture-kit 페이지의 Download 버튼 주소를 쓴다. zip 안의 `Models/GLTF format/*.glb`만 쓴다.)
 
-- [ ] **Step 2: 모델 목록과 출처**
+- [x] **Step 2: 모델 목록과 출처**
 
 Kenney 모델은 바운딩 박스 원점이 모서리이고 앞면(사람 쪽)이 +z다(의자는 앉은 사람이 +z를 봄, 책상·모니터·책장은 앞면이 +z). `<Model>`이 바닥 가운데로 옮기므로 `yaw`는 모두 0이다. 대체 상자 크기 = 원본 바운딩 박스 × 배율.
 
@@ -786,7 +786,7 @@ Kenney 모델은 바운딩 박스 원점이 모서리이고 앞면(사람 쪽)�
  
 ```
 
-- [ ] **Step 3: 실패하는 테스트 작성**
+- [x] **Step 3: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/furniture.test.ts`:
 ```ts
@@ -875,12 +875,12 @@ describe('centroid / tableBetween', () => {
 });
 ```
 
-- [ ] **Step 4: 실패 확인**
+- [x] **Step 4: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./furniture"`
 
-- [ ] **Step 5: 구현**
+- [x] **Step 5: 구현**
 
 `apps/web/src/world/campus/furniture.ts`:
 ```ts
@@ -985,12 +985,12 @@ export function classroomFurniture(seats: readonly Seat[], y: number): Classroom
 }
 ```
 
-- [ ] **Step 6: 통과 확인**
+- [x] **Step 6: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — furniture 7개, assets 2개(의자 `chairDesk` 앉는 면 0.45 m 포함)
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/public/assets/kenney CREDITS.md apps/web/src/world/campus/assets.ts apps/web/src/world/campus/furniture.ts apps/web/src/world/campus/furniture.test.ts
@@ -1011,7 +1011,7 @@ git commit -m "feat: Kenney 가구 에셋과 좌석 기준 가구 배치 계산"
   - `interface BuildingProps { id: BuildingId; hiddenAboveFloor: number | null; focused: boolean; onClick?: (id) => void; interior?: (floor: number) => ReactNode; floorColors?: Partial<Record<number, string>> }`, `<Building ... />` — 벽 면마다 재질 1개(투명도 공유), 창유리는 (면 × 층)마다 재질 1개(hm#4에서 층별 밤 불빛에 쓴다), 포커스 시 바닥 둘레 깜빡이는 띠와 큰 이름표
   - `<Blackboard pos rotY width? />`, `<Lectern pos rotY />`, `<WallSign pos rotY text bg? width? />`, `<Table center size y color? top? />`
 
-- [ ] **Step 1: 껍데기 지오메트리**
+- [x] **Step 1: 껍데기 지오메트리**
 
 벽 조각 상자들을 (벽 면 × 층)마다 `mergeGeometries`로 하나로 합친다. 테두리선은 벽 바깥 면에서 1 cm 띄운 `LineSegments`, 창유리는 바깥 법선을 보는 평면이다.
 
@@ -1232,7 +1232,7 @@ export function disposeShell(s: ShellGeometry) {
 }
 ```
 
-- [ ] **Step 2: Building 컴포넌트**
+- [x] **Step 2: Building 컴포넌트**
 
 `useFrame`에서 벽 면마다 `wallFacesCamera` → `approach`로 불투명도를 옮기고, 0.99보다 낮으면 `depthWrite`를 꺼서 뒤쪽 실내가 보이게 한다. 테두리선 재질은 `edgeOpacity`로, 0이면 `visible = false`(드로우콜 없음).
 
@@ -1447,7 +1447,7 @@ function FocusRing({ min, max, color }: { min: Vec2; max: Vec2; color: string })
 }
 ```
 
-- [ ] **Step 3: 코드 가구 (칠판·교탁·벽 표지판·테이블)**
+- [x] **Step 3: 코드 가구 (칠판·교탁·벽 표지판·테이블)**
 
 `apps/web/src/world/campus/CodeProps.tsx`:
 ```tsx
@@ -1574,12 +1574,12 @@ export function Table({
 }
 ```
 
-- [ ] **Step 4: 타입·린트 확인**
+- [x] **Step 4: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/shellGeometry.ts apps/web/src/world/campus/Building.tsx apps/web/src/world/campus/CodeProps.tsx
@@ -1602,7 +1602,7 @@ git commit -m "feat: 데이터로 조립하는 건물 모듈과 컷어웨이·�
   - `Campus`: 공학관·연구동은 `<Building>`, 본관·카페는 `<BuildingBoxes ids={['main', 'cafe']}>`. `hiddenAboveFloor`는 `focusedBuilding`에만
   - `?dev=campus&building=eng&floor=2`: 시작 포커스·층, 패널에 "1F까지 / 2F까지 / … / 전체 / 닫기" 버튼
 
-- [ ] **Step 1: 공학관·연구동 실내**
+- [x] **Step 1: 공학관·연구동 실내**
 
 `apps/web/src/world/campus/EngInterior.tsx`:
 ```tsx
@@ -1727,7 +1727,7 @@ export function LabInterior({ floor }: { floor: number }) {
 }
 ```
 
-- [ ] **Step 2: Campus 연결**
+- [x] **Step 2: Campus 연결**
 
 `apps/web/src/world/campus/Campus.tsx` (바뀐 부분):
 ```diff
@@ -1788,7 +1788,7 @@ export function LabInterior({ floor }: { floor: number }) {
  }
 ```
 
-- [ ] **Step 3: 미리보기 페이지에 건물·층 조작 추가**
+- [x] **Step 3: 미리보기 페이지에 건물·층 조작 추가**
 
 `apps/web/src/dev/campus/CampusPreview.tsx`:
 ```tsx
@@ -1885,12 +1885,12 @@ export function CampusPreview() {
 }
 ```
 
-- [ ] **Step 4: 타입·린트·테스트**
+- [x] **Step 4: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 5: 브라우저로 확인**
+- [x] **Step 5: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -1899,7 +1899,7 @@ Expected:
 - 공학관 1층 서쪽 벽에 문과 차양, 연구동 1층 남쪽 벽에 문. 계단이 계단참 옆에 있다.
 - 공학관을 누르면 바닥 둘레에 분홍 띠가 깜빡이고 이름표가 커지며, 패널에 층 버튼이 생긴다. "1F까지"를 누르면 2·3층과 옥상이 사라지고 1층 강의실이 보인다.
 
-- [ ] **Step 6: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 6: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 ```bash
 npx playwright@1.64.1 install chromium   # 처음 한 번
@@ -1918,7 +1918,7 @@ Expected:
 - `eng-1f.png`: 북쪽 벽 초록 칠판·교탁·"1학년" 표지판, 의자 6개가 모두 칠판(북쪽)을 보고, 책상 위 노트북·모니터 화면이 의자 쪽을 본다.
 - `lab-2f.png`: 가운데 큰 테이블 둘레 의자 6개와 노트북 6대, 동쪽에 책장 파티션 너머 교수님 책상(모니터가 서쪽 = 의자 쪽), 남쪽 벽 책장 2개, 1층은 어두운 로비.
 
-- [ ] **Step 7: 커밋**
+- [x] **Step 7: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus
@@ -1929,12 +1929,12 @@ git commit -m "feat: 공학관·연구동 실내 가구와 캠퍼스 연결"
 
 ### Task 6: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. web 53개(hm#1까지 28 + cutaway 6 + buildingGeometry 12 + furniture 7; 다른 PR이 먼저 머지됐으면 더 많다).
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push origin hm

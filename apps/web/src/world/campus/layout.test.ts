@@ -68,12 +68,14 @@ describe('paverTiles', () => {
 
   it('충분히 많이 깔리고, 서로 0.42 m보다 가깝게 겹치지 않는다', () => {
     expect(tiles.length).toBeGreaterThan(500);
+    // 쌍마다 expect를 부르면 수십만 번이라 느리다. 가장 가까운 거리 하나만 검사한다
+    let min = Infinity;
     for (let i = 0; i < tiles.length; i++) {
       for (let j = i + 1; j < tiles.length; j++) {
-        const d = Math.hypot(tiles[i]!.x - tiles[j]!.x, tiles[i]!.z - tiles[j]!.z);
-        expect(d).toBeGreaterThanOrEqual(0.42);
+        min = Math.min(min, Math.hypot(tiles[i]!.x - tiles[j]!.x, tiles[i]!.z - tiles[j]!.z));
       }
     }
+    expect(min).toBeGreaterThanOrEqual(0.42);
   });
 
   it('건물 안이나 판 밖에는 없다', () => {
