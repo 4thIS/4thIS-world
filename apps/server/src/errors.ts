@@ -1,4 +1,4 @@
-import type { FastifyError, FastifyInstance } from 'fastify';
+import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { z } from 'zod';
 import type { ApiErrorBody, ApiErrorCode } from '@4this/shared';
 
@@ -33,7 +33,7 @@ function body(code: ApiErrorCode, message: string, detail?: unknown): ApiErrorBo
   return detail === undefined ? { error: code, message } : { error: code, message, detail };
 }
 
-/** 모든 오류와 404를 ApiErrorSchema 모양으로 바꾼다 */
+/** 모든 오류를 ApiErrorSchema 모양으로 바꾼다 */
 export function registerErrorHandlers(app: FastifyInstance): void {
   app.setErrorHandler((error: FastifyError | HttpError, request, reply) => {
     if (error instanceof HttpError) {
@@ -49,7 +49,11 @@ export function registerErrorHandlers(app: FastifyInstance): void {
     request.log.error(error);
     return reply.status(500).send(body('internal', '서버 오류가 발생했습니다'));
   });
-  app.setNotFoundHandler((request, reply) => {
-    reply.status(404).send(body('not_found', `${request.method} ${request.url} 경로가 없습니다`));
-  });
+}
+
+/** 없는 경로: 404 not_found. WEB_DIST가 있으면 static.ts의 SPA 처리가 먼저 본다 */
+export function sendNotFound(request: FastifyRequest, reply: FastifyReply) {
+  return reply
+    .status(404)
+    .send(body('not_found', `${request.method} ${request.url} 경로가 없습니다`));
 }
