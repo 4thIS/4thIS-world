@@ -38,6 +38,8 @@ interface SideMaterials {
 const GLASS_OPACITY = 0.45;
 /** 이보다 흐린 면(컷어웨이된 벽은 0.1)은 클릭을 통과시킨다 */
 const CLICK_MIN_OPACITY = 0.3;
+/** 옥상(바닥판+난간)은 늘 반투명하게 둬서 위에서 맨 위층 실내가 보이게 한다. CLICK_MIN_OPACITY보다 낮아 클릭도 통과한다 */
+const ROOF_OPACITY = 0.25;
 
 /**
  * 데이터(CAMPUS.buildings[id])로 조립한 건물: 바닥판·외벽(창문 구멍)·문·계단·옥상 난간.
@@ -168,8 +170,15 @@ export function Building({
       <mesh geometry={shell.doorFrame} castShadow>
         <meshStandardMaterial color={style.trim} roughness={0.8} />
       </mesh>
-      <mesh geometry={shell.roof} visible={hiddenAboveFloor === null} castShadow receiveShadow>
-        <meshStandardMaterial color={style.trim} roughness={0.85} />
+      {/* 그림자를 드리우면 맨 위층이 어두워지므로 옥상은 그림자를 만들지 않는다 */}
+      <mesh geometry={shell.roof} visible={hiddenAboveFloor === null} receiveShadow>
+        <meshStandardMaterial
+          color={style.trim}
+          roughness={0.85}
+          transparent
+          opacity={ROOF_OPACITY}
+          depthWrite={false}
+        />
       </mesh>
       <sprite
         position={[center[0], roofY + (focused ? 2.2 : 1.6), center[1]]}
