@@ -63,14 +63,14 @@ apps/web/src/world/campus/
 
 옥상을 불투명도 0.25로 그린다. `CLICK_MIN_OPACITY`(0.3)보다 낮아서 옥상을 눌러도 클릭이 아래층 캐릭터·바닥으로 그대로 간다. 옥상이 그림자를 드리우면 맨 위층이 어두워지므로 `castShadow`는 뺀다.
 
-- [ ] **Step 1: 상수 추가** — `const CLICK_MIN_OPACITY = 0.3;` 바로 아래에 넣는다.
+- [x] **Step 1: 상수 추가** — `const CLICK_MIN_OPACITY = 0.3;` 바로 아래에 넣는다.
 
 ```tsx
 /** 옥상(바닥판+난간)은 늘 반투명하게 둬서 위에서 맨 위층 실내가 보이게 한다. CLICK_MIN_OPACITY보다 낮아 클릭도 통과한다 */
 const ROOF_OPACITY = 0.25;
 ```
 
-- [ ] **Step 2: 옥상 메시 바꾸기**
+- [x] **Step 2: 옥상 메시 바꾸기**
 
 바꾸기 전:
 
@@ -95,7 +95,7 @@ const ROOF_OPACITY = 0.25;
       </mesh>
 ```
 
-- [ ] **Step 3: 확인**
+- [x] **Step 3: 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/Building.tsx`
 Expected: 에러 0
@@ -103,7 +103,7 @@ Expected: 에러 0
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=sim&at=10:30
 Expected: 기본 카메라에서 공학관 옥상이 비쳐 3층 책상·노트북이 위에서 보인다. 연구동도 2층 실내가 위에서 보인다.
 
-- [ ] **Step 4: 커밋**
+- [x] **Step 4: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/Building.tsx
