@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { CAMPUS, type Seat } from '@4this/shared';
-import { ahead, centroid, classroomFurniture, DESK_TOP, forward, tableBetween } from './furniture';
+import {
+  ahead,
+  centroid,
+  chunk,
+  classroomFurniture,
+  DESK_TOP,
+  facingPairs,
+  forward,
+  tableBetween,
+} from './furniture';
 
 const N = 0;
 const S = Math.PI;
@@ -79,5 +88,32 @@ describe('centroid / tableBetween', () => {
     expect(t.center).toEqual([0, 0]);
     expect(t.size[0]).toBeCloseTo(0.8);
     expect(t.size[1]).toBeCloseTo(0.8);
+  });
+});
+
+describe('chunk', () => {
+  it('식당 16자리는 4인 테이블 4개, 가운데가 데이터의 테이블 중심', () => {
+    const tables = chunk(CAMPUS.places['main-1f'].seats, 4).map((g) => tableBetween(g));
+    expect(tables.map((t) => t.center)).toEqual([
+      [-5.5, -15],
+      [-2, -15],
+      [1.5, -15],
+      [5, -15],
+    ]);
+  });
+
+  it('카페 8자리는 2인 테이블 4개', () => {
+    expect(chunk(CAMPUS.places.cafe.seats, 2)).toHaveLength(4);
+  });
+});
+
+describe('facingPairs', () => {
+  it('카페 테라스 4자리 → 2인 테이블 2개 (같은 x, 마주 봄)', () => {
+    const pairs = facingPairs(CAMPUS.places.cafe.overflow);
+    expect(pairs).toHaveLength(2);
+    for (const [a, b] of pairs) {
+      expect(a!.pos[0]).toBe(b!.pos[0]);
+      expect(b!.pos[1]).toBeGreaterThan(a!.pos[1]);
+    }
   });
 });
