@@ -2142,7 +2142,7 @@ PR 본문에 Task 5의 스크린샷 3장을 붙이고 다음을 적는다:
 - 벤치 앉는 면 0.45 m(th의 `SEAT_HEIGHT`).
 리뷰어: cw(계약·placement 좌표), th(벤치 높이). 머지는 **Create a merge commit**.
 
-- [ ] **Step 3: 머지 후 알림**
+- [x] **Step 3: 머지 후 알림**
 
 단톡방에 "hm#1 머지됨 — 캠퍼스 바깥이 들어갔어요. 정문 등장 지점 [0, 24.5], 게시판 모델은 boardPos [3.5, 21]" 를 알린다. cw(cw#3)는 `git fetch origin && git merge origin/main`.
 

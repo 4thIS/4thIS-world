@@ -1554,7 +1554,7 @@ gh pr create --base main --head hm --title "[hm#4] 하늘·조명·성능" --bod
 
 PR 본문에 하늘 스크린샷 4장, 성능 전후(드로우콜·삼각형), 실제 노트북 FPS(기기 이름), "`skyIcon(kstMinutes)`을 상단 바 아이콘에 쓸 수 있음"을 적는다. 리뷰어: cw(`now`·`occupiedFloors` 연결). 머지는 **Create a merge commit**.
 
-- [ ] **Step 3: 머지 후 알림**
+- [x] **Step 3: 머지 후 알림**
 
 단톡방에 "hm#4 머지됨 — 하늘이 KST를 따라가고 밤에 사람 있는 층 창이 켜집니다. 상단 바 아이콘은 `skyIcon`" 을 알린다.
 
