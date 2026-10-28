@@ -981,7 +981,7 @@ gh pr create --base main --head hm --title "[hm#3] 본관·카페" --body-file .
 
 PR 본문에 스크린샷 4장과 **좌표 변경**(main-1f 넘침 z −17.4, cafe 테이블 x −16.6/−14, 건물 사각형·연못·노드는 그대로, cafe.overflow 순서 = 테라스 4 → 스탠딩 2)을 적는다. 리뷰어: cw(placement 좌석 좌표). 머지는 **Create a merge commit**.
 
-- [ ] **Step 3: 머지 후 알림**
+- [x] **Step 3: 머지 후 알림**
 
 단톡방에 "hm#3 머지됨 — 본관·카페 완성, 식당 줄·카페 좌석 좌표가 조금 바뀌었어요" 를 알린다.
 
