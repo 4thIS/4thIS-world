@@ -65,7 +65,7 @@ apps/web/src/dev/campus/
 
 - Modify: `apps/web/src/world/campus/CafeInterior.tsx`
 
-- [ ] **Step 1: 데크 두께를 상수로 빼고 0.02 m로**
+- [x] **Step 1: 데크 두께를 상수로 빼고 0.02 m로**
 
 `CafeTerrace` 위에 `DECK_H`를 두고, 데크·의자·테이블·파라솔 높이의 `0.1`을 모두 바꾼다.
 
@@ -110,7 +110,7 @@ apps/web/src/dev/campus/
        })}
 ```
 
-- [ ] **Step 2: 확인**
+- [x] **Step 2: 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/CafeInterior.tsx && npm test -w @4this/web`
 Expected: 에러 0, 테스트 통과(이 Task는 테스트 수를 바꾸지 않는다)
@@ -118,7 +118,7 @@ Expected: 에러 0, 테스트 통과(이 Task는 테스트 수를 바꾸지 않�
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus&building=cafe&floor=1&cam=-4,12,20&target=-14,0,10
 Expected: 테라스 데크가 바닥에 거의 붙어 보이고, 테이블·의자·파라솔이 데크 위에 떠 있거나 묻히지 않는다
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/CafeInterior.tsx
