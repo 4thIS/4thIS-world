@@ -619,7 +619,7 @@ git commit -m "feat: 식당·카페 가구 에셋과 배식대·식판·파라�
   - 2F: 칠판(폭 5.5)·교탁, 12자리 책상+`chairDesk`+노트북/PC, "교양강의실" 표지판
   - 3F: 서쪽 벽 `bookcaseOpen` 5개·동쪽 2개(사이사이가 넘침 스탠딩 [−7, −17.5]·[−7, −13]·[7, −17.5]), 북쪽 벽 `bookcaseClosedWide` 4개, 열람 테이블 2개 + `chairRounded` 8 + 책 8 + 스탠드 2, "도서관" 표지판
 
-- [ ] **Step 1: 구현**
+- [x] **Step 1: 구현**
 
 `apps/web/src/world/campus/MainInterior.tsx`:
 ```tsx
@@ -751,12 +751,12 @@ export function MainInterior({ floor }: { floor: number }) {
 }
 ```
 
-- [ ] **Step 2: 타입·린트 확인**
+- [x] **Step 2: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/MainInterior.tsx
