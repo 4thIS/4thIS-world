@@ -315,6 +315,18 @@ export function lampSpots(segs: readonly PathSeg[], c: Campus, spacing = 5.5): L
   return out;
 }
 
+/** KayKit 가로등(배율 3.8)의 전구: 모델 원점에서 팔 쪽(-x)으로 out m, 높이 y m */
+export const LAMP_HEAD = { out: 0.5, y: 3.45 };
+
+/** 가로등 전구 위치 (월드 x, y, z) */
+export function lampHead(l: LampSpot): [number, number, number] {
+  return [
+    l.pos[0] - Math.cos(l.rotY) * LAMP_HEAD.out,
+    LAMP_HEAD.y,
+    l.pos[1] + Math.sin(l.rotY) * LAMP_HEAD.out,
+  ];
+}
+
 export type TreeKind = 'cherry' | 'green';
 
 export interface TreeSpot {

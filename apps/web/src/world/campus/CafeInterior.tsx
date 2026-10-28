@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { CAMPUS } from '@4this/shared';
 import { floorY, SLAB_LIFT, WALL_T } from './buildingGeometry';
-import { BoxInstances, Parasol, Table } from './CodeProps';
+import { BoxInstances, Parasol, Tables } from './CodeProps';
 import {
   centroid,
   chairAt,
@@ -41,9 +41,7 @@ export function CafeInterior() {
   );
   return (
     <group>
-      {tables.map((t) => (
-        <Table key={t.center.join(',')} center={t.center} size={t.size} y={y} color="#f6e1cc" />
-      ))}
+      <Tables tables={tables} y={y} color="#f6e1cc" />
       <Model name="chairRounded" items={chairs} />
       <BoxInstances items={cups} size={CUP_SIZE} color="#ffffff" />
       <Model name="kitchenBar" items={counter} />
@@ -57,33 +55,32 @@ export function CafeInterior() {
   );
 }
 
+/** 테라스 데크 두께. 캐릭터는 바깥 바닥(y = 0)에 서고 앉으므로 얇게 둬서 발이 묻히지 않게 한다 */
+const DECK_H = 0.02;
+
 /** 카페 바깥 테라스: 데크 + overflow 앞 4자리에 2인 테이블·의자·파라솔 */
 export function CafeTerrace() {
   const pairs = useMemo(() => facingPairs(CAMPUS.places.cafe.overflow), []);
-  const chairs = useMemo(() => pairs.flat().map((s) => chairAt(s, 0.1)), [pairs]);
+  const chairs = useMemo(() => pairs.flat().map((s) => chairAt(s, DECK_H)), [pairs]);
+  const tables = useMemo(() => pairs.map((pair) => tableBetween(pair)), [pairs]);
   const w = TERRACE.max[0] - TERRACE.min[0];
   const d = TERRACE.max[1] - TERRACE.min[1];
   return (
     <group>
       <mesh
-        position={[TERRACE.min[0] + w / 2, 0.05, TERRACE.min[1] + d / 2]}
+        position={[TERRACE.min[0] + w / 2, DECK_H / 2, TERRACE.min[1] + d / 2]}
         receiveShadow
         castShadow
       >
-        <boxGeometry args={[w, 0.1, d]} />
+        <boxGeometry args={[w, DECK_H, d]} />
         <meshStandardMaterial color="#ecd2b8" roughness={0.9} />
       </mesh>
+      <Tables tables={tables} y={DECK_H} color="#f6e1cc" />
       {pairs.map((pair) => {
-        const t = tableBetween(pair);
         const c = centroid(pair);
-        return (
-          <group key={c.join(',')}>
-            <Table center={t.center} size={t.size} y={0.1} color="#f6e1cc" />
-            <Parasol pos={[c[0], 0.1, c[1]]} />
-          </group>
-        );
+        return <Parasol key={c.join(',')} pos={[c[0], DECK_H, c[1]]} />;
       })}
-      <Model name="chairRounded" items={chairs} />
+      <Model shadows name="chairRounded" items={chairs} />
     </group>
   );
 }

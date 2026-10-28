@@ -9,7 +9,7 @@ const PAVER_COLORS = ['#fbeedd', '#f5e2cc', '#f9e8d6'];
 /** 경로 그래프를 따라 깐 보도블록 (InstancedMesh 1개) + 원형 광장 */
 export function Paths() {
   const tiles = useMemo(() => paverTiles(pathSegments(CAMPUS), CAMPUS), []);
-  const geometry = useMemo(() => new RoundedBoxGeometry(0.56, 0.08, 0.56, 2, 0.05), []);
+  const geometry = useMemo(() => new RoundedBoxGeometry(0.56, 0.08, 0.56, 1, 0.04), []);
   const ref = useRef<InstancedMesh>(null);
 
   useLayoutEffect(() => {

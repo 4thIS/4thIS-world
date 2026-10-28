@@ -65,7 +65,7 @@ apps/web/src/dev/campus/
 
 - Modify: `apps/web/src/world/campus/CafeInterior.tsx`
 
-- [ ] **Step 1: 데크 두께를 상수로 빼고 0.02 m로**
+- [x] **Step 1: 데크 두께를 상수로 빼고 0.02 m로**
 
 `CafeTerrace` 위에 `DECK_H`를 두고, 데크·의자·테이블·파라솔 높이의 `0.1`을 모두 바꾼다.
 
@@ -110,7 +110,7 @@ apps/web/src/dev/campus/
        })}
 ```
 
-- [ ] **Step 2: 확인**
+- [x] **Step 2: 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/CafeInterior.tsx && npm test -w @4this/web`
 Expected: 에러 0, 테스트 통과(이 Task는 테스트 수를 바꾸지 않는다)
@@ -118,7 +118,7 @@ Expected: 에러 0, 테스트 통과(이 Task는 테스트 수를 바꾸지 않�
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus&building=cafe&floor=1&cam=-4,12,20&target=-14,0,10
 Expected: 테라스 데크가 바닥에 거의 붙어 보이고, 테이블·의자·파라솔이 데크 위에 떠 있거나 묻히지 않는다
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/CafeInterior.tsx
@@ -137,13 +137,13 @@ git commit -m "fix: 테라스 데크를 얇게 해서 캐릭터 발이 묻히지
 - Consumes: `mixHex` (hm#1 `pastel.ts`)
 - Produces: `type SkyPhase = 'morning' | 'day' | 'sunset' | 'night'`, `interface SkyPalette { background; fog; sunColor; sunIntensity; hemiSky; hemiGround; hemiIntensity; night }`, `SKY_PALETTES`, `BLEND_MIN = 30`, `phaseAt(min): SkyPhase`, `mixPalette(a, b, t)`, `interface Sky extends SkyPalette { sunDir: [x, y, z] }`, `sunDirection(min)`, `skyAt(min: number): Sky`, `skyIcon(min): string` ('🌅' '☀️' '🌇' '🌙' — cw가 상단 바 `skyIcon`에 쓸 수 있다)
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/sky.test.ts`:
 ```ts
@@ -217,12 +217,12 @@ describe('mixPalette / skyIcon', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./sky"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 숫자 보간은 `x * (1 - t) + y * t`로 써야 t = 0·1에서 정확히 원래 값이 나온다(`x + (y - x) * t`는 부동소수 오차로 `toEqual`이 깨진다).
 
@@ -374,12 +374,12 @@ export function skyIcon(min: number): string {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — sky 9개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/sky.ts apps/web/src/world/campus/sky.test.ts
@@ -399,7 +399,7 @@ git commit -m "feat: KST 시각에 따른 하늘·조명 계산"
 - Consumes: `FloorKey` (`apps/web/src/world/contracts.ts`, `'eng:2'` 꼴), `BuildingId`
 - Produces: `GLASS_OPACITY = 0.45`, `GLASS_COLOR`, `WINDOW_LIGHT`, `litFloorsOf(occupied: ReadonlySet<FloorKey>, id: BuildingId): Set<number>`, `windowGlow(night, lit): { color; emissive; opacity }`. `BuildingProps`에 `night?: number`(기본 0), `litFloors?: ReadonlySet<number>`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/nightLights.test.ts`:
 ```ts
@@ -432,12 +432,12 @@ describe('windowGlow', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./nightLights"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/campus/nightLights.ts`:
 ```ts
@@ -565,12 +565,12 @@ export function windowGlow(
  
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — nightLights 3개, 타입 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/nightLights.ts apps/web/src/world/campus/nightLights.test.ts apps/web/src/world/campus/Building.tsx
@@ -590,7 +590,7 @@ git commit -m "feat: 밤에 사람이 있는 층 창문 불빛"
 **Interfaces:**
 - Produces: `LAMP_HEAD = { out: 0.5, y: 3.45 }`, `lampHead(l: LampSpot): [x, y, z]`, `<Lights sky />`, `<LampGlow night />`. `Campus`가 `now`·`occupiedFloors`를 쓴다(계약 그대로). `?dev=campus&time=19:30&lit=eng:1,main:3&perf=1`, `<PerfTools />`(drei `<Stats />` + `RenderInfo` + `CapsuleCrowd` 30개, `data-testid="perf-info"`에 `드로우콜 N · 삼각형 M`)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts` (바뀐 부분):
 ```diff
@@ -627,12 +627,12 @@ git commit -m "feat: 밤에 사람이 있는 층 창문 불빛"
        const arm: Vec2 = [l.pos[0] - Math.cos(l.rotY) * 1, l.pos[1] + Math.sin(l.rotY) * 1];
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `lampHead is not a function`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 KayKit 가로등(배율 3.8)은 `<Model>`이 바운딩 박스 가운데로 옮기므로 전구가 모델 원점에서 팔 쪽(-x)으로 약 0.5 m, 높이 3.45 m에 온다.
 
@@ -1051,12 +1051,12 @@ export function PerfTools() {
              {CAMPUS.buildings[focused].name}:{' '}
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck && npm run lint`
 Expected: PASS — layout 19개, 에러 0
 
-- [ ] **Step 5: 브라우저·스크린샷으로 확인**
+- [x] **Step 5: 브라우저·스크린샷으로 확인**
 
 Run: `npm run dev -w @4this/web` 후 아래를 찍는다(PR에 첨부, 커밋하지 않음).
 
@@ -1082,7 +1082,7 @@ Expected:
 - 밤: 남색 배경, 길 위 가로등 아래 노란 빛 웅덩이와 전구. `sky-night.png`에서 공학관 1·3층 창만 따뜻한 노란빛이고 2층은 어둡다.
 - "지금" 버튼(쿼리 없이)은 실제 KST 시각을 따른다.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus
@@ -1099,7 +1099,7 @@ git commit -m "feat: 시각에 따른 하늘·해·가로등과 밤 창문 연�
 **Interfaces:**
 - Produces: `Table` → `Tables({ tables: TableBox[]; y; color?; top? })`(윗판 1 + 다리 1 InstancedMesh). `<Model>`의 `shadows` 기본값 `false`(바깥 소품·테라스 의자만 `shadows`)
 
-- [ ] **Step 1: 줄이기 전 측정**
+- [x] **Step 1: 줄이기 전 측정**
 
 Run: `npm run dev -w @4this/web` 후
 
@@ -1110,7 +1110,7 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: 패널의 `드로우콜 약 850 · 삼각형 약 42만`(헤드리스 소프트웨어 WebGL 기준, 구체 값은 조금 다를 수 있다).
 
-- [ ] **Step 2: 줄이기**
+- [x] **Step 2: 줄이기**
 
 1) 실내 가구·코드 소품은 그림자를 만들지 않는다(벽·바닥판이 만든다). `<Model>` 기본값을 바꾸고 바깥 소품만 켠다:
 
@@ -1509,7 +1509,7 @@ Expected: 패널의 `드로우콜 약 850 · 삼각형 약 42만`(헤드리스 �
      </group>
 ```
 
-- [ ] **Step 3: 줄인 뒤 측정**
+- [x] **Step 3: 줄인 뒤 측정**
 
 Run: `npm run typecheck && npm run lint && npm test`, 그리고
 
@@ -1524,12 +1524,12 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: 둘 다 `드로우콜 약 590 · 삼각형 약 23만`(목표 600·25만 이하). 밤에 모든 층이 켜져도 드로우콜이 늘지 않는다(빛은 재질 값만 바뀜).
 
-- [ ] **Step 4: 실제 노트북에서 60 fps 확인 (사람이 직접)**
+- [x] **Step 4: 실제 노트북에서 60 fps 확인 (사람이 직접)**
 
 일반 노트북의 Chrome(하드웨어 가속 켜짐)에서 http://localhost:5173/?dev=campus&perf=1 을 연다.
 Expected: 왼쪽 위 Stats 패널 FPS가 60 근처(최소 55 이상)로 유지된다. 카메라를 돌리고(컷어웨이가 바뀌는 중), 공학관을 눌러 층을 바꾸고, 시각 버튼을 눌러도 떨어지지 않는다. 55 미만이면 PR 본문에 기기·FPS를 적고, `Grass`의 `tries`를 7000 → 4000, `Lights`의 `shadow-mapSize`를 2048 → 1024로 낮춰 다시 잰다.
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus
@@ -1540,12 +1540,12 @@ git commit -m "perf: 실내 그림자 끄기·테이블 인스턴싱·삼각형 
 
 ### Task 5: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. web 71개(hm#3까지 58 + sky 9 + nightLights 3 + layout 1), shared 24개.
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push origin hm

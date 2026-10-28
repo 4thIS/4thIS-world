@@ -24,7 +24,7 @@ export function EngInterior({ floor }: { floor: number }) {
       <Model name="desk" items={f.desks} />
       <Model name="laptop" items={f.laptops} />
       <Model name="computerScreen" items={f.screens} />
-      <Model name="computerKeyboard" items={f.keyboards} shadows={false} />
+      <Model name="computerKeyboard" items={f.keyboards} />
       <Model
         name="pottedPlant"
         items={[

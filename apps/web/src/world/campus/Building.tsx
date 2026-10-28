@@ -14,6 +14,7 @@ import { BUILDING_STYLES } from './buildingStyles';
 import { approach, edgeOpacity, targetOpacity, wallFacesCamera } from './cutaway';
 import { doorPoint, WALL_NORMALS, type WallSide } from './layout';
 import { buildShell, disposeShell } from './shellGeometry';
+import { GLASS_COLOR, GLASS_OPACITY, WINDOW_LIGHT, windowGlow } from './nightLights';
 import { labelTexture } from './signTexture';
 
 export interface BuildingProps {
@@ -26,6 +27,10 @@ export interface BuildingProps {
   interior?: (floor: number) => ReactNode;
   /** 층별 바닥 색 (없으면 건물 기본 바닥 색) */
   floorColors?: Partial<Record<number, string>>;
+  /** 0(낮) ~ 1(밤). 밤에는 litFloors 층 창문이 켜진다 */
+  night?: number;
+  /** 사람이 있는 층 번호 */
+  litFloors?: ReadonlySet<number>;
 }
 
 interface SideMaterials {
@@ -35,7 +40,6 @@ interface SideMaterials {
   glass: MeshStandardMaterial[];
 }
 
-const GLASS_OPACITY = 0.45;
 /** 이보다 흐린 면(컷어웨이된 벽은 0.1)은 클릭을 통과시킨다 */
 const CLICK_MIN_OPACITY = 0.3;
 /** 옥상(바닥판+난간)은 늘 반투명하게 둬서 위에서 맨 위층 실내가 보이게 한다. CLICK_MIN_OPACITY보다 낮아 클릭도 통과한다 */
@@ -52,6 +56,8 @@ export function Building({
   onClick,
   interior,
   floorColors,
+  night = 0,
+  litFloors,
 }: BuildingProps) {
   const b = CAMPUS.buildings[id];
   const style = BUILDING_STYLES[id];
@@ -70,7 +76,9 @@ export function Building({
           { length: b.floors },
           () =>
             new MeshStandardMaterial({
-              color: '#d6ecfa',
+              color: GLASS_COLOR,
+              emissive: WINDOW_LIGHT,
+              emissiveIntensity: 0,
               roughness: 0.2,
               transparent: true,
               opacity: GLASS_OPACITY,
@@ -92,6 +100,20 @@ export function Building({
     [mats],
   );
 
+  // 층별 창유리 기본 불투명도 (밤에 켜진 층은 더 불투명)
+  const glassBase = useRef<number[]>([]);
+  useEffect(() => {
+    for (let i = 0; i < b.floors; i++) {
+      const g = windowGlow(night, litFloors?.has(i + 1) ?? false);
+      glassBase.current[i] = g.opacity;
+      for (const side of WALL_SIDES) {
+        const glass = mats[side].glass[i]!;
+        glass.color.set(g.color);
+        glass.emissiveIntensity = g.emissive;
+      }
+    }
+  }, [night, litFloors, mats, b.floors]);
+
   const opacity = useRef<Record<WallSide, number>>({ n: 1, e: 1, s: 1, w: 1 });
   useFrame((state, delta) => {
     const cam = state.camera.position;
@@ -105,7 +127,12 @@ export function Building({
       m.wall.depthWrite = cur > 0.99;
       m.edge.opacity = edgeOpacity(cur);
       m.edge.visible = m.edge.opacity > 0.01;
-      for (const g of m.glass) g.opacity = GLASS_OPACITY * cur;
+      m.glass.forEach((g, i) => {
+        const base = glassBase.current[i] ?? GLASS_OPACITY;
+        // 불 켜진 창은 벽이 흐려져도 반쯤 남겨 밤에 건물이 빛나 보이게 한다
+        const keep = base > GLASS_OPACITY ? 0.6 : 0;
+        g.opacity = base * Math.max(cur, keep);
+      });
     }
   });
 
@@ -159,7 +186,10 @@ export function Building({
                     material={mats[side].edge}
                     raycast={() => null}
                   />
-                  {g.glass && <mesh geometry={g.glass} material={mats[side].glass[i]} />}
+                  {/* 창유리도 장식이다. 밤에 불 켜진 창은 벽이 흐려져도 불투명도가 남아 안쪽 캐릭터 클릭을 가로채므로 끈다. */}
+                  {g.glass && (
+                    <mesh geometry={g.glass} material={mats[side].glass[i]} raycast={() => null} />
+                  )}
                 </group>
               );
             })}

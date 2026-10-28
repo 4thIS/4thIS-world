@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { BoxGeometry, DoubleSide, type InstancedMesh } from 'three';
+import { BoxGeometry, DoubleSide, Object3D, type InstancedMesh } from 'three';
 import type { Vec2 } from '@4this/shared';
-import { TABLE_TOP } from './furniture';
+import { TABLE_TOP, type TableBox } from './furniture';
 import { itemMatrix, type ModelItem } from './models';
 import { labelTexture } from './signTexture';
 
-/** 두 팩에 없는 가구는 코드로 만든다: 칠판·교탁·층 표지판·테이블·배식대·식판·파라솔 */
+/**
+ * 두 팩에 없는 가구는 코드로 만든다: 칠판·교탁·층 표지판·테이블·배식대·식판·파라솔.
+ * 실내 소품은 그림자를 만들지 않는다(벽·바닥판이 만든다). 그림자 패스 드로우콜을 줄이기 위해서다.
+ */
 
 interface Placed {
   /** 바닥 위 자리 (x, y, z). y는 바닥 높이 */
@@ -18,7 +21,7 @@ interface Placed {
 export function Blackboard({ pos, rotY, width = 4 }: Placed & { width?: number }) {
   return (
     <group position={pos} rotation-y={rotY}>
-      <mesh position={[0, 1.6, 0]} castShadow>
+      <mesh position={[0, 1.6, 0]}>
         <boxGeometry args={[width + 0.16, 1.36, 0.06]} />
         <meshStandardMaterial color="#e8c9a6" roughness={0.9} />
       </mesh>
@@ -32,7 +35,7 @@ export function Blackboard({ pos, rotY, width = 4 }: Placed & { width?: number }
           <meshBasicMaterial color="#f4f8f2" />
         </mesh>
       ))}
-      <mesh position={[0, 0.88, 0.08]} castShadow>
+      <mesh position={[0, 0.88, 0.08]}>
         <boxGeometry args={[width * 0.9, 0.05, 0.12]} />
         <meshStandardMaterial color="#e8c9a6" roughness={0.9} />
       </mesh>
@@ -48,11 +51,11 @@ export function Blackboard({ pos, rotY, width = 4 }: Placed & { width?: number }
 export function Lectern({ pos, rotY }: Placed) {
   return (
     <group position={pos} rotation-y={rotY}>
-      <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.55, 0]} receiveShadow>
         <boxGeometry args={[1, 1.1, 0.55]} />
         <meshStandardMaterial color="#e9cfb3" roughness={0.9} />
       </mesh>
-      <mesh position={[0, 1.13, -0.03]} castShadow>
+      <mesh position={[0, 1.13, -0.03]}>
         <boxGeometry args={[1.12, 0.06, 0.66]} />
         <meshStandardMaterial color="#d8b593" roughness={0.9} />
       </mesh>
@@ -85,39 +88,59 @@ export function WallSign({
   );
 }
 
-/** 사각 테이블: 윗판 + 다리 4개 */
-export function Table({
-  center,
-  size,
+/** 사각 테이블 여러 개: 윗판 InstancedMesh 1개 + 다리 InstancedMesh 1개 */
+export function Tables({
+  tables,
   y,
   color = '#f1d9bf',
   top = TABLE_TOP,
 }: {
-  center: Vec2;
-  size: Vec2;
+  tables: readonly TableBox[];
   y: number;
   color?: string;
   top?: number;
 }) {
-  const [w, d] = size;
-  const legs: Vec2[] = [
-    [-w / 2 + 0.1, -d / 2 + 0.1],
-    [w / 2 - 0.1, -d / 2 + 0.1],
-    [-w / 2 + 0.1, d / 2 - 0.1],
-    [w / 2 - 0.1, d / 2 - 0.1],
-  ];
+  const unit = useMemo(() => new BoxGeometry(1, 1, 1), []);
+  useEffect(() => () => unit.dispose(), [unit]);
+  const tops = useRef<InstancedMesh>(null);
+  const legs = useRef<InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const t = tops.current;
+    const l = legs.current;
+    if (!t || !l) return;
+    const d = new Object3D();
+    tables.forEach((tb, i) => {
+      const [w, dd] = tb.size;
+      d.position.set(tb.center[0], y + top - 0.03, tb.center[1]);
+      d.scale.set(w, 0.06, dd);
+      d.updateMatrix();
+      t.setMatrixAt(i, d.matrix);
+      const corners: Vec2[] = [
+        [-w / 2 + 0.1, -dd / 2 + 0.1],
+        [w / 2 - 0.1, -dd / 2 + 0.1],
+        [-w / 2 + 0.1, dd / 2 - 0.1],
+        [w / 2 - 0.1, dd / 2 - 0.1],
+      ];
+      corners.forEach(([x, z], k) => {
+        d.position.set(tb.center[0] + x, y + (top - 0.06) / 2, tb.center[1] + z);
+        d.scale.set(0.08, top - 0.06, 0.08);
+        d.updateMatrix();
+        l.setMatrixAt(i * 4 + k, d.matrix);
+      });
+    });
+    t.instanceMatrix.needsUpdate = true;
+    l.instanceMatrix.needsUpdate = true;
+    t.computeBoundingSphere();
+    l.computeBoundingSphere();
+  }, [tables, y, top]);
   return (
-    <group position={[center[0], y, center[1]]}>
-      <mesh position-y={top - 0.03} castShadow receiveShadow>
-        <boxGeometry args={[w, 0.06, d]} />
+    <group key={tables.length}>
+      <instancedMesh ref={tops} args={[unit, undefined, tables.length]} receiveShadow>
         <meshStandardMaterial color={color} roughness={0.85} />
-      </mesh>
-      {legs.map(([x, z]) => (
-        <mesh key={`${x},${z}`} position={[x, (top - 0.06) / 2, z]} castShadow>
-          <boxGeometry args={[0.08, top - 0.06, 0.08]} />
-          <meshStandardMaterial color="#d8b593" roughness={0.9} />
-        </mesh>
-      ))}
+      </instancedMesh>
+      <instancedMesh ref={legs} args={[unit, undefined, tables.length * 4]}>
+        <meshStandardMaterial color="#d8b593" roughness={0.9} />
+      </instancedMesh>
     </group>
   );
 }
@@ -150,7 +173,6 @@ export function BoxInstances({
       key={items.length}
       ref={ref}
       args={[geometry, undefined, items.length]}
-      castShadow
       receiveShadow
     >
       <meshStandardMaterial color={color} roughness={0.8} />
@@ -163,11 +185,11 @@ export function ServingCounter({ pos, rotY, length }: Placed & { length: number 
   const pots = Math.max(1, Math.floor(length / 0.9));
   return (
     <group position={pos} rotation-y={rotY}>
-      <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.45, 0]} receiveShadow>
         <boxGeometry args={[length, 0.9, 0.7]} />
         <meshStandardMaterial color="#f6d7c3" roughness={0.85} />
       </mesh>
-      <mesh position={[0, 0.92, 0]} castShadow>
+      <mesh position={[0, 0.92, 0]}>
         <boxGeometry args={[length + 0.1, 0.05, 0.8]} />
         <meshStandardMaterial color="#e9e4ef" roughness={0.4} />
       </mesh>
@@ -176,11 +198,7 @@ export function ServingCounter({ pos, rotY, length }: Placed & { length: number 
         <meshStandardMaterial color="#d6ecfa" transparent opacity={0.4} roughness={0.2} />
       </mesh>
       {Array.from({ length: pots }, (_, i) => (
-        <mesh
-          key={i}
-          position={[-length / 2 + (length / pots) * (i + 0.5), 1.02, -0.05]}
-          castShadow
-        >
+        <mesh key={i} position={[-length / 2 + (length / pots) * (i + 0.5), 1.02, -0.05]}>
           <cylinderGeometry args={[0.2, 0.18, 0.16, 16]} />
           <meshStandardMaterial
             color={['#ffd9c2', '#fff1a8', '#cdeedd', '#ffd6e2'][i % 4]}
