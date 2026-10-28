@@ -102,7 +102,8 @@ export const CAMPUS: Campus = {
       floor: 1,
       landing: MAIN_LANDING,
       seats: [-5.5, -2, 1.5, 5].flatMap((cx) => table4(cx, -15)),
-      overflow: [-6, -4.8, -3.6, -2.4, -1.2, 0].map((x) => seat(x, -18, S)),
+      // 배식대(북쪽 벽) 앞 줄
+      overflow: [-6, -4.8, -3.6, -2.4, -1.2, 0].map((x) => seat(x, -17.4, S)),
     },
     'main-2f': {
       id: 'main-2f',
@@ -125,7 +126,13 @@ export const CAMPUS: Campus = {
       building: 'cafe',
       floor: 1,
       landing: [-13, 10],
-      seats: [...table2(-18, 8.6), ...table2(-15, 8.6), ...table2(-18, 11.4), ...table2(-15, 11.4)],
+      // 서쪽 벽은 카운터 자리라 테이블을 동쪽으로 붙인다
+      seats: [
+        ...table2(-16.6, 8.6),
+        ...table2(-14, 8.6),
+        ...table2(-16.6, 11.4),
+        ...table2(-14, 11.4),
+      ],
       // 테라스(바깥) 4자리 + 스탠딩 2자리
       overflow: [
         seat(-10, 12, N),

@@ -142,6 +142,18 @@ export function pondCircle(c: Campus): { center: Vec2; r: number } {
   return { center: k.center, r: k.r };
 }
 
+/** 카페 테라스 데크 (카페 overflow 앞 4자리가 이 안에 있다). 풀은 여기를 피한다 */
+export const TERRACE: { min: Vec2; max: Vec2 } = { min: [-10.9, 11.4], max: [-7.7, 14.1] };
+
+export function onTerrace(p: Vec2, margin = 0): boolean {
+  return (
+    p[0] >= TERRACE.min[0] - margin &&
+    p[0] <= TERRACE.max[0] + margin &&
+    p[1] >= TERRACE.min[1] - margin &&
+    p[1] <= TERRACE.max[1] + margin
+  );
+}
+
 /** 둥근 사각형 판 안인지 (inset만큼 안쪽으로) */
 export function onBoard(p: Vec2, inset = 0): boolean {
   const h = BOARD_HALF - inset;
@@ -241,7 +253,13 @@ export function scatterGrass(
       shade: rand(),
     };
     const p: Vec2 = [x, z];
-    if (!onBoard(p, 0.8) || onPath(p, segs, 0.2) || inBuilding(p, c, 0.3) || inPond(p, c, 0.4)) {
+    if (
+      !onBoard(p, 0.8) ||
+      onPath(p, segs, 0.2) ||
+      inBuilding(p, c, 0.3) ||
+      inPond(p, c, 0.4) ||
+      onTerrace(p, 0.1)
+    ) {
       continue;
     }
     out.push(blade);
@@ -363,8 +381,6 @@ export const BUSHES: Vec2[] = [
   [10.9, 0.4],
   [-13.3, -10.5],
   [-16.7, -10.5],
-  [-10.6, 8],
-  [-10.6, 12],
 ];
 
 /** 쓰레기통 (KayKit trash_A) */
