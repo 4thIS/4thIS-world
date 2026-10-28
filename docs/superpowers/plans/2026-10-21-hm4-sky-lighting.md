@@ -399,7 +399,7 @@ git commit -m "feat: KST 시각에 따른 하늘·조명 계산"
 - Consumes: `FloorKey` (`apps/web/src/world/contracts.ts`, `'eng:2'` 꼴), `BuildingId`
 - Produces: `GLASS_OPACITY = 0.45`, `GLASS_COLOR`, `WINDOW_LIGHT`, `litFloorsOf(occupied: ReadonlySet<FloorKey>, id: BuildingId): Set<number>`, `windowGlow(night, lit): { color; emissive; opacity }`. `BuildingProps`에 `night?: number`(기본 0), `litFloors?: ReadonlySet<number>`
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/nightLights.test.ts`:
 ```ts
@@ -432,12 +432,12 @@ describe('windowGlow', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./nightLights"`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/campus/nightLights.ts`:
 ```ts
@@ -565,12 +565,12 @@ export function windowGlow(
  
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — nightLights 3개, 타입 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/nightLights.ts apps/web/src/world/campus/nightLights.test.ts apps/web/src/world/campus/Building.tsx
