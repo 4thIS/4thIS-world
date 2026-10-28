@@ -2,6 +2,7 @@ import type { AddressInfo } from 'node:net';
 import { io as connectClient, type Socket as ClientSocket } from 'socket.io-client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  ADMIN_ID,
   API,
   type ClientToServerEvents,
   type ControlState,
@@ -239,6 +240,27 @@ describe('실시간 (Socket.IO 통합)', () => {
     me.socket.emit('control:start');
     await pause(80);
     expect(last(guest.presence)?.members).toEqual([]);
+  });
+
+  it('관리자 세션은 관리자 캐릭터(admin)로 접속하고 조종·이모지를 쓴다', async () => {
+    const guest = await connect();
+    const admin = await connect(await adminCookie(t));
+    await waitFor(() => last(guest.presence)?.members[0]?.id === ADMIN_ID);
+    expect(last(guest.presence)).toEqual({
+      members: [{ id: ADMIN_ID, controlling: false }],
+      spectators: 1,
+    });
+
+    admin.socket.emit('control:start');
+    admin.socket.emit('control:move', { x: 2, z: 4, facing: 0, moving: true });
+    await waitFor(() => guest.states.length > 0);
+    expect(last(guest.states)).toEqual([
+      { memberId: ADMIN_ID, x: 2, z: 4, facing: 0, moving: true },
+    ]);
+
+    admin.socket.emit('emote', { emoji: '👋' });
+    await waitFor(() => guest.emotes.length === 1);
+    expect(guest.emotes[0]).toMatchObject({ memberId: ADMIN_ID, emoji: '👋' });
   });
 
   it('시간표가 바뀌면 world:changed', async () => {

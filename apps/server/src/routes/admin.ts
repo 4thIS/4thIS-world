@@ -4,13 +4,16 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import {
+  AdminLookSchema,
   AdminPatchMemberRequestSchema,
   API,
   kstDate,
+  type AdminLook,
   type AdminMember,
   type AdminMembersResponse,
   type MemberStatus,
 } from '@4this/shared';
+import { setAdminLook } from '../adminLook';
 import { hashPassword } from '../auth/password';
 import { deleteMemberSessions, requireAdmin } from '../auth/session';
 import { HttpError, notFound, parse } from '../errors';
@@ -100,6 +103,15 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   });
 
   /** SQLite 온라인 백업 → 임시 파일 → 다운로드 → 임시 폴더 삭제 */
+  /** 관리자 캐릭터 생김새 (사이트에 하나). 바꾸면 모두의 월드가 다시 불러온다 */
+  app.patch(API.adminLook, async (request): Promise<AdminLook> => {
+    requireAdmin(request);
+    const { look } = parse(AdminLookSchema, request.body);
+    setAdminLook(db, look);
+    events.emit('world:changed');
+    return { look };
+  });
+
   app.get(API.adminBackup, async (request, reply) => {
     requireAdmin(request);
     const dir = await mkdtemp(join(tmpdir(), 'world-backup-'));
