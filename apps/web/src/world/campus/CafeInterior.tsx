@@ -1,0 +1,89 @@
+import { useMemo } from 'react';
+import { CAMPUS } from '@4this/shared';
+import { floorY, SLAB_LIFT, WALL_T } from './buildingGeometry';
+import { BoxInstances, Parasol, Table } from './CodeProps';
+import {
+  centroid,
+  chairAt,
+  chunk,
+  facingPairs,
+  facingSeat,
+  TABLE_TOP,
+  tableBetween,
+} from './furniture';
+import { TERRACE } from './layout';
+import { Model, type ModelItem } from './models';
+
+const b = CAMPUS.buildings.cafe;
+/** 카운터 가운데 x (서쪽 벽에서 바리스타 설 자리만큼 띄움) */
+const COUNTER_X = b.min[0] + WALL_T + 0.9;
+const COUNTER_Z = [8.0, 8.86, 9.72, 10.58, 11.44];
+/** 컵 크기 (BoxInstances가 배열 참조로 지오메트리를 메모하므로 모듈 상수로 둔다) */
+const CUP_SIZE = [0.1, 0.12, 0.1] as const;
+
+/** 카페 1층: 서쪽 카운터(kitchenBar)·커피머신·스툴, 2인 테이블 4개, 자리마다 컵 */
+export function CafeInterior() {
+  const place = CAMPUS.places.cafe;
+  const y = floorY(1) + SLAB_LIFT;
+  const tables = useMemo(() => chunk(place.seats, 2).map((g) => tableBetween(g)), [place]);
+  const chairs = useMemo(() => place.seats.map((s) => chairAt(s, y)), [place, y]);
+  const cups = useMemo(
+    () => place.seats.map((s) => facingSeat(s, 0.35, y + TABLE_TOP)),
+    [place, y],
+  );
+  const counter = useMemo<ModelItem[]>(
+    () => COUNTER_Z.map((z) => ({ pos: [COUNTER_X, y, z], rotY: Math.PI / 2 })),
+    [y],
+  );
+  const stools = useMemo<ModelItem[]>(
+    () => [8.4, 9.7, 11].map((z) => ({ pos: [COUNTER_X + 0.8, y, z], rotY: -Math.PI / 2 })),
+    [y],
+  );
+  return (
+    <group>
+      {tables.map((t) => (
+        <Table key={t.center.join(',')} center={t.center} size={t.size} y={y} color="#f6e1cc" />
+      ))}
+      <Model name="chairRounded" items={chairs} />
+      <BoxInstances items={cups} size={CUP_SIZE} color="#ffffff" />
+      <Model name="kitchenBar" items={counter} />
+      <Model
+        name="kitchenCoffeeMachine"
+        items={[{ pos: [COUNTER_X - 0.05, y + 0.84, COUNTER_Z[0]!], rotY: -Math.PI / 2 }]}
+      />
+      <Model name="stoolBar" items={stools} />
+      <Model name="pottedPlant" items={[{ pos: [b.max[0] - 0.6, y, b.min[1] + 0.6], rotY: 0 }]} />
+    </group>
+  );
+}
+
+/** 카페 바깥 테라스: 데크 + overflow 앞 4자리에 2인 테이블·의자·파라솔 */
+export function CafeTerrace() {
+  const pairs = useMemo(() => facingPairs(CAMPUS.places.cafe.overflow), []);
+  const chairs = useMemo(() => pairs.flat().map((s) => chairAt(s, 0.1)), [pairs]);
+  const w = TERRACE.max[0] - TERRACE.min[0];
+  const d = TERRACE.max[1] - TERRACE.min[1];
+  return (
+    <group>
+      <mesh
+        position={[TERRACE.min[0] + w / 2, 0.05, TERRACE.min[1] + d / 2]}
+        receiveShadow
+        castShadow
+      >
+        <boxGeometry args={[w, 0.1, d]} />
+        <meshStandardMaterial color="#ecd2b8" roughness={0.9} />
+      </mesh>
+      {pairs.map((pair) => {
+        const t = tableBetween(pair);
+        const c = centroid(pair);
+        return (
+          <group key={c.join(',')}>
+            <Table center={t.center} size={t.size} y={0.1} color="#f6e1cc" />
+            <Parasol pos={[c[0], 0.1, c[1]]} />
+          </group>
+        );
+      })}
+      <Model name="chairRounded" items={chairs} />
+    </group>
+  );
+}

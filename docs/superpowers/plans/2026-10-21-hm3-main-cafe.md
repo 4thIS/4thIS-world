@@ -775,7 +775,7 @@ git commit -m "feat: 본관 식당·교양강의실·도서관 가구"
 **Interfaces:**
 - Produces: `<CafeInterior />`(서쪽 카운터 `kitchenBar` 5개 + 커피머신 + 스툴 3, 2인 테이블 4 + `chairRounded` 8 + 컵 8), `<CafeTerrace />`(데크 `TERRACE`, `facingPairs(cafe.overflow)` 테이블 2 + 파라솔 2 + 의자 4). `Campus`는 네 건물 모두 `<Building>`
 
-- [ ] **Step 1: 카페**
+- [x] **Step 1: 카페**
 
 `apps/web/src/world/campus/CafeInterior.tsx`:
 ```tsx
@@ -868,7 +868,7 @@ export function CafeTerrace() {
 }
 ```
 
-- [ ] **Step 2: Campus 연결과 임시 상자 삭제**
+- [x] **Step 2: Campus 연결과 임시 상자 삭제**
 
 ```bash
 git rm apps/web/src/world/campus/BuildingBoxes.tsx
@@ -923,12 +923,12 @@ git rm apps/web/src/world/campus/BuildingBoxes.tsx
  }
 ```
 
-- [ ] **Step 3: 타입·린트·테스트**
+- [x] **Step 3: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 4: 브라우저로 확인**
+- [x] **Step 4: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -937,7 +937,7 @@ Expected:
 - 본관을 누르고 "1F까지" → 배식대(반찬통·유리 가림막), 4인 테이블 4개에 식판, 의자 등받이가 테이블 반대쪽. "2F까지" → 칠판·교탁·책상 12개. "3F까지" → 벽을 따라 책장, 열람 테이블에 스탠드·책.
 - 카페를 누르고 "1F까지" → 서쪽 카운터·커피머신·스툴, 2인 테이블 4개.
 
-- [ ] **Step 5: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 5: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 ```bash
 npx playwright@1.64.1 install chromium   # 처음 한 번
@@ -956,7 +956,7 @@ npx playwright@1.64.1 install chromium   # 처음 한 번
 npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7000 "http://localhost:5173/?dev=campus&building=cafe&floor=1&cam=-4,12,20&target=-14,0,10" cafe.png
 ```
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus

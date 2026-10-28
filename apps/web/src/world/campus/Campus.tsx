@@ -1,7 +1,7 @@
 import type { BuildingId } from '@4this/shared';
 import type { CampusProps } from '../contracts';
 import { Building } from './Building';
-import { BuildingBoxes } from './BuildingBoxes';
+import { CafeInterior, CafeTerrace } from './CafeInterior';
 import { EngInterior } from './EngInterior';
 import { Flowers } from './Flowers';
 import { Gate } from './Gate';
@@ -9,6 +9,7 @@ import { Grass } from './Grass';
 import { Ground } from './Ground';
 import { LabInterior } from './LabInterior';
 import { Lights } from './Lights';
+import { MainInterior } from './MainInterior';
 import { NoticeBoard } from './NoticeBoard';
 import { OutdoorProps } from './OutdoorProps';
 import { Paths } from './Paths';
@@ -46,11 +47,21 @@ export function Campus({ focusedBuilding, hiddenAboveFloor, onBuildingClick }: C
         interior={(floor) => <LabInterior floor={floor} />}
         floorColors={{ 1: '#a59cb4' }}
       />
-      <BuildingBoxes
-        ids={['main', 'cafe']}
-        focusedBuilding={focusedBuilding}
-        onBuildingClick={onBuildingClick}
+      <Building
+        id="main"
+        hiddenAboveFloor={hidden('main')}
+        focused={focusedBuilding === 'main'}
+        onClick={onBuildingClick}
+        interior={(floor) => <MainInterior floor={floor} />}
       />
+      <Building
+        id="cafe"
+        hiddenAboveFloor={hidden('cafe')}
+        focused={focusedBuilding === 'cafe'}
+        onClick={onBuildingClick}
+        interior={() => <CafeInterior />}
+      />
+      <CafeTerrace />
     </group>
   );
 }
