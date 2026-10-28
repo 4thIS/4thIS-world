@@ -122,13 +122,13 @@ git commit -m "feat: 옥상을 반투명하게 해서 위에서 맨 위층 실�
 - Consumes: `CAMPUS`, `pathSegments`, `lampSpots`, `BUSHES`, `TREES`, `TRASH_CANS` (hm#1)
 - Produces: `TERRACE: { min: Vec2; max: Vec2 }` (`[-10.9, 11.4]`~`[-7.7, 14.1]`), `onTerrace(p, margin = 0): boolean`. `scatterGrass`가 데크(+0.1 m)를 피한다. `BUSHES`에서 `[-10.6, 8]`, `[-10.6, 12]` 제거(카페 넘침 자리와 겹침)
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts` (바뀐 부분):
 ```diff
@@ -175,12 +175,12 @@ git fetch origin && git checkout hm && git merge origin/main
 +});
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `onTerrace`·`TERRACE`가 없다(`does not provide an export named 'TERRACE'` 또는 `onTerrace is not a function`)
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/world/campus/layout.ts` (바뀐 부분):
 ```diff
@@ -264,12 +264,12 @@ Expected: FAIL — `onTerrace`·`TERRACE`가 없다(`does not provide an export 
          seat(-10, 12, N),
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web && npm test -w @4this/shared`
 Expected: PASS — layout 18개, shared 24개(`validateCampus` 그대로 통과, 좌석이 모두 건물 안)
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add packages/shared/src/campus/data.ts apps/web/src/world/campus/layout.ts apps/web/src/world/campus/layout.test.ts
