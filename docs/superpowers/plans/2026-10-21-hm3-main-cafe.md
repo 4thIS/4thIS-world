@@ -287,7 +287,7 @@ git commit -m "feat: 식당 줄·카페 좌석 좌표 조정과 카페 테라스
 **Interfaces:**
 - Produces: `chunk<T>(items: readonly T[], n: number): T[][]`, `facingPairs(seats: readonly Seat[]): Seat[][]` (남쪽을 보는 자리 + 같은 x의 북쪽을 보는 자리)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/furniture.test.ts` (바뀐 부분):
 ```diff
@@ -343,12 +343,12 @@ git commit -m "feat: 식당 줄·카페 좌석 좌표 조정과 카페 테라스
 +});
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `chunk is not a function` / `facingPairs is not a function`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/campus/furniture.ts` (바뀐 부분):
 ```diff
@@ -389,12 +389,12 @@ Expected: FAIL — `chunk is not a function` / `facingPairs is not a function`
 +}
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — furniture 10개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/furniture.ts apps/web/src/world/campus/furniture.test.ts
