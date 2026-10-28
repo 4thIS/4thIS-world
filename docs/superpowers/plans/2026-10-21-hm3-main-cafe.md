@@ -414,7 +414,7 @@ git commit -m "feat: 좌석을 테이블 단위로 묶는 함수"
   - `MODELS`에 `chair`, `chairRounded`(앉는 면 0.45 m), `kitchenBar`, `kitchenCoffeeMachine`, `stoolBar`, `lampRoundTable`
   - `<BoxInstances items size color />`(같은 상자 여러 개, InstancedMesh 1개), `<ServingCounter pos rotY length />`, `<Parasol pos color? />`
 
-- [ ] **Step 1: Kenney 파일 추가 (새 빈 폴더에)**
+- [x] **Step 1: Kenney 파일 추가 (새 빈 폴더에)**
 
 > **팀장 메모 (2026-10-28):** Kenney 사이트가 고정 zip 링크를 막아(403, 브라우저에서도 "Download link expired or invalid") 아래 `curl`이 실패한다. 6개 파일은 팀장이 같은 원본(Furniture Kit 2.0, 10/21 다운로드)에서 꺼내 **main에 올려 두었다**. `git fetch origin && git merge origin/main` 뒤 아래 `ls` 줄로 17개인지만 확인하고 Step 2로 넘어간다.
 
@@ -430,7 +430,7 @@ done
 ls apps/web/public/assets/kenney | wc -l    # 17
 ```
 
-- [ ] **Step 2: 모델 목록·출처**
+- [x] **Step 2: 모델 목록·출처**
 
 `apps/web/src/world/campus/assets.ts` (바뀐 부분):
 ```diff
@@ -475,7 +475,7 @@ ls apps/web/public/assets/kenney | wc -l    # 17
 Run: `npm test -w @4this/web -- assets`
 Expected: PASS — assets 2개(새 의자 2개도 앉는 면 0.45 m)
 
-- [ ] **Step 3: 코드 소품**
+- [x] **Step 3: 코드 소품**
 
 `apps/web/src/world/campus/CodeProps.tsx` (바뀐 부분):
 ```diff
@@ -593,12 +593,12 @@ Expected: PASS — assets 2개(새 의자 2개도 앉는 면 0.45 m)
 +}
 ```
 
-- [ ] **Step 4: 타입·린트 확인**
+- [x] **Step 4: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/public/assets/kenney CREDITS.md apps/web/src/world/campus/assets.ts apps/web/src/world/campus/CodeProps.tsx

@@ -73,6 +73,12 @@ export const MODELS = {
   pottedPlant: kenney('pottedPlant', [0.42, 1.31, 0.48]),
   plantSmall: kenney('plantSmall1', [0.19, 0.28, 0.19]),
   trashcan: kenney('trashcan', [0.42, 0.86, 0.47]),
+  chair: kenneyChair('chair', 0.24, [0.2, 0.47, 0.2]),
+  chairRounded: kenneyChair('chairRounded', 0.22, [0.2, 0.455, 0.2]),
+  kitchenBar: kenney('kitchenBar', [0.86, 0.84, 0.42]),
+  kitchenCoffeeMachine: kenney('kitchenCoffeeMachine', [0.38, 0.35, 0.48]),
+  stoolBar: kenney('stoolBar', [0.53, 0.87, 0.46]),
+  lampRoundTable: kenney('lampRoundTable', [0.3, 0.63, 0.35]),
 } satisfies Record<string, ModelSpec>;
 
 export type ModelName = keyof typeof MODELS;
