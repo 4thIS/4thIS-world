@@ -4,9 +4,11 @@ import { buildSegments } from './build';
 import { findSegment, planMinutes, sampleSegment } from './sample';
 import { assignSeats, type SeatAssignment, type SeatRequest } from './seats';
 import { planBlocks, type Block } from './segments';
+import { ADMIN_ID, adminPose } from './admin';
 import type { ComputeDayInput, DayPlan, Pose, Segment } from './types';
 
 export * from './types';
+export * from './admin';
 export { boardAt } from './board';
 export { FADE_MS, WALK_SPEED_MPS } from './constants';
 export { facingOf, nearestNode, pathLength, shortestPath } from './graph';
@@ -81,6 +83,8 @@ export function computeDay(input: ComputeDayInput): DayPlan {
 
 /** 시각 t(epoch ms)에 멤버가 어디서 무엇을 하는지. 캠퍼스에 없으면 null (§7.6) */
 export function sampleAt(plan: DayPlan, memberId: string, t: number): Pose | null {
+  // 관리자 캐릭터는 시간표가 없고 24시간 광장 한가운데 서 있다
+  if (memberId === ADMIN_ID) return adminPose();
   const segments = plan.segments.get(memberId);
   if (!segments) return null;
   const m = planMinutes(plan, t);

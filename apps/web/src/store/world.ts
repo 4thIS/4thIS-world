@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import {
+  ADMIN_ID,
+  ADMIN_NAME,
   CAMPUS,
   DAY_MS,
   computeDay,
@@ -68,8 +70,12 @@ export const useWorld = create<WorldState>()((set, get) => ({
 
   setWorld: (world) => {
     const realBase = Date.now();
+    // 관리자 캐릭터는 시간표 없는 가상 멤버로 붙인다 (위치는 sampleAt이 광장 중앙으로 돌려준다)
+    const admin = world.admin
+      ? [{ id: ADMIN_ID, username: ADMIN_NAME, look: world.admin.look, schedules: [] }]
+      : [];
     set((s) => ({
-      members: world.members,
+      members: [...world.members, ...admin],
       loaded: true,
       error: null,
       clock: { base: world.serverTime, realBase, speed: s.clock.speed },

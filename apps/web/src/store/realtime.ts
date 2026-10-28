@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import {
+  ADMIN_ID,
   CAMPUS,
   SOCKET_LIMITS,
   sampleAt,
@@ -69,9 +70,10 @@ let lastSent: ControlMove | null = null;
 const sameMove = (a: ControlMove | null, b: ControlMove) =>
   a !== null && a.x === b.x && a.z === b.z && a.facing === b.facing && a.moving === b.moving;
 
-/** 로그인한 승인 멤버면 그 아이디 */
+/** 로그인한 승인 멤버면 그 아이디, 관리자면 관리자 캐릭터 아이디 */
 export function myMemberId(): string | null {
   const s = useSession.getState().session;
+  if (s.kind === 'admin') return ADMIN_ID;
   return s.kind === 'member' && s.me.status === 'approved' ? s.me.id : null;
 }
 

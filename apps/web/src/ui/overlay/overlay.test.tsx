@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { PresenceEntry } from '../contracts';
+import { useUi } from '../store';
 import { BoardPanel } from './BoardPanel';
 import { BuildingPanel } from './BuildingPanel';
 import { ConnectionBadge } from './ConnectionBadge';
@@ -33,8 +34,15 @@ const ENTRIES: PresenceEntry[] = [
 describe('TopBar', () => {
   it('로고·시각·하늘 아이콘', () => {
     render(<TopBar clock="수 14:10" skyIcon="☀️" />);
-    expect(screen.getByText('🐾 4thIS-world')).toBeTruthy();
+    expect(screen.getByText('4thIS-world')).toBeTruthy();
     expect(screen.getByLabelText('지금 시각').textContent).toBe('수 14:10 ☀️');
+  });
+
+  it('로고를 누르면 소개를 다시 연다', () => {
+    render(<TopBar clock="수 14:10" skyIcon="☀️" />);
+    fireEvent.click(screen.getByRole('button', { name: '4thIS-world 소개' }));
+    expect(useUi.getState().screen).toBe('intro');
+    useUi.getState().close();
   });
 });
 

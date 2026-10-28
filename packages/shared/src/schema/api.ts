@@ -19,6 +19,7 @@ export const API = {
   adminApprove: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/approve`,
   adminReject: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/reject`,
   adminBackup: '/api/admin/backup',
+  adminLook: '/api/admin/look',
 } as const;
 
 export const ERROR_CODES = [
@@ -47,6 +48,8 @@ export const OkSchema = z.object({ ok: z.literal(true) });
 export const WorldResponseSchema = z.object({
   serverTime: z.number(),
   members: z.array(PublicMemberSchema),
+  /** 관리자 캐릭터 (사이트에 하나, 24시간 광장 중앙). 서버는 항상 보낸다 */
+  admin: z.object({ look: LookSchema }).optional(),
 });
 export type WorldResponse = z.infer<typeof WorldResponseSchema>;
 
@@ -80,3 +83,7 @@ export const AdminPatchMemberRequestSchema = z.object({
   newPassword: PasswordSchema.optional(),
 });
 export type AdminPatchMemberRequest = z.infer<typeof AdminPatchMemberRequestSchema>;
+
+/** 관리자 캐릭터 생김새 바꾸기 (관리자만). 응답도 같은 모양 */
+export const AdminLookSchema = z.object({ look: LookSchema });
+export type AdminLook = z.infer<typeof AdminLookSchema>;

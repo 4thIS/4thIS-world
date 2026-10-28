@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useRef, useState } from 'react';
 import type { Group } from 'three';
-import { CAMPUS, type PublicMember } from '@4this/shared';
+import { ADMIN_ID, CAMPUS, type PublicMember } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
 import { useSession } from '../../store/session';
 import { useWorld } from '../../store/world';
@@ -28,7 +28,12 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const placed = useRef(false);
   const shown = useRef<DisplayState>(HIDDEN_DISPLAY);
   const [display, setDisplay] = useState<DisplayState>(HIDDEN_DISPLAY);
-  const isMe = useSession((s) => s.session.kind === 'member' && s.session.me.id === member.id);
+  // 관리자 세션이면 관리자 캐릭터가 내 캐릭터다
+  const isMe = useSession(
+    (s) =>
+      (s.session.kind === 'member' && s.session.me.id === member.id) ||
+      (s.session.kind === 'admin' && member.id === ADMIN_ID),
+  );
   const focusMember = useWorld((s) => s.focusMember);
   const emote = useRealtime((s) => s.emotes[member.id] ?? null);
 
