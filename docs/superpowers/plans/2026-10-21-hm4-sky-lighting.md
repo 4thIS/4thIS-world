@@ -10,6 +10,8 @@
 
 **Tech Stack:** React 19.3 · three 0.186 · @react-three/fiber 9 · @react-three/drei 10 (`Stats`) · vitest 5
 
+> **팀장 메모 (2026-10-28, 박찬우):** Task 1 앞에 **Task 0**(테라스 데크 얇게)을 추가했다. PR #23 리뷰에서 박효민이 짚은 대로, 데크 두께가 0.1 m인데 placement는 바깥 캐릭터를 y = 0에 두어서 테라스에서 발·엉덩이가 0.1 m 묻힌다. 데크를 0.02 m로 줄이면 공용 데이터를 바꾸지 않고 해결된다. 테라스 의자 앉는 면도 0.55 → 0.47 m가 되어 캐릭터 앉는 높이(0.45)와 맞는다.
+
 ## Global Constraints
 
 - Node `>=24`, npm workspaces, `package-lock.json` 커밋. TypeScript는 `~5.9.3` 고정.
@@ -53,6 +55,74 @@ apps/web/src/world/campus/
 apps/web/src/dev/campus/
 ├─ PerfTools.tsx                      Stats + 드로우콜 표시 + 캡슐 30개
 └─ CampusPreview.tsx                  (수정) time=·lit=·perf= 쿼리, 시각 버튼
+```
+
+---
+
+### Task 0: (팀장 추가) 테라스 데크 얇게
+
+**Files:**
+
+- Modify: `apps/web/src/world/campus/CafeInterior.tsx`
+
+- [ ] **Step 1: 데크 두께를 상수로 빼고 0.02 m로**
+
+`CafeTerrace` 위에 `DECK_H`를 두고, 데크·의자·테이블·파라솔 높이의 `0.1`을 모두 바꾼다.
+
+```diff
+@@ -57,20 +57,23 @@ export function CafeInterior() {
+   );
+ }
+ 
++/** 테라스 데크 두께. 캐릭터는 바깥 바닥(y = 0)에 서고 앉으므로 얇게 둬서 발이 묻히지 않게 한다 */
++const DECK_H = 0.02;
++
+ /** 카페 바깥 테라스: 데크 + overflow 앞 4자리에 2인 테이블·의자·파라솔 */
+ export function CafeTerrace() {
+   const pairs = useMemo(() => facingPairs(CAMPUS.places.cafe.overflow), []);
+-  const chairs = useMemo(() => pairs.flat().map((s) => chairAt(s, 0.1)), [pairs]);
++  const chairs = useMemo(() => pairs.flat().map((s) => chairAt(s, DECK_H)), [pairs]);
+   const w = TERRACE.max[0] - TERRACE.min[0];
+   const d = TERRACE.max[1] - TERRACE.min[1];
+   return (
+     <group>
+       <mesh
+-        position={[TERRACE.min[0] + w / 2, 0.05, TERRACE.min[1] + d / 2]}
++        position={[TERRACE.min[0] + w / 2, DECK_H / 2, TERRACE.min[1] + d / 2]}
+         receiveShadow
+         castShadow
+       >
+-        <boxGeometry args={[w, 0.1, d]} />
++        <boxGeometry args={[w, DECK_H, d]} />
+         <meshStandardMaterial color="#ecd2b8" roughness={0.9} />
+       </mesh>
+       {pairs.map((pair) => {
+@@ -78,8 +81,8 @@ export function CafeTerrace() {
+         const c = centroid(pair);
+         return (
+           <group key={c.join(',')}>
+-            <Table center={t.center} size={t.size} y={0.1} color="#f6e1cc" />
+-            <Parasol pos={[c[0], 0.1, c[1]]} />
++            <Table center={t.center} size={t.size} y={DECK_H} color="#f6e1cc" />
++            <Parasol pos={[c[0], DECK_H, c[1]]} />
+           </group>
+         );
+       })}
+```
+
+- [ ] **Step 2: 확인**
+
+Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/CafeInterior.tsx && npm test -w @4this/web`
+Expected: 에러 0, 테스트 통과(이 Task는 테스트 수를 바꾸지 않는다)
+
+Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus&building=cafe&floor=1&cam=-4,12,20&target=-14,0,10
+Expected: 테라스 데크가 바닥에 거의 붙어 보이고, 테이블·의자·파라솔이 데크 위에 떠 있거나 묻히지 않는다
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add apps/web/src/world/campus/CafeInterior.tsx
+git commit -m "fix: 테라스 데크를 얇게 해서 캐릭터 발이 묻히지 않게 하기"
 ```
 
 ---
