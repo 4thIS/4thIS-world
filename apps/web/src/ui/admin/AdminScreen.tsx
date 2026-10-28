@@ -6,10 +6,11 @@ import { AnimalFace } from '../common/AnimalFace';
 import { Modal } from '../common/Modal';
 import { errorMessage } from '../errors';
 import { useUi } from '../store';
+import { AdminLookSection } from './AdminLookSection';
 import { MemberRow } from './MemberRow';
 import './admin.css';
 
-/** 관리자 화면: 승인 대기(배지)·멤버 관리·백업 (설계 문서 §9) */
+/** 관리자 화면: 관리자 캐릭터·승인 대기(배지)·멤버 관리·백업 (설계 문서 §9) */
 export function AdminScreen() {
   const isAdmin = useSession((s) => s.session.kind === 'admin');
   const close = useUi((s) => s.close);
@@ -54,6 +55,7 @@ export function AdminScreen() {
   return (
     <Modal title="관리자" onClose={close} wide>
       <div className="ui-form">
+        <AdminLookSection />
         <div className="ui-row ui-row--between">
           <h3 className="adm-title">
             승인 대기 <span className="adm-badge">{pending.length}</span>
