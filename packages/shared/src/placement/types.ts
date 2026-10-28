@@ -19,7 +19,7 @@ export interface Pose {
   facing: number;
   pose: PoseKind;
   /** 지금 있는 곳. 'door'는 건물 앞 대기, 'transit'은 걷는 중 */
-  placeId: PlaceId | 'park' | 'gate' | 'door' | 'transit';
+  placeId: PlaceId | 'park' | 'gate' | 'door' | 'transit' | 'plaza';
   /** 1부터. 바깥은 1 */
   floor: number;
   /** 이름표 문구 (설계 문서 §7.1, §9) */
