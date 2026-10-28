@@ -25,6 +25,8 @@ export type ConnectionState = 'connected' | 'reconnecting';
 
 export interface RealtimeState {
   connection: ConnectionState;
+  /** 한 번이라도 연결됐는가. 첫 접속 중에는 재연결 배지를 띄우지 않는다 */
+  everConnected: boolean;
   presence: Presence;
   /** 다른 사람이 조종 중인 캐릭터의 최근 상태 (10 Hz) */
   remotes: Record<string, RemoteTrack>;
@@ -93,6 +95,7 @@ function returnFrom(memberId: string, from: Vec2): ReturnWalk {
 
 export const useRealtime = create<RealtimeState>()((set, get) => ({
   connection: 'reconnecting',
+  everConnected: false,
   presence: EMPTY_PRESENCE,
   remotes: {},
   returning: {},
@@ -108,7 +111,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     allowMove = createThrottle(SOCKET_LIMITS.movePerSec);
     lastSent = null;
 
-    s.on('connect', () => set({ connection: 'connected' }));
+    s.on('connect', () => set({ connection: 'connected', everConnected: true }));
     s.on('disconnect', () => set({ connection: 'reconnecting', controlling: false, local: null }));
     s.on('time', ({ serverTime }) => useWorld.getState().syncClock(serverTime));
     s.on('presence', (presence) => set({ presence }));
@@ -167,7 +170,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
       s.removeAllListeners();
       s.disconnect();
       if (socket === s) socket = null;
-      set({ connection: 'reconnecting', controlling: false, local: null });
+      set({ connection: 'reconnecting', everConnected: false, controlling: false, local: null });
     };
   },
 
