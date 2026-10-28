@@ -71,6 +71,11 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
   // 4) 두 번째 브라우저(로그인 안 한 구경꾼)
   const viewer = await browser.newContext();
   const vpage = await viewer.newPage();
+  // CI에서 실패하면 원인을 볼 수 있게 구경꾼 페이지의 오류를 테스트 출력에 남긴다
+  vpage.on('pageerror', (e) => console.log('[viewer pageerror]', e.message));
+  vpage.on('console', (m) => {
+    if (m.type() === 'error') console.log('[viewer console]', m.text());
+  });
   await vpage.goto('/');
   await vpage.waitForFunction((id) => window.__world?.members().includes(id), me.id);
 

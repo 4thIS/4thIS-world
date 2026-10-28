@@ -7,6 +7,7 @@ import { Campus } from './campus/Campus';
 import { BoardHotspot } from './sim/BoardHotspot';
 import { OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
+import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
 import { Professor } from './sim/Professor';
@@ -61,12 +62,15 @@ export function WorldCanvas({
   }, [autoLoad]);
 
   if (!webgl) return <TextFallback />;
+  // Canvas가 실패해도 위의 데이터·소켓 연결은 살아 있도록 경계는 Canvas만 감싼다
   return (
-    <Canvas shadows camera={{ position: OVERVIEW.position, fov: 32 }}>
-      <color attach="background" args={['#fbeff6']} />
-      <WorldScene />
-      <OrbitControls makeDefault target={OVERVIEW.target} maxPolarAngle={Math.PI * 0.42} />
-      {children}
-    </Canvas>
+    <CanvasBoundary>
+      <Canvas shadows camera={{ position: OVERVIEW.position, fov: 32 }}>
+        <color attach="background" args={['#fbeff6']} />
+        <WorldScene />
+        <OrbitControls makeDefault target={OVERVIEW.target} maxPolarAngle={Math.PI * 0.42} />
+        {children}
+      </Canvas>
+    </CanvasBoundary>
   );
 }
