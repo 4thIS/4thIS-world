@@ -1,17 +1,21 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useState, type ReactNode } from 'react';
+import { useRealtime } from '../store/realtime';
 import { useWorld } from '../store/world';
 import { Campus } from './campus/Campus';
+import { BoardHotspot } from './sim/BoardHotspot';
 import { OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
+import { ControlDriver } from './sim/ControlDriver';
+import { installWorldDebug } from './sim/debug';
 import { Professor } from './sim/Professor';
 import { SimMembers } from './sim/SimMembers';
 import { TextFallback } from './sim/TextFallback';
 import { useWorldTick } from './sim/useWorldTick';
 import { hasWebGL } from './sim/webgl';
 
-/** Canvas 안의 장면: 캠퍼스 + 멤버 + 교수님 + 카메라 */
+/** Canvas 안의 장면: 캠퍼스 + 멤버 + 교수님 + 게시판 클릭 영역 + 조종 + 카메라 */
 function WorldScene() {
   const { now, occupied } = useWorldTick();
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
@@ -28,13 +32,16 @@ function WorldScene() {
       />
       <SimMembers />
       <Professor />
+      <BoardHotspot />
+      <ControlDriver />
       <CameraRig />
     </>
   );
 }
 
 /**
- * 3D 월드 진입점. 마운트되면 GET /api/world를 부른다 (autoLoad=false면 부르지 않는다: 개발 픽스처용).
+ * 3D 월드 진입점. 마운트되면 GET /api/world를 부르고 소켓을 연결한다
+ * (autoLoad=false면 둘 다 하지 않는다: 개발 픽스처용).
  * WebGL이 없으면 텍스트 목록으로 대신한다.
  */
 export function WorldCanvas({
@@ -47,7 +54,10 @@ export function WorldCanvas({
 }) {
   const [webgl] = useState(hasWebGL);
   useEffect(() => {
-    if (autoLoad) void useWorld.getState().load();
+    installWorldDebug();
+    if (!autoLoad) return;
+    void useWorld.getState().load();
+    return useRealtime.getState().connect();
   }, [autoLoad]);
 
   if (!webgl) return <TextFallback />;
