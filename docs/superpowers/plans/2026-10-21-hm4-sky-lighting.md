@@ -590,7 +590,7 @@ git commit -m "feat: 밤에 사람이 있는 층 창문 불빛"
 **Interfaces:**
 - Produces: `LAMP_HEAD = { out: 0.5, y: 3.45 }`, `lampHead(l: LampSpot): [x, y, z]`, `<Lights sky />`, `<LampGlow night />`. `Campus`가 `now`·`occupiedFloors`를 쓴다(계약 그대로). `?dev=campus&time=19:30&lit=eng:1,main:3&perf=1`, `<PerfTools />`(drei `<Stats />` + `RenderInfo` + `CapsuleCrowd` 30개, `data-testid="perf-info"`에 `드로우콜 N · 삼각형 M`)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts` (바뀐 부분):
 ```diff
@@ -627,12 +627,12 @@ git commit -m "feat: 밤에 사람이 있는 층 창문 불빛"
        const arm: Vec2 = [l.pos[0] - Math.cos(l.rotY) * 1, l.pos[1] + Math.sin(l.rotY) * 1];
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `lampHead is not a function`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 KayKit 가로등(배율 3.8)은 `<Model>`이 바운딩 박스 가운데로 옮기므로 전구가 모델 원점에서 팔 쪽(-x)으로 약 0.5 m, 높이 3.45 m에 온다.
 
@@ -1051,12 +1051,12 @@ export function PerfTools() {
              {CAMPUS.buildings[focused].name}:{' '}
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck && npm run lint`
 Expected: PASS — layout 19개, 에러 0
 
-- [ ] **Step 5: 브라우저·스크린샷으로 확인**
+- [x] **Step 5: 브라우저·스크린샷으로 확인**
 
 Run: `npm run dev -w @4this/web` 후 아래를 찍는다(PR에 첨부, 커밋하지 않음).
 
@@ -1082,7 +1082,7 @@ Expected:
 - 밤: 남색 배경, 길 위 가로등 아래 노란 빛 웅덩이와 전구. `sky-night.png`에서 공학관 1·3층 창만 따뜻한 노란빛이고 2층은 어둡다.
 - "지금" 버튼(쿼리 없이)은 실제 KST 시각을 따른다.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus apps/web/src/dev/campus

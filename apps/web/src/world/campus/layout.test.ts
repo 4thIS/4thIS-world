@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { CAMPUS, type Vec2 } from '@4this/shared';
 import {
   BUSHES,
+  distToSegment,
   doorPoint,
   FLOWER_BEDS,
   inBuilding,
   inPond,
+  lampHead,
   lampSpots,
   onBoard,
   onPath,
@@ -150,6 +152,15 @@ describe('lampSpots', () => {
         );
         expect(d).toBeGreaterThanOrEqual(4);
       }
+    }
+  });
+
+  it('전구는 기둥보다 길에 더 가깝고 3 m 위에 있다', () => {
+    const nearest = (p: Vec2) => Math.min(...segs.map((s) => distToSegment(p, s.a, s.b)));
+    for (const l of lamps) {
+      const [x, y, z] = lampHead(l);
+      expect(y).toBeGreaterThan(3);
+      expect(nearest([x, z])).toBeLessThan(nearest(l.pos));
     }
   });
 
