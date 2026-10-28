@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSession } from '../store/session';
 import { useUi } from './store';
-import { ME_APPROVED, ME_PENDING, mockApi } from './testing/mockApi';
+import { ADMIN_MEMBERS, ME_APPROVED, ME_PENDING, mockApi } from './testing/mockApi';
 import { UiRoot } from './UiRoot';
 
 vi.mock('./customize/LookPreview', () => ({ LookPreview: () => <div data-testid="preview" /> }));
@@ -89,5 +89,14 @@ describe('UiRoot', () => {
     fireEvent.click(screen.getByRole('button', { name: /철수/ }));
     fireEvent.click(screen.getByRole('menuitem', { name: '내 시간표' }));
     expect(await screen.findByTestId('week-grid')).toBeTruthy();
+  });
+
+  it('관리자 메뉴에서 관리자 화면을 연다', async () => {
+    mockApi({ 'GET /api/admin/members': { body: { members: ADMIN_MEMBERS } } });
+    useSession.setState({ session: { kind: 'admin' } });
+    render(<UiRoot />);
+    fireEvent.click(screen.getByRole('button', { name: /관리자/ }));
+    fireEvent.click(screen.getByRole('menuitem', { name: '관리자 화면' }));
+    expect(await screen.findByRole('table')).toBeTruthy();
   });
 });
