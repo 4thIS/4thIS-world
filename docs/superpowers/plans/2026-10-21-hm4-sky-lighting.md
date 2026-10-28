@@ -1099,7 +1099,7 @@ git commit -m "feat: 시각에 따른 하늘·해·가로등과 밤 창문 연�
 **Interfaces:**
 - Produces: `Table` → `Tables({ tables: TableBox[]; y; color?; top? })`(윗판 1 + 다리 1 InstancedMesh). `<Model>`의 `shadows` 기본값 `false`(바깥 소품·테라스 의자만 `shadows`)
 
-- [ ] **Step 1: 줄이기 전 측정**
+- [x] **Step 1: 줄이기 전 측정**
 
 Run: `npm run dev -w @4this/web` 후
 
@@ -1110,7 +1110,7 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: 패널의 `드로우콜 약 850 · 삼각형 약 42만`(헤드리스 소프트웨어 WebGL 기준, 구체 값은 조금 다를 수 있다).
 
-- [ ] **Step 2: 줄이기**
+- [x] **Step 2: 줄이기**
 
 1) 실내 가구·코드 소품은 그림자를 만들지 않는다(벽·바닥판이 만든다). `<Model>` 기본값을 바꾸고 바깥 소품만 켠다:
 
@@ -1509,7 +1509,7 @@ Expected: 패널의 `드로우콜 약 850 · 삼각형 약 42만`(헤드리스 �
      </group>
 ```
 
-- [ ] **Step 3: 줄인 뒤 측정**
+- [x] **Step 3: 줄인 뒤 측정**
 
 Run: `npm run typecheck && npm run lint && npm test`, 그리고
 
@@ -1524,12 +1524,12 @@ npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7
 
 Expected: 둘 다 `드로우콜 약 590 · 삼각형 약 23만`(목표 600·25만 이하). 밤에 모든 층이 켜져도 드로우콜이 늘지 않는다(빛은 재질 값만 바뀜).
 
-- [ ] **Step 4: 실제 노트북에서 60 fps 확인 (사람이 직접)**
+- [x] **Step 4: 실제 노트북에서 60 fps 확인 (사람이 직접)**
 
 일반 노트북의 Chrome(하드웨어 가속 켜짐)에서 http://localhost:5173/?dev=campus&perf=1 을 연다.
 Expected: 왼쪽 위 Stats 패널 FPS가 60 근처(최소 55 이상)로 유지된다. 카메라를 돌리고(컷어웨이가 바뀌는 중), 공학관을 눌러 층을 바꾸고, 시각 버튼을 눌러도 떨어지지 않는다. 55 미만이면 PR 본문에 기기·FPS를 적고, `Grass`의 `tries`를 7000 → 4000, `Lights`의 `shadow-mapSize`를 2048 → 1024로 낮춰 다시 잰다.
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus

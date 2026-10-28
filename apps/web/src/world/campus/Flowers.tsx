@@ -13,7 +13,7 @@ export function Flowers() {
     [],
   );
   const stemGeo = useMemo(() => new CylinderGeometry(0.02, 0.02, 0.3, 4).translate(0, 0.15, 0), []);
-  const headGeo = useMemo(() => new SphereGeometry(0.11, 8, 6), []);
+  const headGeo = useMemo(() => new SphereGeometry(0.11, 6, 4), []);
   const stems = useRef<InstancedMesh>(null);
   const heads = useRef<InstancedMesh>(null);
 
@@ -44,7 +44,7 @@ export function Flowers() {
       <instancedMesh ref={stems} args={[stemGeo, undefined, spots.length]}>
         <meshStandardMaterial color="#8fc98a" roughness={0.9} />
       </instancedMesh>
-      <instancedMesh ref={heads} args={[headGeo, undefined, spots.length]} castShadow>
+      <instancedMesh ref={heads} args={[headGeo, undefined, spots.length]}>
         <meshStandardMaterial roughness={0.8} />
       </instancedMesh>
     </group>

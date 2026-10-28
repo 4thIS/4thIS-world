@@ -32,10 +32,10 @@ export function OutdoorProps() {
   );
   return (
     <group>
-      <Model name="bench" items={benches} />
-      <Model name="streetlight" items={lamps} />
-      <Model name="bush" items={bushes} />
-      <Model name="trash" items={trash} />
+      <Model shadows name="bench" items={benches} />
+      <Model shadows name="streetlight" items={lamps} />
+      <Model shadows name="bush" items={bushes} />
+      <Model shadows name="trash" items={trash} />
     </group>
   );
 }

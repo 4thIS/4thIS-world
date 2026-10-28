@@ -219,10 +219,11 @@ export class ModelBoundary extends Component<BoundaryProps, { failed: boolean }>
 export function Model({
   name,
   items,
-  shadows = true,
+  shadows = false,
 }: {
   name: ModelName;
   items: readonly ModelItem[];
+  /** 그림자를 만들지 (바깥 소품만 true. 실내 가구는 벽·바닥판이 그림자를 만든다) */
   shadows?: boolean;
 }) {
   if (items.length === 0) return null;

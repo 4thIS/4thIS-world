@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { CAMPUS } from '@4this/shared';
 import { floorY, SLAB_LIFT } from './buildingGeometry';
-import { Table } from './CodeProps';
+import { Tables } from './CodeProps';
 import { chairAt, DESK_TOP, facingSeat, TABLE_TOP, tableBetween } from './furniture';
 import { Model, type ModelItem } from './models';
 
@@ -28,6 +28,7 @@ function ResearchRoom() {
   const prof = CAMPUS.professorSeat;
   const y = floorY(2) + SLAB_LIFT;
   const table = useMemo(() => tableBetween(place.seats), [place]);
+  const tables = useMemo(() => [table], [table]);
   const chairs = useMemo(() => place.seats.map((s) => chairAt(s, y)), [place, y]);
   const laptops = useMemo(
     () => place.seats.map((s) => facingSeat(s, 0.85, y + TABLE_TOP)),
@@ -54,12 +55,12 @@ function ResearchRoom() {
   }));
   return (
     <group>
-      <Table center={table.center} size={table.size} y={y} />
+      <Tables tables={tables} y={y} />
       <Model name="chairDesk" items={[...chairs, chairAt(prof, y)]} />
       <Model name="laptop" items={laptops} />
       <Model name="desk" items={[profDesk]} />
       <Model name="computerScreen" items={[profScreen]} />
-      <Model name="computerKeyboard" items={[profKeys]} shadows={false} />
+      <Model name="computerKeyboard" items={[profKeys]} />
       <Model name="books" items={[profBooks]} />
       <Model name="bookcaseOpen" items={partition} />
       <Model name="bookcaseClosedWide" items={southShelves} />

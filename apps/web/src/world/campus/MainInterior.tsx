@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { CAMPUS } from '@4this/shared';
 import { floorY, SLAB_LIFT, WALL_T } from './buildingGeometry';
-import { Blackboard, BoxInstances, Lectern, ServingCounter, Table, WallSign } from './CodeProps';
+import { Blackboard, BoxInstances, Lectern, ServingCounter, Tables, WallSign } from './CodeProps';
 import {
   chairAt,
   chunk,
@@ -34,9 +34,7 @@ function Cafeteria() {
     <group>
       <ServingCounter pos={[-3, y, NORTH + 0.4]} rotY={0} length={7} />
       <WallSign pos={[4, y + 2.3, NORTH + 0.02]} rotY={0} text="식당" bg="#f3c98b" />
-      {tables.map((t) => (
-        <Table key={t.center.join(',')} center={t.center} size={t.size} y={y} />
-      ))}
+      <Tables tables={tables} y={y} />
       <Model name="chair" items={chairs} />
       <BoxInstances items={trays} size={TRAY_SIZE} color="#eef0f6" />
       <Model
@@ -71,7 +69,7 @@ function LectureHall() {
       <Model name="desk" items={f.desks} />
       <Model name="laptop" items={f.laptops} />
       <Model name="computerScreen" items={f.screens} />
-      <Model name="computerKeyboard" items={f.keyboards} shadows={false} />
+      <Model name="computerKeyboard" items={f.keyboards} />
       <Model name="pottedPlant" items={[{ pos: [WEST + 0.5, y, NORTH + 0.5], rotY: 0 }]} />
     </group>
   );
@@ -109,9 +107,7 @@ function Library() {
   return (
     <group>
       <WallSign pos={[0, y + 2.45, NORTH + 0.02]} rotY={0} text="도서관" bg="#f3c98b" />
-      {tables.map((t) => (
-        <Table key={t.center.join(',')} center={t.center} size={t.size} y={y} color="#e9d3bb" />
-      ))}
+      <Tables tables={tables} y={y} color="#e9d3bb" />
       <Model name="chairRounded" items={chairs} />
       <Model name="books" items={books} />
       <Model name="lampRoundTable" items={lamps} />
