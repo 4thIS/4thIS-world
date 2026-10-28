@@ -1,4 +1,5 @@
 import {
+  AdminLookSchema,
   AdminMemberSchema,
   AdminMembersResponseSchema,
   API,
@@ -7,6 +8,7 @@ import {
   SchedulesResponseSchema,
   SessionSchema,
   WorldResponseSchema,
+  type AdminLook,
   type AdminLoginRequest,
   type AdminPatchMemberRequest,
   type LoginRequest,
@@ -36,6 +38,8 @@ export const api = {
   adminPatch: (id: string, body: AdminPatchMemberRequest) =>
     request('PATCH', API.adminMember(id), AdminMemberSchema, body),
   adminDelete: (id: string) => request('DELETE', API.adminMember(id), OkSchema),
+  /** 관리자 캐릭터 생김새 (관리자만) */
+  adminLook: (body: AdminLook) => request('PATCH', API.adminLook, AdminLookSchema, body),
   /** 백업은 파일 다운로드라 링크로 연다: <a href={api.backupUrl} download> */
   backupUrl: API.adminBackup,
 };

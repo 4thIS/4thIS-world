@@ -20,6 +20,18 @@
   font-size: 14px;
 }
 
+.ov-topbar__logo {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 .ov-topbar__clock {
   color: var(--ink-soft);
   font-weight: 600;

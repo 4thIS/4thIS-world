@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { Server, type Socket } from 'socket.io';
 import {
+  ADMIN_ID,
   ControlMoveSchema,
   EmoteRequestSchema,
   SOCKET_LIMITS,
@@ -42,9 +43,10 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     return unsigned.valid ? unsigned.value : null;
   };
 
-  /** 승인된 멤버면 id, 아니면 null(구경꾼) */
+  /** 승인된 멤버면 id, 관리자면 관리자 캐릭터 id, 아니면 null(구경꾼) */
   const approvedMemberId = (token: string | null): string | null => {
     const auth = resolveSession(app.db, token, now());
+    if (auth.kind === 'admin') return ADMIN_ID;
     return auth.kind === 'member' && auth.member.status === 'approved' ? auth.member.id : null;
   };
 

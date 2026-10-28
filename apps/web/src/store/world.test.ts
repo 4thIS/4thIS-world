@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_LOOK, type WorldResponse } from '@4this/shared';
+import { ADMIN_ID, DEFAULT_ADMIN_LOOK, DEFAULT_LOOK, type WorldResponse } from '@4this/shared';
 import { useWorld } from './world';
 
 const SERVER = Date.parse('2026-10-21T14:10:00+09:00');
@@ -27,6 +27,18 @@ afterEach(() => {
 });
 
 describe('useWorld', () => {
+  it('관리자 캐릭터가 오면 멤버 목록 끝에 시간표 없는 가상 멤버로 붙인다', () => {
+    useWorld.getState().setWorld({ ...world(['a']), admin: { look: DEFAULT_ADMIN_LOOK } });
+    const members = useWorld.getState().members;
+    expect(members.map((m) => m.id)).toEqual(['a', ADMIN_ID]);
+    expect(members[1]).toEqual({
+      id: ADMIN_ID,
+      username: '관리자',
+      look: DEFAULT_ADMIN_LOOK,
+      schedules: [],
+    });
+  });
+
   it('load는 멤버를 담고 서버 시각으로 시계를 맞춘다', async () => {
     vi.stubGlobal(
       'fetch',

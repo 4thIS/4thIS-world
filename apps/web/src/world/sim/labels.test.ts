@@ -36,6 +36,7 @@ describe('describeWhere', () => {
       '카페 · 카페 ☕',
     );
     expect(describeWhere({ ...base, placeId: 'park', status: '공강' }, CAMPUS)).toBe('공원 · 공강');
+    expect(describeWhere({ ...base, placeId: 'plaza', status: '광장' }, CAMPUS)).toBe('광장');
     expect(describeWhere({ ...base, placeId: 'transit', status: '등교 중' }, CAMPUS)).toBe(
       '이동 중 · 등교 중',
     );

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import type { WorldDebug } from '../apps/web/src/world/sim/debug';
 import { ADMIN_PASSWORD } from './env';
 
@@ -31,6 +31,12 @@ const positionOf = (page: Page, id: string) =>
   page.evaluate((id) => window.__world!.positionOf(id), id);
 const emoteOf = (page: Page, id: string) => page.evaluate((id) => window.__world!.emoteOf(id), id);
 
+/** 들어올 때마다 뜨는 소개 모달을 이 컨텍스트에서는 건너뛴다 ("오늘 하루 보지 않기"와 같다) */
+const skipIntro = (context: BrowserContext) =>
+  context.addInitScript(() =>
+    localStorage.setItem('4this-intro-hidden-until', String(Date.now() + 86_400_000)),
+  );
+
 test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브라우저에서 움직임·이모지 확인', async ({
   browser,
 }) => {
@@ -38,6 +44,7 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
 
   // 1) 가입 (이 컨텍스트에 세션 쿠키가 생긴다)
   const player = await browser.newContext();
+  await skipIntro(player);
   const page = await player.newPage();
   const signup = await page.request.post('/api/auth/signup', {
     data: { username, password: 'pw123456' },
@@ -70,6 +77,7 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
 
   // 4) 두 번째 브라우저(로그인 안 한 구경꾼)
   const viewer = await browser.newContext();
+  await skipIntro(viewer);
   const vpage = await viewer.newPage();
   // CI에서 실패하면 원인을 볼 수 있게 구경꾼 페이지의 오류를 테스트 출력에 남긴다
   vpage.on('pageerror', (e) => console.log('[viewer pageerror]', e.message));
@@ -105,4 +113,55 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
   await vpage.waitForFunction((id) => !window.__world?.controlling().includes(id), me.id);
 
   await Promise.all([player.close(), admin.close(), viewer.close()]);
+});
+
+test('관리자 캐릭터: 광장 한가운데 서 있고, 관리자로 로그인하면 조종한다', async ({ browser }) => {
+  // 1) 구경꾼: 관리자 캐릭터가 광장 중앙(0, 3)에 서 있다
+  const viewer = await browser.newContext();
+  await skipIntro(viewer);
+  const vpage = await viewer.newPage();
+  await vpage.goto('/');
+  await vpage.waitForFunction(() => window.__world?.members().includes('admin'));
+  await expect.poll(() => positionOf(vpage, 'admin').then((p) => p?.visible ?? false)).toBe(true);
+  const home = (await positionOf(vpage, 'admin'))!;
+  expect(Math.hypot(home.x - 0, home.z - 3)).toBeLessThan(0.5);
+
+  // 2) 관리자 로그인: 소개 모달을 닫고 조종을 시작한다
+  const admin = await browser.newContext();
+  expect(
+    (await admin.request.post('/api/auth/admin', { data: { password: ADMIN_PASSWORD } })).ok(),
+  ).toBeTruthy();
+  const page = await admin.newPage();
+  await page.goto('/');
+  await page.getByRole('button', { name: '캠퍼스로 들어가기' }).click();
+  await page.waitForFunction(() => window.__world?.connection() === 'connected');
+  await page.getByRole('button', { name: /조종하기/ }).click();
+  await vpage.waitForFunction(() => window.__world?.controlling().includes('admin'));
+
+  // 3) 구경꾼 화면에서도 움직이고, 이모지가 보인다
+  await page.keyboard.down('w');
+  await expect
+    .poll(async () => {
+      const p = (await positionOf(vpage, 'admin'))!;
+      return Math.hypot(p.x - home.x, p.z - home.z);
+    })
+    .toBeGreaterThan(1);
+  await page.keyboard.up('w');
+  await page.getByRole('button', { name: '👋' }).click();
+  await expect.poll(() => emoteOf(vpage, 'admin')).toBe('👋');
+
+  // 4) 놓으면 광장 중앙으로 걸어 돌아간다
+  await page.getByRole('button', { name: /자동으로/ }).click();
+  await vpage.waitForFunction(() => !window.__world?.controlling().includes('admin'));
+  await expect
+    .poll(
+      async () => {
+        const p = (await positionOf(vpage, 'admin'))!;
+        return Math.hypot(p.x - 0, p.z - 3);
+      },
+      { timeout: 20_000 },
+    )
+    .toBeLessThan(0.5);
+
+  await Promise.all([admin.close(), viewer.close()]);
 });
