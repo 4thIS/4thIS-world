@@ -63,14 +63,14 @@ apps/web/src/world/campus/
 
 옥상을 불투명도 0.25로 그린다. `CLICK_MIN_OPACITY`(0.3)보다 낮아서 옥상을 눌러도 클릭이 아래층 캐릭터·바닥으로 그대로 간다. 옥상이 그림자를 드리우면 맨 위층이 어두워지므로 `castShadow`는 뺀다.
 
-- [ ] **Step 1: 상수 추가** — `const CLICK_MIN_OPACITY = 0.3;` 바로 아래에 넣는다.
+- [x] **Step 1: 상수 추가** — `const CLICK_MIN_OPACITY = 0.3;` 바로 아래에 넣는다.
 
 ```tsx
 /** 옥상(바닥판+난간)은 늘 반투명하게 둬서 위에서 맨 위층 실내가 보이게 한다. CLICK_MIN_OPACITY보다 낮아 클릭도 통과한다 */
 const ROOF_OPACITY = 0.25;
 ```
 
-- [ ] **Step 2: 옥상 메시 바꾸기**
+- [x] **Step 2: 옥상 메시 바꾸기**
 
 바꾸기 전:
 
@@ -95,7 +95,7 @@ const ROOF_OPACITY = 0.25;
       </mesh>
 ```
 
-- [ ] **Step 3: 확인**
+- [x] **Step 3: 확인**
 
 Run: `npm run typecheck -w @4this/web && npx eslint apps/web/src/world/campus/Building.tsx`
 Expected: 에러 0
@@ -103,7 +103,7 @@ Expected: 에러 0
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=sim&at=10:30
 Expected: 기본 카메라에서 공학관 옥상이 비쳐 3층 책상·노트북이 위에서 보인다. 연구동도 2층 실내가 위에서 보인다.
 
-- [ ] **Step 4: 커밋**
+- [x] **Step 4: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/Building.tsx
@@ -122,13 +122,13 @@ git commit -m "feat: 옥상을 반투명하게 해서 위에서 맨 위층 실�
 - Consumes: `CAMPUS`, `pathSegments`, `lampSpots`, `BUSHES`, `TREES`, `TRASH_CANS` (hm#1)
 - Produces: `TERRACE: { min: Vec2; max: Vec2 }` (`[-10.9, 11.4]`~`[-7.7, 14.1]`), `onTerrace(p, margin = 0): boolean`. `scatterGrass`가 데크(+0.1 m)를 피한다. `BUSHES`에서 `[-10.6, 8]`, `[-10.6, 12]` 제거(카페 넘침 자리와 겹침)
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/layout.test.ts` (바뀐 부분):
 ```diff
@@ -175,12 +175,12 @@ git fetch origin && git checkout hm && git merge origin/main
 +});
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `onTerrace`·`TERRACE`가 없다(`does not provide an export named 'TERRACE'` 또는 `onTerrace is not a function`)
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/world/campus/layout.ts` (바뀐 부분):
 ```diff
@@ -264,12 +264,12 @@ Expected: FAIL — `onTerrace`·`TERRACE`가 없다(`does not provide an export 
          seat(-10, 12, N),
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web && npm test -w @4this/shared`
 Expected: PASS — layout 18개, shared 24개(`validateCampus` 그대로 통과, 좌석이 모두 건물 안)
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add packages/shared/src/campus/data.ts apps/web/src/world/campus/layout.ts apps/web/src/world/campus/layout.test.ts
@@ -287,7 +287,7 @@ git commit -m "feat: 식당 줄·카페 좌석 좌표 조정과 카페 테라스
 **Interfaces:**
 - Produces: `chunk<T>(items: readonly T[], n: number): T[][]`, `facingPairs(seats: readonly Seat[]): Seat[][]` (남쪽을 보는 자리 + 같은 x의 북쪽을 보는 자리)
 
-- [ ] **Step 1: 실패하는 테스트 작성**
+- [x] **Step 1: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/furniture.test.ts` (바뀐 부분):
 ```diff
@@ -343,12 +343,12 @@ git commit -m "feat: 식당 줄·카페 좌석 좌표 조정과 카페 테라스
 +});
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `chunk is not a function` / `facingPairs is not a function`
 
-- [ ] **Step 3: 구현**
+- [x] **Step 3: 구현**
 
 `apps/web/src/world/campus/furniture.ts` (바뀐 부분):
 ```diff
@@ -389,12 +389,12 @@ Expected: FAIL — `chunk is not a function` / `facingPairs is not a function`
 +}
 ```
 
-- [ ] **Step 4: 통과 확인**
+- [x] **Step 4: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — furniture 10개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/furniture.ts apps/web/src/world/campus/furniture.test.ts
@@ -414,7 +414,7 @@ git commit -m "feat: 좌석을 테이블 단위로 묶는 함수"
   - `MODELS`에 `chair`, `chairRounded`(앉는 면 0.45 m), `kitchenBar`, `kitchenCoffeeMachine`, `stoolBar`, `lampRoundTable`
   - `<BoxInstances items size color />`(같은 상자 여러 개, InstancedMesh 1개), `<ServingCounter pos rotY length />`, `<Parasol pos color? />`
 
-- [ ] **Step 1: Kenney 파일 추가 (새 빈 폴더에)**
+- [x] **Step 1: Kenney 파일 추가 (새 빈 폴더에)**
 
 > **팀장 메모 (2026-10-28):** Kenney 사이트가 고정 zip 링크를 막아(403, 브라우저에서도 "Download link expired or invalid") 아래 `curl`이 실패한다. 6개 파일은 팀장이 같은 원본(Furniture Kit 2.0, 10/21 다운로드)에서 꺼내 **main에 올려 두었다**. `git fetch origin && git merge origin/main` 뒤 아래 `ls` 줄로 17개인지만 확인하고 Step 2로 넘어간다.
 
@@ -430,7 +430,7 @@ done
 ls apps/web/public/assets/kenney | wc -l    # 17
 ```
 
-- [ ] **Step 2: 모델 목록·출처**
+- [x] **Step 2: 모델 목록·출처**
 
 `apps/web/src/world/campus/assets.ts` (바뀐 부분):
 ```diff
@@ -475,7 +475,7 @@ ls apps/web/public/assets/kenney | wc -l    # 17
 Run: `npm test -w @4this/web -- assets`
 Expected: PASS — assets 2개(새 의자 2개도 앉는 면 0.45 m)
 
-- [ ] **Step 3: 코드 소품**
+- [x] **Step 3: 코드 소품**
 
 `apps/web/src/world/campus/CodeProps.tsx` (바뀐 부분):
 ```diff
@@ -593,12 +593,12 @@ Expected: PASS — assets 2개(새 의자 2개도 앉는 면 0.45 m)
 +}
 ```
 
-- [ ] **Step 4: 타입·린트 확인**
+- [x] **Step 4: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/public/assets/kenney CREDITS.md apps/web/src/world/campus/assets.ts apps/web/src/world/campus/CodeProps.tsx
@@ -619,7 +619,7 @@ git commit -m "feat: 식당·카페 가구 에셋과 배식대·식판·파라�
   - 2F: 칠판(폭 5.5)·교탁, 12자리 책상+`chairDesk`+노트북/PC, "교양강의실" 표지판
   - 3F: 서쪽 벽 `bookcaseOpen` 5개·동쪽 2개(사이사이가 넘침 스탠딩 [−7, −17.5]·[−7, −13]·[7, −17.5]), 북쪽 벽 `bookcaseClosedWide` 4개, 열람 테이블 2개 + `chairRounded` 8 + 책 8 + 스탠드 2, "도서관" 표지판
 
-- [ ] **Step 1: 구현**
+- [x] **Step 1: 구현**
 
 `apps/web/src/world/campus/MainInterior.tsx`:
 ```tsx
@@ -751,12 +751,12 @@ export function MainInterior({ floor }: { floor: number }) {
 }
 ```
 
-- [ ] **Step 2: 타입·린트 확인**
+- [x] **Step 2: 타입·린트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm run lint`
 Expected: 에러 0
 
-- [ ] **Step 3: 커밋**
+- [x] **Step 3: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/MainInterior.tsx
@@ -775,7 +775,7 @@ git commit -m "feat: 본관 식당·교양강의실·도서관 가구"
 **Interfaces:**
 - Produces: `<CafeInterior />`(서쪽 카운터 `kitchenBar` 5개 + 커피머신 + 스툴 3, 2인 테이블 4 + `chairRounded` 8 + 컵 8), `<CafeTerrace />`(데크 `TERRACE`, `facingPairs(cafe.overflow)` 테이블 2 + 파라솔 2 + 의자 4). `Campus`는 네 건물 모두 `<Building>`
 
-- [ ] **Step 1: 카페**
+- [x] **Step 1: 카페**
 
 `apps/web/src/world/campus/CafeInterior.tsx`:
 ```tsx
@@ -868,7 +868,7 @@ export function CafeTerrace() {
 }
 ```
 
-- [ ] **Step 2: Campus 연결과 임시 상자 삭제**
+- [x] **Step 2: Campus 연결과 임시 상자 삭제**
 
 ```bash
 git rm apps/web/src/world/campus/BuildingBoxes.tsx
@@ -923,12 +923,12 @@ git rm apps/web/src/world/campus/BuildingBoxes.tsx
  }
 ```
 
-- [ ] **Step 3: 타입·린트·테스트**
+- [x] **Step 3: 타입·린트·테스트**
 
 Run: `npm run typecheck && npm run lint && npm test`
 Expected: 에러 0, 테스트 모두 통과
 
-- [ ] **Step 4: 브라우저로 확인**
+- [x] **Step 4: 브라우저로 확인**
 
 Run: `npm run dev -w @4this/web` 후 http://localhost:5173/?dev=campus
 Expected:
@@ -937,7 +937,7 @@ Expected:
 - 본관을 누르고 "1F까지" → 배식대(반찬통·유리 가림막), 4인 테이블 4개에 식판, 의자 등받이가 테이블 반대쪽. "2F까지" → 칠판·교탁·책상 12개. "3F까지" → 벽을 따라 책장, 열람 테이블에 스탠드·책.
 - 카페를 누르고 "1F까지" → 서쪽 카운터·커피머신·스툴, 2인 테이블 4개.
 
-- [ ] **Step 5: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
+- [x] **Step 5: Playwright 스크린샷 (PR에 첨부, 커밋하지 않음)**
 
 ```bash
 npx playwright@1.64.1 install chromium   # 처음 한 번
@@ -956,7 +956,7 @@ npx playwright@1.64.1 install chromium   # 처음 한 번
 npx playwright@1.64.1 screenshot --viewport-size "1280,800" --wait-for-timeout 7000 "http://localhost:5173/?dev=campus&building=cafe&floor=1&cam=-4,12,20&target=-14,0,10" cafe.png
 ```
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus
@@ -967,12 +967,12 @@ git commit -m "feat: 카페 실내·테라스와 본관·카페 건물 연결"
 
 ### Task 6: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. web 58개(hm#2까지 53 + layout 2 + furniture 3), shared 24개.
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push origin hm

@@ -15,6 +15,8 @@ import {
   scatterGrass,
   scatterInDisc,
   seededRandom,
+  onTerrace,
+  TERRACE,
   TRASH_CANS,
   TREES,
 } from './layout';
@@ -189,6 +191,32 @@ describe('꾸밈 배치', () => {
     for (const s of CAMPUS.benchSpots) {
       expect(inPond(s.pos, CAMPUS, 0.5)).toBe(false);
       expect(onPath(s.pos, segs, 0.4)).toBe(false);
+    }
+  });
+});
+
+describe('카페 테라스', () => {
+  const overflow = CAMPUS.places.cafe.overflow;
+  const segs = pathSegments(CAMPUS);
+
+  it('테라스 4자리(overflow 앞 4개)는 데크 안에 있고 데크는 길과 겹치지 않는다', () => {
+    for (const s of overflow.slice(0, 4)) expect(onTerrace(s.pos)).toBe(true);
+    const corners: Vec2[] = [
+      TERRACE.min,
+      TERRACE.max,
+      [TERRACE.min[0], TERRACE.max[1]],
+      [TERRACE.max[0], TERRACE.min[1]],
+    ];
+    for (const c of corners) expect(onPath(c, segs)).toBe(false);
+  });
+
+  it('카페 넘침 자리 근처(0.8 m)에 덤불·나무·가로등이 없다', () => {
+    const lamps = lampSpots(segs, CAMPUS).map((l) => l.pos);
+    const things: Vec2[] = [...BUSHES, ...TREES.map((t) => t.pos), ...lamps, ...TRASH_CANS];
+    for (const s of overflow) {
+      for (const t of things) {
+        expect(Math.hypot(s.pos[0] - t[0], s.pos[1] - t[1])).toBeGreaterThan(0.8);
+      }
     }
   });
 });

@@ -97,3 +97,32 @@ export function classroomFurniture(seats: readonly Seat[], y: number): Classroom
   });
   return out;
 }
+
+/** 좌석을 n개씩 묶는다 (table4 → 4개, table2 → 2개씩 데이터 순서대로) */
+export function chunk<T>(items: readonly T[], n: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < items.length; i += n) out.push(items.slice(i, i + n));
+  return out;
+}
+
+/** 같은 x에서 마주 보는 두 자리(남쪽을 보는 자리 + 북쪽을 보는 자리)를 한 테이블로 묶는다 */
+export function facingPairs(seats: readonly Seat[]): Seat[][] {
+  const used = new Set<number>();
+  const out: Seat[][] = [];
+  seats.forEach((a, i) => {
+    if (used.has(i) || Math.cos(a.facing) < 0.5) return;
+    const j = seats.findIndex(
+      (b, k) =>
+        !used.has(k) &&
+        k !== i &&
+        Math.cos(b.facing) < -0.5 &&
+        Math.abs(b.pos[0] - a.pos[0]) < 0.1 &&
+        b.pos[1] > a.pos[1],
+    );
+    if (j < 0) return;
+    used.add(i);
+    used.add(j);
+    out.push([a, seats[j]!]);
+  });
+  return out;
+}
