@@ -10,6 +10,7 @@ import { CameraRig } from './sim/CameraRig';
 import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
+import { useFocusExit } from './sim/focusExit';
 import { Professor } from './sim/Professor';
 import { SimMembers } from './sim/SimMembers';
 import { TextFallback } from './sim/TextFallback';
@@ -54,6 +55,8 @@ export function WorldCanvas({
   children?: ReactNode;
 }) {
   const [webgl] = useState(hasWebGL);
+  // Esc·빈 곳 클릭으로 건물 포커스·캐릭터 따라가기에서 빠져나온다
+  const focusExit = useFocusExit();
   useEffect(() => {
     installWorldDebug();
     if (!autoLoad) return;
@@ -65,7 +68,12 @@ export function WorldCanvas({
   // Canvas가 실패해도 위의 데이터·소켓 연결은 살아 있도록 경계는 Canvas만 감싼다
   return (
     <CanvasBoundary>
-      <Canvas shadows camera={{ position: OVERVIEW.position, fov: 32 }}>
+      <Canvas
+        shadows
+        camera={{ position: OVERVIEW.position, fov: 32 }}
+        onPointerDown={focusExit.onPointerDown}
+        onPointerMissed={focusExit.onPointerMissed}
+      >
         <color attach="background" args={['#fbeff6']} />
         <WorldScene />
         <OrbitControls makeDefault target={OVERVIEW.target} maxPolarAngle={Math.PI * 0.42} />
