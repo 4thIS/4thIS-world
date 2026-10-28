@@ -22,7 +22,7 @@
 - **계약** (`packages/shared`)
   - `ADMIN_ID = 'admin'`, `ADMIN_NAME = '관리자'`, `ADMIN_SPOT = { pos: [0, 3], facing: 0 }`(광장 중앙, 정문 쪽), `DEFAULT_ADMIN_LOOK`(곰·선글라스·나비넥타이)
   - `WorldResponse.admin?: { look }` — 서버는 항상 보낸다. 선택 필드라 예전 픽스처도 통과한다
-  - `API.adminLook = '/api/admin/look'`, `AdminLookRequestSchema { look }`, 응답 `{ look }`
+  - `API.adminLook = '/api/admin/look'`, `AdminLookSchema { look }`(요청·응답 같은 모양)
   - `Pose.placeId`에 `'plaza'` 추가, `adminPose()`: 광장 중앙 `stand`, 상태 문구 "광장"
   - `sampleAt(plan, ADMIN_ID, t)`는 계획과 상관없이 `adminPose()`를 돌려준다(24시간·매일). 그래서 이름표·건물 패널·텍스트 목록·조종 해제 후 복귀가 모두 그대로 동작한다
 - **서버**
@@ -34,7 +34,7 @@
 - **웹**
   - 월드 스토어: `members` 끝에 관리자 가상 멤버를 붙인다(시간표 없음)
   - `myMemberId()`: 관리자 세션이면 `'admin'` → 조종 버튼·이모지 바·발밑 링이 그대로 뜬다
-  - `describeWhere`: `'plaza'` → "광장 · …"
+  - `describeWhere`: `'plaza'` → "광장" (상태 문구와 같아 한 번만)
   - 관리자 화면 맨 위 "관리자 캐릭터" 칸: 꾸미기 칩·3D 미리보기·🎲·저장(`PATCH /api/admin/look`)
 
 ## 4. 테스트
