@@ -1540,12 +1540,12 @@ git commit -m "perf: 실내 그림자 끄기·테이블 인스턴싱·삼각형 
 
 ### Task 5: 전체 검사와 PR
 
-- [ ] **Step 1: 전체 검사**
+- [x] **Step 1: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과. web 71개(hm#3까지 58 + sky 9 + nightLights 3 + layout 1), shared 24개.
 
-- [ ] **Step 2: push와 PR**
+- [x] **Step 2: push와 PR**
 
 ```bash
 git push origin hm
