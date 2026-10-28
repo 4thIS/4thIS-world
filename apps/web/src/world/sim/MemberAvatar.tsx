@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useRef, useState } from 'react';
 import type { Group } from 'three';
 import { CAMPUS, type PublicMember } from '@4this/shared';
+import { useRealtime } from '../../store/realtime';
 import { useSession } from '../../store/session';
 import { useWorld } from '../../store/world';
 import { Character } from '../characters/Character';
@@ -29,6 +30,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const [display, setDisplay] = useState<DisplayState>(HIDDEN_DISPLAY);
   const isMe = useSession((s) => s.session.kind === 'member' && s.session.me.id === member.id);
   const focusMember = useWorld((s) => s.focusMember);
+  const emote = useRealtime((s) => s.emotes[member.id] ?? null);
 
   useEffect(() => {
     registerMember(member.id, ref.current);
@@ -69,6 +71,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       name={member.username}
       status={display.status}
       opacity={display.opacity}
+      emote={emote}
       highlight={isMe}
       onClick={() => focusMember(member.id)}
     />

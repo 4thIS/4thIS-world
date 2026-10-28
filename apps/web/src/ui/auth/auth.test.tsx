@@ -104,13 +104,14 @@ describe('LoginForm', () => {
 });
 
 describe('AdminLoginForm', () => {
-  it('성공하면 관리자 세션', async () => {
+  it('성공하면 관리자 세션이 되고 관리자 화면을 연다', async () => {
     const { calls } = mockApi({ 'POST /api/auth/admin': { body: { kind: 'admin' } } });
     render(<AdminLoginForm />);
     type('관리자 비밀번호', 'secret');
     fireEvent.click(screen.getByRole('button', { name: '관리자로 들어가기' }));
     await vi.waitFor(() => expect(useSession.getState().session).toEqual({ kind: 'admin' }));
     expect(calls[0]?.body).toEqual({ password: 'secret' });
+    expect(useUi.getState().screen).toBe('admin');
   });
 
   it('틀리면 관리자 문구', async () => {

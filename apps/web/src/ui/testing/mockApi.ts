@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { Me } from '@4this/shared';
+import type { AdminMember, Me } from '@4this/shared';
 
 /**
  * 테스트용 가짜 서버. 서버(wj)가 없어도 화면을 만들고 검증할 수 있게
@@ -47,3 +47,15 @@ export const ME_PENDING: Me = {
 };
 
 export const ME_APPROVED: Me = { ...ME_PENDING, status: 'approved' };
+
+export const ADMIN_MEMBERS: AdminMember[] = [
+  { ...ME_PENDING, createdAt: Date.parse('2026-10-20T10:00:00+09:00'), scheduleCount: 0 },
+  {
+    id: 'm2',
+    username: '지우',
+    status: 'approved',
+    look: { animal: 'duck', color: 'sky', head: 'cap', eyes: 'none', neck: 'none' },
+    createdAt: Date.parse('2026-10-01T09:00:00+09:00'),
+    scheduleCount: 5,
+  },
+];

@@ -416,6 +416,8 @@ git commit -m "feat: 좌석을 테이블 단위로 묶는 함수"
 
 - [ ] **Step 1: Kenney 파일 추가 (새 빈 폴더에)**
 
+> **팀장 메모 (2026-10-28):** Kenney 사이트가 고정 zip 링크를 막아(403, 브라우저에서도 "Download link expired or invalid") 아래 `curl`이 실패한다. 6개 파일은 팀장이 같은 원본(Furniture Kit 2.0, 10/21 다운로드)에서 꺼내 **main에 올려 두었다**. `git fetch origin && git merge origin/main` 뒤 아래 `ls` 줄로 17개인지만 확인하고 Step 2로 넘어간다.
+
 hm#2와 같은 zip이다. 다시 받아서 새 빈 폴더에 푼다.
 
 ```bash

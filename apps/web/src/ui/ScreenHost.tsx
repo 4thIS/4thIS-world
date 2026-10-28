@@ -1,3 +1,4 @@
+import { AdminScreen } from './admin/AdminScreen';
 import { AdminLoginForm } from './auth/AdminLoginForm';
 import { LoginForm } from './auth/LoginForm';
 import { SignupForm } from './auth/SignupForm';
@@ -21,5 +22,7 @@ export function ScreenHost() {
       return <CustomizeScreen />;
     case 'schedule':
       return <ScheduleScreen />;
+    case 'admin':
+      return <AdminScreen />;
   }
 }

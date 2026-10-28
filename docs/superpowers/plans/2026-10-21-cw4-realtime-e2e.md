@@ -81,14 +81,14 @@ playwright.config.ts             webServer: 웹 빌드(VITE_E2E=1) + 서버(WEB_
 - Consumes: `CAMPUS_HALF`, `Campus.colliders`, `nearestNode`, `shortestPath`, `pathLength`, `facingOf`, `WALK_SPEED_MPS` (cw#2)
 - Produces: 위 `collision.ts`·`input.ts`·`remote.ts`
 
-- [ ] **Step 1: 브랜치 준비**
+- [x] **Step 1: 브랜치 준비**
 
 ```bash
 git fetch origin && git checkout cw && git merge origin/main
 npm install
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성** — `apps/web/src/world/sim/control.test.ts`
+- [x] **Step 2: 실패하는 테스트 작성** — `apps/web/src/world/sim/control.test.ts`
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -178,12 +178,12 @@ describe('조종이 풀린 뒤 걸어서 복귀', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- control`
 Expected: FAIL — `Failed to resolve import "./collision"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/world/sim/collision.ts` (hm이 `CAMPUS.colliders`를 바꾸면 자동으로 따라간다):
 
@@ -390,14 +390,14 @@ export function sampleReturn(walk: ReturnWalk, now: number): Pose | null {
 }
 ```
 
-- [ ] **Step 5: 통과·타입 확인**
+- [x] **Step 5: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — control 9개 추가, 타입 에러 0
 
 > 테스트의 좌표(공학관 서쪽 벽 x=12, 연못 [-15,0], 노드 `plaza`·`eng-door`)는 cw#1의 `CAMPUS` 기준이다. hm이 좌표를 바꿨다면 같은 의미의 점(건물 안·연못 안·길 위)으로 숫자만 맞춘다.
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/sim
@@ -429,13 +429,13 @@ git commit -m "feat: 조종 충돌·입력 방향·스로틀·상태 보간·복
 | `emote` | `emotes[id] = { emoji, at: performance.now() }`, 3초 뒤 같은 것이면 지움 |
 | 세션 바뀜 | `disconnect()` → `connect()` (새 쿠키) |
 
-- [ ] **Step 1: 의존성 설치**
+- [x] **Step 1: 의존성 설치**
 
 ```bash
 npm install socket.io-client@^4.8.4 -w @4this/web
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성** — `apps/web/src/store/realtime.test.ts`
+- [x] **Step 2: 실패하는 테스트 작성** — `apps/web/src/store/realtime.test.ts`
 
 ```ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -630,12 +630,12 @@ describe('내 조종', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web -- realtime`
 Expected: FAIL — `Failed to resolve import "../api/socket"` / `"./realtime"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 `apps/web/src/api/socket.ts`:
 
@@ -906,12 +906,12 @@ export function resolvePose(memberId: string, t: number): Pose | null {
 }
 ```
 
-- [ ] **Step 5: 통과·타입 확인**
+- [x] **Step 5: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — realtime 13개 추가, 타입 에러 0
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/package.json package-lock.json apps/web/src/api apps/web/src/store apps/web/src/world/sim/resolvePose.ts
@@ -930,7 +930,7 @@ git commit -m "feat: Socket.IO 클라이언트·실시간 스토어(presence·�
 - Consumes: `useRealtime`(`useShallow`로 고른 값), `myMemberId`, `boardAt`, `sampleAt`, `CONTROL_STATUS`, `PresenceEntry`
 - Produces: `useOverlayProps()` 전체 (위 Interfaces 참고)
 
-- [ ] **Step 1: 실패하는 테스트 작성** — `apps/web/src/store/overlay.realtime.test.ts`
+- [x] **Step 1: 실패하는 테스트 작성** — `apps/web/src/store/overlay.realtime.test.ts`
 
 ```ts
 import { act, cleanup, renderHook } from '@testing-library/react';
@@ -1032,12 +1032,12 @@ describe('useOverlayProps (cw#4 범위)', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인**
+- [x] **Step 2: 실패 확인**
 
 Run: `npm test -w @4this/web -- overlay`
 Expected: FAIL — `expected [] to deeply equal [ ObjectContaining{…}, … ]` (presence 항목이 아직 비어 있다) 외 2개
 
-- [ ] **Step 3: 구현** — `apps/web/src/store/overlay.ts` 전체
+- [x] **Step 3: 구현** — `apps/web/src/store/overlay.ts` 전체
 
 ```ts
 import { useShallow } from 'zustand/react/shallow';
@@ -1141,12 +1141,12 @@ export function useOverlayProps(): OverlayProps {
 }
 ```
 
-- [ ] **Step 4: 통과·타입 확인**
+- [x] **Step 4: 통과·타입 확인**
 
 Run: `npm test -w @4this/web && npm run typecheck -w @4this/web`
 Expected: PASS — 58개
 
-- [ ] **Step 5: 커밋**
+- [x] **Step 5: 커밋**
 
 ```bash
 git add apps/web/src/store
@@ -1165,7 +1165,7 @@ git commit -m "feat: 오버레이 접속자·조종·이모지·연결 배지·�
 - Consumes: Task 1~3, `CAMPUS.boardPos`, `Character`의 `emote` prop
 - Produces: `<ControlDriver />`(조종 중에만 바닥에 투명 판을 깔아 클릭·탭 지점을 받는다. 키 입력은 `input`·`textarea`에 쓰는 중이면 무시), `<BoardHotspot />`(게시판 자리 2×2×0.6 m 투명 상자, 누르면 `openBoard()`), `installWorldDebug()`, `WorldCanvas`가 마운트 시 `load()` + `useRealtime.connect()`
 
-- [ ] **Step 1: 조종 입력** — `apps/web/src/world/sim/ControlDriver.tsx`
+- [x] **Step 1: 조종 입력** — `apps/web/src/world/sim/ControlDriver.tsx`
 
 ```tsx
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
@@ -1271,7 +1271,7 @@ export function ControlDriver() {
 }
 ```
 
-- [ ] **Step 2: 게시판 클릭 영역** — `apps/web/src/world/sim/BoardHotspot.tsx`
+- [x] **Step 2: 게시판 클릭 영역** — `apps/web/src/world/sim/BoardHotspot.tsx`
 
 게시판 모델은 hm의 `Campus`가 그린다. `CampusProps`에 게시판 클릭 콜백이 없으므로, 계약을 바꾸지 않고 sim이 같은 자리(`CAMPUS.boardPos`)에 보이지 않는 클릭 영역을 둔다.
 
@@ -1305,7 +1305,7 @@ export function BoardHotspot() {
 }
 ```
 
-- [ ] **Step 3: E2E 조회 창구** — `apps/web/src/world/sim/debug.ts`
+- [x] **Step 3: E2E 조회 창구** — `apps/web/src/world/sim/debug.ts`
 
 ```ts
 import { useRealtime } from '../../store/realtime';
@@ -1352,7 +1352,7 @@ export function installWorldDebug(): void {
 }
 ```
 
-- [ ] **Step 4: 이모지 연결** — `apps/web/src/world/sim/MemberAvatar.tsx` 전체
+- [x] **Step 4: 이모지 연결** — `apps/web/src/world/sim/MemberAvatar.tsx` 전체
 
 ```tsx
 import { useFrame } from '@react-three/fiber';
@@ -1436,7 +1436,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
 }
 ```
 
-- [ ] **Step 5: WorldCanvas** — `apps/web/src/world/WorldCanvas.tsx` 전체
+- [x] **Step 5: WorldCanvas** — `apps/web/src/world/WorldCanvas.tsx` 전체
 
 ```tsx
 import { OrbitControls } from '@react-three/drei';
@@ -1513,12 +1513,12 @@ export function WorldCanvas({
 }
 ```
 
-- [ ] **Step 6: 타입·빌드·테스트 확인**
+- [x] **Step 6: 타입·빌드·테스트 확인**
 
 Run: `npm run typecheck -w @4this/web && npm test -w @4this/web && npm run build`
 Expected: 타입 에러 0, 58개 통과, `✓ built`
 
-- [ ] **Step 7: 손으로 확인 (서버 wj#3 이상 + 웹 dev)**
+- [x] **Step 7: 손으로 확인 (서버 wj#3 이상 + 웹 dev)**
 
 Run: `ADMIN_PASSWORD=admin SESSION_SECRET=dev-secret-0123456789abcdef0123 npm run dev` 후 브라우저 두 개(하나는 시크릿 창)로 http://localhost:5173
 Expected:
@@ -1529,7 +1529,7 @@ Expected:
 - 정문 게시판을 누르면 외부 일정 패널
 - 조종한 채로 60초 가만히 두면 서버가 풀고 캐릭터가 걸어서 돌아간다
 
-- [ ] **Step 8: 커밋**
+- [x] **Step 8: 커밋**
 
 ```bash
 git add apps/web/src/world
@@ -1548,14 +1548,14 @@ git commit -m "feat: 키보드·클릭 조종, 정문 게시판 클릭, 이모�
 - Consumes: REST 경로(`/api/auth/signup`, `/api/me/schedules`, `/api/auth/admin`, `/api/admin/members/:id/approve`), th의 버튼 이름(`조종하기`, `자동으로`, 이모지 `👋`), 접속자 목록에 보이는 `username` 텍스트, `window.__world`
 - 서버 전제(wj#4): `WEB_DIST`를 정적 서빙하고 `/api`·`/socket.io` 외 경로는 `index.html`. `npm run start -w @4this/server`가 `PORT`·`DB_PATH`·`ADMIN_PASSWORD`·`SESSION_SECRET`를 읽는다
 
-- [ ] **Step 1: 의존성 설치**
+- [x] **Step 1: 의존성 설치**
 
 ```bash
 npm install -D @playwright/test@^1.64.1
 npx playwright install chromium
 ```
 
-- [ ] **Step 2: 스크립트·무시 목록**
+- [x] **Step 2: 스크립트·무시 목록**
 
 루트 `package.json`의 `scripts`에서 두 줄을 바꾸고 한 줄을 더한다(old → new):
 
@@ -1596,7 +1596,7 @@ playwright-report
 test-results
 ```
 
-- [ ] **Step 3: 설정과 테스트 작성**
+- [x] **Step 3: 설정과 테스트 작성**
 
 `e2e/env.ts`:
 
@@ -1776,19 +1776,19 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
 });
 ```
 
-- [ ] **Step 4: 목록·타입 확인**
+- [x] **Step 4: 목록·타입 확인**
 
 Run: `npm run typecheck && npx playwright test --list`
 Expected: 타입 에러 0, `Total: 1 test in 1 file`
 
-- [ ] **Step 5: E2E 실행 (wj#4까지 머지된 main을 merge한 상태)**
+- [x] **Step 5: E2E 실행 (wj#4까지 머지된 main을 merge한 상태)**
 
 Run: `npm run e2e`
 Expected: `1 passed`. 실패하면 `npx playwright show-report`로 trace를 본다. 자주 나는 원인:
 - `조종하기`/`자동으로` 버튼 이름이 다르면 th#4의 `ControlButton` 문구에 맞춘다(계약은 문구를 고정하지 않았다)
 - 8080을 다른 프로세스가 쓰면 `E2E_PORT=8090 npm run e2e`
 
-- [ ] **Step 6: CI 잡 추가** — `.github/workflows/ci.yml`의 `jobs:` 아래 `check` 잡 다음에 붙인다
+- [x] **Step 6: CI 잡 추가** — `.github/workflows/ci.yml`의 `jobs:` 아래 `check` 잡 다음에 붙인다
 
 ```yaml
 
@@ -1813,12 +1813,12 @@ Expected: `1 passed`. 실패하면 `npx playwright show-report`로 trace를 본�
           retention-days: 7
 ```
 
-- [ ] **Step 7: 전체 검사**
+- [x] **Step 7: 전체 검사**
 
 Run: `npm run typecheck && npm run lint && npm run format:check && npm test && npm run build`
 Expected: 모두 통과 — shared 71개, web 58개(+ th·hm·wj가 더한 테스트)
 
-- [ ] **Step 8: 커밋**
+- [x] **Step 8: 커밋**
 
 ```bash
 git add package.json package-lock.json eslint.config.js .prettierignore playwright.config.ts e2e .github/workflows/ci.yml
@@ -1830,7 +1830,7 @@ git commit -m "test: 가입→승인→조종→두 번째 브라우저 확인 P
 
 ### Task 6: PR과 마무리
 
-- [ ] **Step 1: 최신 main 반영 후 전체 검사 + E2E**
+- [x] **Step 1: 최신 main 반영 후 전체 검사 + E2E**
 
 ```bash
 git fetch origin && git merge origin/main
@@ -1840,7 +1840,7 @@ npm run typecheck && npm run lint && npm run format:check && npm test && npm run
 
 Expected: 모두 통과
 
-- [ ] **Step 2: push·PR**
+- [x] **Step 2: push·PR**
 
 ```bash
 git push origin cw

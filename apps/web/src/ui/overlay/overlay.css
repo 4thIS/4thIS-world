@@ -1,0 +1,267 @@
+/* 메인 오버레이: 상단 바, 접속자 패널, 옆 패널(건물·게시판), 아래 조종·이모지 바 */
+
+/* 계정 메뉴 드롭다운은 접속자 패널 위, 모달은 그보다 위 */
+.ui-top-right {
+  z-index: 5;
+}
+
+.ui-backdrop {
+  z-index: 10;
+}
+
+.ov-topbar {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.ov-topbar__clock {
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.ov-badge {
+  align-self: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--lemon);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+/* 접속자 패널 */
+.ov-presence {
+  position: absolute;
+  top: 64px;
+  right: 16px;
+  width: 230px;
+  max-height: calc(100% - 160px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ov-presence__head {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.ov-presence__list {
+  flex: 1;
+  margin: 0;
+  padding: 0 8px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.ov-presence__item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ov-presence__item:hover {
+  background: #f8f1fc;
+}
+
+.ov-presence__name {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ov-presence__status {
+  flex: 1;
+  overflow: hidden;
+  color: var(--ink-soft);
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ov-presence__spectators {
+  margin: 0;
+  padding: 8px 16px 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.ui-face {
+  flex: none;
+}
+
+/* 건물·게시판 패널 (왼쪽) */
+.ov-side {
+  position: absolute;
+  top: 64px;
+  left: 16px;
+  width: 260px;
+  /* 화면 절반에서 여백을 뺀 높이까지만 키우고, 넘치면 패널 안에서 스크롤 */
+  max-height: calc(50vh - 90px);
+  overflow-y: auto;
+  display: grid;
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+
+.ov-side + .ov-side {
+  top: auto;
+  bottom: 96px;
+}
+
+.ov-side__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ov-side__list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+/* 아래 가운데: 조종 버튼 + 이모지 바 */
+.ov-bottom {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 가운데 버튼·이모지 바만 누를 수 있게: 빈 자리는 월드로 통과 */
+.ui-root > .ov-bottom {
+  pointer-events: none;
+}
+
+.ov-bottom > * {
+  pointer-events: auto;
+}
+
+.ov-control {
+  padding: 12px 20px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.ov-emotes {
+  display: flex;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.ov-emote {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.ov-emote:hover:not(:disabled) {
+  transform: scale(1.2);
+}
+
+.ov-emote:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 모바일: 접속자 패널은 하단 시트, 조종·이모지는 그 위 */
+@media (max-width: 639px) {
+  .ov-topbar {
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .ov-topbar__logo {
+    display: none;
+  }
+
+  .ov-presence {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-height: 34vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .ov-presence--collapsed {
+    max-height: 48px;
+  }
+
+  /* 시트가 펼쳐져 있으면 그 위로, 접혀 있으면 머리줄 위로 */
+  .ov-bottom {
+    bottom: 58px;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    flex-direction: column;
+  }
+
+  .ui-root:has(.ov-presence:not(.ov-presence--collapsed)) .ov-bottom {
+    bottom: calc(34vh + 10px);
+  }
+
+  .ov-emotes {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .ov-emote {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+
+  /* 상단 바와 조종 바 사이를 두 등분 (8px 간격) */
+  .ov-side {
+    top: 58px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-height: calc(33vh - 88px);
+  }
+
+  .ov-side + .ov-side {
+    top: calc(33vh - 22px);
+    bottom: auto;
+  }
+}
