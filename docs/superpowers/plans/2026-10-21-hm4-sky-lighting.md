@@ -137,13 +137,13 @@ git commit -m "fix: 테라스 데크를 얇게 해서 캐릭터 발이 묻히지
 - Consumes: `mixHex` (hm#1 `pastel.ts`)
 - Produces: `type SkyPhase = 'morning' | 'day' | 'sunset' | 'night'`, `interface SkyPalette { background; fog; sunColor; sunIntensity; hemiSky; hemiGround; hemiIntensity; night }`, `SKY_PALETTES`, `BLEND_MIN = 30`, `phaseAt(min): SkyPhase`, `mixPalette(a, b, t)`, `interface Sky extends SkyPalette { sunDir: [x, y, z] }`, `sunDirection(min)`, `skyAt(min: number): Sky`, `skyIcon(min): string` ('🌅' '☀️' '🌇' '🌙' — cw가 상단 바 `skyIcon`에 쓸 수 있다)
 
-- [ ] **Step 1: 브랜치 갱신**
+- [x] **Step 1: 브랜치 갱신**
 
 ```bash
 git fetch origin && git checkout hm && git merge origin/main
 ```
 
-- [ ] **Step 2: 실패하는 테스트 작성**
+- [x] **Step 2: 실패하는 테스트 작성**
 
 `apps/web/src/world/campus/sky.test.ts`:
 ```ts
@@ -217,12 +217,12 @@ describe('mixPalette / skyIcon', () => {
 });
 ```
 
-- [ ] **Step 3: 실패 확인**
+- [x] **Step 3: 실패 확인**
 
 Run: `npm test -w @4this/web`
 Expected: FAIL — `Failed to resolve import "./sky"`
 
-- [ ] **Step 4: 구현**
+- [x] **Step 4: 구현**
 
 숫자 보간은 `x * (1 - t) + y * t`로 써야 t = 0·1에서 정확히 원래 값이 나온다(`x + (y - x) * t`는 부동소수 오차로 `toEqual`이 깨진다).
 
@@ -374,12 +374,12 @@ export function skyIcon(min: number): string {
 }
 ```
 
-- [ ] **Step 5: 통과 확인**
+- [x] **Step 5: 통과 확인**
 
 Run: `npm test -w @4this/web`
 Expected: PASS — sky 9개
 
-- [ ] **Step 6: 커밋**
+- [x] **Step 6: 커밋**
 
 ```bash
 git add apps/web/src/world/campus/sky.ts apps/web/src/world/campus/sky.test.ts
