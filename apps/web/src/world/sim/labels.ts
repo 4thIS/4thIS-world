@@ -47,6 +47,9 @@ export function describeWhere(pose: Pose | null, campus: Campus): string {
   switch (pose.placeId) {
     case 'park':
       return `공원 · ${pose.status}`;
+    case 'plaza':
+      // 관리자 캐릭터 자리. 이름표 문구도 "광장"이라 한 번만 쓴다
+      return '광장';
     case 'door':
       return `건물 앞 · ${pose.status}`;
     case 'gate':
