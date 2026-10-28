@@ -186,7 +186,10 @@ export function Building({
                     material={mats[side].edge}
                     raycast={() => null}
                   />
-                  {g.glass && <mesh geometry={g.glass} material={mats[side].glass[i]} />}
+                  {/* 창유리도 장식이다. 밤에 불 켜진 창은 벽이 흐려져도 불투명도가 남아 안쪽 캐릭터 클릭을 가로채므로 끈다. */}
+                  {g.glass && (
+                    <mesh geometry={g.glass} material={mats[side].glass[i]} raycast={() => null} />
+                  )}
                 </group>
               );
             })}
