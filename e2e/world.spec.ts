@@ -85,16 +85,16 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
   await expect.poll(() => positionOf(vpage, me.id).then((p) => p?.visible ?? false)).toBe(true);
   const before = (await positionOf(vpage, me.id))!;
 
-  // 6) W를 1.5초 누르면 구경꾼 화면의 위치도 바뀐다
+  // 6) W를 누르고 있으면 구경꾼 화면의 위치도 바뀐다.
+  // 한 프레임 이동량에 상한이 있어 느린 러너에서는 같은 시간에 덜 걷는다. 시간이 아니라 결과를 기다린다
   await page.keyboard.down('w');
-  await page.waitForTimeout(1500);
-  await page.keyboard.up('w');
   await expect
     .poll(async () => {
       const after = (await positionOf(vpage, me.id))!;
       return Math.hypot(after.x - before.x, after.z - before.z);
     })
     .toBeGreaterThan(1);
+  await page.keyboard.up('w');
 
   // 7) 이모지가 상대에게 보인다
   await page.getByRole('button', { name: '👋' }).click();

@@ -9,8 +9,9 @@ import { ADMIN_PASSWORD, E2E_PORT, SESSION_SECRET } from './e2e/env';
  */
 export default defineConfig({
   testDir: 'e2e',
-  timeout: 90_000,
-  expect: { timeout: 15_000 },
+  // CI 러너는 GPU 없이 소프트웨어 WebGL로 두 페이지를 그려 느리다. 넉넉히 기다린다
+  timeout: process.env.CI ? 240_000 : 90_000,
+  expect: { timeout: process.env.CI ? 45_000 : 15_000 },
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
@@ -18,12 +19,21 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${E2E_PORT}`,
     trace: 'retain-on-failure',
+    // 화면을 작게 해서 소프트웨어 렌더링이 메인 스레드를 오래 붙잡지 않게 한다
+    // (붙잡으면 소켓이 ping에 답하지 못해 끊기고, 접속자 수·조종 상태가 늦게 온다)
+    viewport: { width: 800, height: 500 },
+    deviceScaleFactor: 1,
     // CI에는 GPU가 없어 소프트웨어 WebGL을 쓴다
     launchOptions: {
       args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
     },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 800, height: 500 } },
+    },
+  ],
   webServer: {
     command: 'npm run build && npm run start -w @4this/server',
     url: `http://localhost:${E2E_PORT}/api/health`,
