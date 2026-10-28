@@ -27,7 +27,7 @@ function Cafeteria() {
   const tables = useMemo(() => chunk(place.seats, 4).map((g) => tableBetween(g)), [place]);
   const chairs = useMemo(() => place.seats.map((s) => chairAt(s, y)), [place, y]);
   const trays = useMemo(
-    () => place.seats.map((s) => facingSeat(s, 0.42, y + TABLE_TOP)),
+    () => place.seats.map((s) => facingSeat(s, 0.7, y + TABLE_TOP)),
     [place, y],
   );
   return (
@@ -84,7 +84,7 @@ function Library() {
   const tables = useMemo(() => chunk(place.seats, 4).map((g) => tableBetween(g)), [place]);
   const chairs = useMemo(() => place.seats.map((s) => chairAt(s, y)), [place, y]);
   const books = useMemo(
-    () => place.seats.map((s) => facingSeat(s, 0.45, y + TABLE_TOP)),
+    () => place.seats.map((s) => facingSeat(s, 0.7, y + TABLE_TOP)),
     [place, y],
   );
   const lamps = useMemo<ModelItem[]>(
