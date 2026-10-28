@@ -4,3 +4,5 @@ node_modules
 package-lock.json
 docs
 apps/web/public/assets
+playwright-report
+test-results

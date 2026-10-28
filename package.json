@@ -12,15 +12,17 @@
   },
   "scripts": {
     "dev": "concurrently -n server,web -c magenta,cyan \"npm run dev -w @4this/server\" \"npm run dev -w @4this/web\"",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run test --workspaces --if-present",
-    "build": "npm run build -w @4this/web"
+    "build": "npm run build -w @4this/web",
+    "e2e": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@types/node": "^24.0.0",
     "concurrently": "^10.0.6",
     "eslint": "^10.13.0",
