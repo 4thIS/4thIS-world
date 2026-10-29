@@ -32,6 +32,11 @@
   cursor: pointer;
 }
 
+.ov-topbar__help {
+  color: var(--ink-soft);
+  font-weight: 800;
+}
+
 .ov-topbar__clock {
   color: var(--ink-soft);
   font-weight: 600;

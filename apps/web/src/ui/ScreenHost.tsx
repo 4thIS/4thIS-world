@@ -3,6 +3,7 @@ import { AdminLoginForm } from './auth/AdminLoginForm';
 import { LoginForm } from './auth/LoginForm';
 import { SignupForm } from './auth/SignupForm';
 import { CustomizeScreen } from './customize/CustomizeScreen';
+import { GuideOverlay } from './guide/GuideOverlay';
 import { IntroScreen } from './intro/IntroScreen';
 import { ScheduleScreen } from './schedule/ScheduleScreen';
 import { useUi } from './store';
@@ -15,6 +16,8 @@ export function ScreenHost() {
       return null;
     case 'intro':
       return <IntroScreen />;
+    case 'guide':
+      return <GuideOverlay />;
     case 'login':
       return <LoginForm />;
     case 'signup':

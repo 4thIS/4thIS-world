@@ -17,6 +17,8 @@ export function IntroScreen() {
   /** 닫기·구경하기·가입 모두 여기를 지난다 */
   const leave = (next?: () => void) => {
     if (hideToday) hideIntroToday(browserStore(), Date.now());
+    // 소개를 닫고 나면(가입했다면 가입 흐름까지 끝나면) 조작법 가이드를 띄운다
+    useUi.setState({ guideAfterClose: true });
     if (next) next();
     else close();
   };
