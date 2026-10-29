@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import fastifyCookie from '@fastify/cookie';
 import fastifyRateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { API } from '@4this/shared';
+import { API, CLEAR_WEATHER } from '@4this/shared';
 import { readSessionToken, resolveSession, type Auth } from './auth/session';
 import type { Config } from './config';
 import type { Db } from './db';
@@ -12,15 +12,18 @@ import { registerAuthRoutes } from './routes/auth';
 import { registerMeRoutes } from './routes/me';
 import { registerWorldRoutes } from './routes/world';
 import { registerWebStatic } from './static';
+import { WeatherService } from './weather';
 
 /** 서버 안에서 주고받는 이벤트. wj#3의 소켓 계층이 world:changed를 받아 브로드캐스트한다 */
-export type ServerEvents = { 'world:changed': [] };
+export type ServerEvents = { 'world:changed': []; 'weather:changed': [] };
 
 declare module 'fastify' {
   interface FastifyInstance {
     config: Config;
     db: Db;
     events: EventEmitter<ServerEvents>;
+    /** 실시간 날씨. 설정에서 끄면 null (늘 맑음) */
+    weather: WeatherService | null;
   }
   interface FastifyRequest {
     auth: Auth;
@@ -41,7 +44,16 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
   });
   app.decorate('config', config);
   app.decorate('db', db);
-  app.decorate('events', new EventEmitter<ServerEvents>());
+  const events = new EventEmitter<ServerEvents>();
+  app.decorate('events', events);
+  // 받기 시작은 main.ts가 한다 (테스트는 네트워크를 쓰지 않게)
+  app.decorate(
+    'weather',
+    config.weather
+      ? new WeatherService(config.weather, { onChange: () => events.emit('weather:changed') })
+      : null,
+  );
+  app.addHook('onClose', async () => app.weather?.stop());
   // 객체는 기본값으로 못 넣는다(Fastify 5). 자리만 잡고 onRequest 훅에서 채운다
   app.decorateRequest('auth');
 
@@ -55,6 +67,7 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
       request.auth = resolveSession(db, readSessionToken(request));
     });
     api.get(API.health, async () => ({ ok: true }));
+    api.get(API.weather, async () => app.weather?.get() ?? CLEAR_WEATHER);
     registerAuthRoutes(api);
     registerWorldRoutes(api);
     registerMeRoutes(api);

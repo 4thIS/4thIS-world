@@ -13,7 +13,18 @@ describe('loadConfig', () => {
       webDist: null,
       production: false,
       trustProxy: false,
+      weather: { lat: 37.5844, lon: 126.9251 },
     });
+  });
+
+  it('날씨: WEATHER_LAT·LON으로 바꾸고, WEATHER=off나 테스트에서는 끈다', () => {
+    expect(loadConfig({ ...base, WEATHER_LAT: '35.1', WEATHER_LON: '129.0' }).weather).toEqual({
+      lat: 35.1,
+      lon: 129,
+    });
+    expect(loadConfig({ ...base, WEATHER: 'off' }).weather).toBeNull();
+    expect(loadConfig({ ...base, NODE_ENV: 'test' }).weather).toBeNull();
+    expect(() => loadConfig({ ...base, WEATHER_LAT: 'x' })).toThrow();
   });
 
   it('ADMIN_PASSWORD가 없으면 시작하지 않는다', () => {

@@ -14,6 +14,7 @@ export function testConfig(overrides: Partial<Config> = {}): Config {
     webDist: null,
     production: false,
     trustProxy: false,
+    weather: null,
     ...overrides,
   };
 }

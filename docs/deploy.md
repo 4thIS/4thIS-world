@@ -30,6 +30,8 @@ docker compose ps            # STATUS가 healthy가 될 때까지 기다린다
 | `WEB_DIST`       | `/app/apps/web/dist` | 웹 빌드 폴더                                                         |
 | `NODE_ENV`       | `production`         | `production`이면 쿠키에 `Secure`가 붙는다 (아래 "HTTPS" 참고)        |
 | `TRUST_PROXY`    | 꺼짐                 | 리버스 프록시 뒤라면 `1`. 로그인 시도 제한이 실제 접속 IP로 동작한다 |
+| `WEATHER_LAT`·`WEATHER_LON` | 명지전문대학 (37.5844, 126.9251) | 실시간 날씨(Open-Meteo)를 받을 좌표. 서버가 10분마다 받는다 |
+| `WEATHER`        | 켜짐                 | `off`면 날씨를 받지 않고 늘 맑음 (`NODE_ENV=test`도 끔) |
 
 ### HTTPS와 쿠키
 
