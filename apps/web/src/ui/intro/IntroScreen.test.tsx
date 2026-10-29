@@ -23,6 +23,7 @@ describe('IntroScreen', () => {
     render(<ScreenHost />);
     expect(dialog()).toBeTruthy();
     expect(screen.getByRole('img', { name: '4thIS-world 로고' })).toBeTruthy();
+    expect(screen.getByText('만든 사람 · 박찬우 · 이우진 · 박효민 · 김태희')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '가입하고 내 캐릭터 만들기' }));
     expect(useUi.getState().screen).toBe('signup');
     expect(localStorage.getItem(INTRO_KEY)).toBeNull();

@@ -17,6 +17,8 @@ export interface PresenceEntry {
 /** PresencePanel: 접속자 목록. 모바일에서는 하단 시트 */
 export interface PresencePanelProps {
   entries: PresenceEntry[];
+  /** 접속하지 않은 승인 멤버 (관리자 캐릭터 제외). status는 시간표상 지금 위치 */
+  offline: PresenceEntry[];
   spectators: number;
   collapsed: boolean;
   onToggle: () => void;

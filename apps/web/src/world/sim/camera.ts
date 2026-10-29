@@ -19,8 +19,9 @@ export function buildingGoal(id: BuildingId, campus: Campus): CameraGoal {
   const w = b.max[0] - b.min[0];
   const d = b.max[1] - b.min[1];
   const h = b.floors * FLOOR_HEIGHT;
-  const target: Vec3 = [(b.min[0] + b.max[0]) / 2, h / 2, (b.min[1] + b.max[1]) / 2];
-  const distance = Math.max(w, d, h) * 1.2 + 10;
+  // 지붕 위 이름표와 포커스 표시(✓)까지 화면에 들어오게 가운데보다 조금 위를 본다
+  const target: Vec3 = [(b.min[0] + b.max[0]) / 2, h / 2 + 2.5, (b.min[1] + b.max[1]) / 2];
+  const distance = Math.max(w, d, h) * 1.2 + 12;
   const dir = [0.55, 0.6, 0.58];
   const len = Math.hypot(dir[0]!, dir[1]!, dir[2]!);
   return {

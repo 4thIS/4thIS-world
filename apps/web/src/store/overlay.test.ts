@@ -38,6 +38,25 @@ describe('useOverlayProps (cw#3 범위)', () => {
     expect(result.current.topBar.clock).toBe('수 14:11');
   });
 
+  it('접속하지 않은 멤버는 시간표상 지금 위치와 함께 오프라인 목록에 (관리자 캐릭터 제외)', () => {
+    useWorld.getState().setWorld({
+      ...{ serverTime: WED_1410, members: useWorld.getState().members },
+      admin: { look: DEFAULT_LOOK },
+    });
+    const { result } = renderHook(() => useOverlayProps());
+    expect(result.current.presence.entries).toEqual([]);
+    expect(result.current.presence.offline).toEqual([
+      {
+        id: 'a',
+        username: '철수',
+        look: DEFAULT_LOOK,
+        status: '2학년 강의 · 자료구조',
+        controlling: false,
+        isMe: false,
+      },
+    ]);
+  });
+
   it('건물을 누르기 전에는 building이 없다', () => {
     const { result } = renderHook(() => useOverlayProps());
     expect(result.current.building).toBeNull();

@@ -1,6 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
-import type { Vector3 } from 'three';
+import { MOUSE, TOUCH, type Vector3 } from 'three';
 import { CAMPUS } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
 import { useWorld } from '../../store/world';
@@ -17,11 +17,14 @@ import {
   orbitY,
   type CameraGoal,
 } from './camera';
+import { isDoublePress, type Press } from './doublePress';
 import { memberObjects } from './registry';
 
-/** drei MapControls(makeDefault)에서 쓰는 부분만 */
+/** drei OrbitControls(makeDefault)에서 쓰는 부분만 */
 interface OrbitLike {
   target: Vector3;
+  mouseButtons: { LEFT?: MOUSE | null };
+  touches: { ONE?: TOUCH | null };
   update: () => void;
   addEventListener: (type: 'start', listener: () => void) => void;
   removeEventListener: (type: 'start', listener: () => void) => void;
@@ -59,6 +62,34 @@ export function CameraRig() {
   useEffect(() => {
     if (homeNonce > 0) goal.current = OVERVIEW;
   }, [homeNonce]);
+
+  // 왼쪽 끌기는 회전이지만, 더블 클릭(더블 탭)한 채로 끌면 그동안만 화면 이동이다.
+  // OrbitControls보다 먼저 보도록 window 캡처 단계에서 듣는다
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    if (!controls) return;
+    let last: Press | null = null;
+    const down = (e: PointerEvent) => {
+      if (e.target !== gl.domElement || e.button !== 0) return;
+      const now: Press = { x: e.clientX, y: e.clientY, at: e.timeStamp };
+      const pan = isDoublePress(last, now);
+      last = pan ? null : now;
+      controls.mouseButtons.LEFT = pan ? MOUSE.PAN : MOUSE.ROTATE;
+      controls.touches.ONE = pan ? TOUCH.PAN : TOUCH.ROTATE;
+    };
+    const up = () => {
+      controls.mouseButtons.LEFT = MOUSE.ROTATE;
+      controls.touches.ONE = TOUCH.ROTATE;
+    };
+    window.addEventListener('pointerdown', down, true);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => {
+      window.removeEventListener('pointerdown', down, true);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [controls, gl]);
 
   // 사용자가 끌기 시작하면 날아가던 카메라를 멈춘다
   useEffect(() => {

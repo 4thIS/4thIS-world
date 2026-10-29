@@ -56,6 +56,7 @@ describe('TopBar', () => {
 describe('PresencePanel', () => {
   const props = {
     entries: ENTRIES,
+    offline: [] as typeof ENTRIES,
     spectators: 2,
     collapsed: false,
     onToggle: vi.fn(),
@@ -79,6 +80,24 @@ describe('PresencePanel', () => {
     expect(props.onSelect).toHaveBeenCalledWith('m2');
     fireEvent.click(screen.getByRole('button', { name: /접속 중/ }));
     expect(props.onToggle).toHaveBeenCalled();
+  });
+
+  it('오프라인 멤버는 아래에 따로, 접었다 펼 수 있고 누르면 onSelect', () => {
+    const offline = [{ ...ENTRIES[1]!, id: 'm9', username: '민수', status: '캠퍼스 밖' }];
+    const onSelect = vi.fn();
+    render(<PresencePanel {...props} offline={offline} onSelect={onSelect} />);
+    const list = screen.getByRole('list', { name: '오프라인 멤버' });
+    expect(list.textContent).toContain('민수');
+    expect(list.textContent).toContain('캠퍼스 밖');
+    fireEvent.click(within(list).getByRole('button', { name: /민수/ }));
+    expect(onSelect).toHaveBeenCalledWith('m9');
+    fireEvent.click(screen.getByRole('button', { name: /오프라인 1/ }));
+    expect(screen.queryByRole('list', { name: '오프라인 멤버' })).toBeNull();
+  });
+
+  it('오프라인 멤버가 없으면 그 칸을 그리지 않는다', () => {
+    render(<PresencePanel {...props} />);
+    expect(screen.queryByRole('button', { name: /오프라인/ })).toBeNull();
   });
 
   it('접으면 목록을 숨긴다', () => {
