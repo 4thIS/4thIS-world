@@ -2,7 +2,7 @@ import type { TopBarProps } from '../contracts';
 import { useUi } from '../store';
 
 /** 왼쪽 위: 로고(누르면 소개) · 요일과 시각 · 하늘 아이콘 · 🏠 처음 시야로 · ❔ 조작법 */
-export function TopBar({ clock, skyIcon, onHome }: TopBarProps) {
+export function TopBar({ clock, skyIcon, weatherLabel, onHome }: TopBarProps) {
   const open = useUi((s) => s.open);
   return (
     <header className="ov-topbar ui-card">
@@ -16,7 +16,7 @@ export function TopBar({ clock, skyIcon, onHome }: TopBarProps) {
         <b>4thIS-world</b>
       </button>
       {clock && (
-        <span className="ov-topbar__clock" aria-label="지금 시각">
+        <span className="ov-topbar__clock" aria-label="지금 시각" title={weatherLabel}>
           {clock} {skyIcon}
         </span>
       )}

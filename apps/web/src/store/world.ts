@@ -33,6 +33,8 @@ export interface WorldState {
   focusedMember: string | null;
   /** goHome()마다 1씩 오른다. 카메라가 보고 처음 시야로 돌아간다 */
   homeNonce: number;
+  /** 오늘 0~23시 각 시간에 비·눈이 오나 (날씨 스토어가 넣는다). placement가 공원 대신 실내로 보낸다 */
+  wetHours: readonly boolean[];
 
   /** GET /api/world를 불러 멤버·시계·계획을 갱신한다 */
   load: () => Promise<void>;
@@ -51,6 +53,8 @@ export interface WorldState {
   focusMember: (id: string | null) => void;
   /** 포커스를 모두 풀고 카메라를 처음 시야(캠퍼스 전체)로 돌린다 */
   goHome: () => void;
+  /** 비·눈 오는 시간이 바뀌면 계획을 다시 만든다 */
+  setWetHours: (wet: readonly boolean[]) => void;
 }
 
 export const useWorld = create<WorldState>()((set, get) => ({
@@ -64,6 +68,7 @@ export const useWorld = create<WorldState>()((set, get) => ({
   hiddenAboveFloor: null,
   focusedMember: null,
   homeNonce: 0,
+  wetHours: [],
 
   load: async () => {
     try {
@@ -104,7 +109,7 @@ export const useWorld = create<WorldState>()((set, get) => ({
     const t = s.now();
     if (s.plan && t < s.planUntil && t >= s.planUntil - DAY_MS) return s.plan;
     const date = kstDate(t);
-    const plan = computeDay({ members: s.members, date, campus: CAMPUS });
+    const plan = computeDay({ members: s.members, date, campus: CAMPUS, wetHours: s.wetHours });
     set({ plan, planUntil: kstMidnight(date) + DAY_MS });
     return plan;
   },
@@ -113,6 +118,12 @@ export const useWorld = create<WorldState>()((set, get) => ({
   setHiddenAboveFloor: (floor) => set({ hiddenAboveFloor: floor }),
   focusMember: (id) =>
     set({ focusedMember: id, focusedBuilding: id ? null : get().focusedBuilding }),
+  setWetHours: (wet) => {
+    const cur = get().wetHours;
+    // 빈 목록은 '하루 종일 맑음'과 같다
+    const same = Array.from({ length: 24 }, (_, h) => !!wet[h] === !!cur[h]).every(Boolean);
+    if (!same) set({ wetHours: wet, plan: null, planUntil: 0 });
+  },
   goHome: () =>
     set((s) => ({
       focusedBuilding: null,

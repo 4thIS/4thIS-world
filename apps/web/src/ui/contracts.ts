@@ -65,8 +65,10 @@ export interface BuildingPanelProps {
 export interface TopBarProps {
   /** '수 14:10' */
   clock: string;
-  /** '☀️' 같은 하늘 아이콘 */
+  /** '☀️' 같은 하늘 아이콘 (비·눈·흐림이면 🌧️·❄️·☁️) */
   skyIcon: string;
+  /** 마우스를 올리면 보이는 날씨 설명: '서대문구 · 비 2.1mm · 12°C' */
+  weatherLabel?: string;
   /** 🏠 처음 시야로 (포커스를 풀고 캠퍼스 전체를 본다) */
   onHome: () => void;
 }

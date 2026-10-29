@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { ExtrudeGeometry, Shape } from 'three';
+import type { WeatherNow } from '@4this/shared';
 import { BOARD_CORNER, BOARD_HALF } from './layout';
+import { groundTint } from './weatherSky';
 
 function roundedRect(half: number, r: number): Shape {
   const s = new Shape();
@@ -20,6 +22,7 @@ function roundedRect(half: number, r: number): Shape {
 }
 
 const BEVEL = 0.3;
+const GRASS = '#bfe6b4';
 
 /** 둥근 판 한 겹. top은 윗면 높이 */
 function Slab({
@@ -54,10 +57,11 @@ function Slab({
 }
 
 /** 디오라마 판: 잔디 윗면(y = 0) 아래로 흙 띠와 흙 단면이 보인다 */
-export function Ground() {
+export function Ground({ weather = null }: { weather?: WeatherNow | null }) {
+  // 비가 오면 잔디가 살짝 어둡게, 눈이 오면 하얗게
   return (
     <group>
-      <Slab half={BOARD_HALF} depth={0.5} color="#bfe6b4" top={0} />
+      <Slab half={BOARD_HALF} depth={0.5} color={groundTint(GRASS, weather)} top={0} />
       <Slab half={BOARD_HALF - 0.15} depth={0.5} color="#d9b38e" top={-0.9} />
       <Slab half={BOARD_HALF - 0.35} depth={1.6} color="#e7c9a9" top={-1.9} />
     </group>

@@ -7,6 +7,8 @@ import { CONTROL_STATUS } from '../world/sim/remote';
 import { useNow } from './clock';
 import { myMemberId, useRealtime } from './realtime';
 import { useSession } from './session';
+import { weatherIcon, weatherLabel } from '../world/campus/weatherSky';
+import { useWeather } from './weather';
 import { useWorld } from './world';
 
 /**
@@ -20,6 +22,7 @@ export function useOverlayProps(): OverlayProps {
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
   const goHome = useWorld((s) => s.goHome);
+  const weather = useWeather((s) => s.now);
   const focusMember = useWorld((s) => s.focusMember);
   const setHiddenAboveFloor = useWorld((s) => s.setHiddenAboveFloor);
   // 조종 중에는 local이 매 프레임 바뀌므로 필요한 값만 골라 구독한다
@@ -91,7 +94,12 @@ export function useOverlayProps(): OverlayProps {
     .sort((a, b) => (a.username < b.username ? -1 : 1));
 
   return {
-    topBar: { clock: formatClock(t), skyIcon: skyIconAt(t), onHome: goHome },
+    topBar: {
+      clock: formatClock(t),
+      skyIcon: weatherIcon(weather, skyIconAt(t)),
+      weatherLabel: weatherLabel(weather),
+      onHome: goHome,
+    },
     presence: {
       entries,
       offline,

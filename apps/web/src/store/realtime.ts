@@ -17,6 +17,7 @@ import { createThrottle } from '../world/sim/input';
 import { memberObjects } from '../world/sim/registry';
 import { planReturn, pushSample, type RemoteTrack, type ReturnWalk } from '../world/sim/remote';
 import { useSession } from './session';
+import { useWeather } from './weather';
 import { useWorld } from './world';
 
 /** 이모지 말풍선이 떠 있는 시간 */
@@ -126,6 +127,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     s.on('time', ({ serverTime }) => useWorld.getState().syncClock(serverTime));
     s.on('presence', (presence) => set({ presence }));
     s.on('world:changed', () => void useWorld.getState().load());
+    s.on('weather:changed', () => void useWeather.getState().load());
     s.on('control:state', (states) => {
       const me = myMemberId();
       const at = Date.now();
