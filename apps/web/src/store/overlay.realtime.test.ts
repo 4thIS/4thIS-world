@@ -89,13 +89,11 @@ describe('useOverlayProps (cw#4 범위)', () => {
     expect(result.current.control.disabled).toBe(true);
   });
 
-  it('게시판을 열면 외부 일정 목록', () => {
+  it('게시판을 열고 닫는다 (외부 일정은 카페에서 보내 게시판은 비어 있다)', () => {
     const { result } = renderHook(() => useOverlayProps());
     expect(result.current.board).toBeNull();
     act(() => useRealtime.getState().openBoard());
-    expect(result.current.board?.entries).toEqual([
-      { memberId: 'b', username: '지우', title: '알바', until: '15:00' },
-    ]);
+    expect(result.current.board?.entries).toEqual([]);
     act(() => result.current.board!.onClose());
     expect(result.current.board).toBeNull();
   });

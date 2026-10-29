@@ -132,7 +132,26 @@ function mergeContiguous(items: Item[]): Item[] {
   return out;
 }
 
+/** 외부 일정은 캠퍼스를 떠나지 않고 카페에 앉아 있는다 (팀장 결정 2026-10-29) */
+const EXTERNAL_PLACE: PlaceId = 'cafe';
+
+/** 일정이 열리는 장소 */
+const placeOf = (item: Item): PlaceId =>
+  item.kind === 'external' ? EXTERNAL_PLACE : KIND_INFO[item.kind].place!;
+
 function classBlock(item: Item): Block {
+  if (item.kind === 'external') {
+    return {
+      from: item.from,
+      to: item.to,
+      activity: {
+        kind: 'class',
+        placeId: EXTERNAL_PLACE,
+        pose: 'sitSip',
+        status: `${externalTitle(item.title)} ☕`,
+      },
+    };
+  }
   const kind = item.kind as CampusKind;
   const info = KIND_INFO[kind];
   return {
@@ -147,17 +166,9 @@ function classBlock(item: Item): Block {
   };
 }
 
-function awayBlock(item: Item): Block {
-  return {
-    from: item.from,
-    to: item.to,
-    activity: { kind: 'away', title: externalTitle(item.title) },
-  };
-}
-
 /**
  * 멤버 한 명의 하루(그날 요일의 일정만)를 구간 목록으로 바꾼다 (§7.2).
- * 캠퍼스 일정이 없으면 외부 일정(게시판용)만 남는다.
+ * 외부 일정도 카페에서 보내므로 모든 일정이 캠퍼스 일정이다. 일정이 없으면 빈 목록(부재).
  */
 export function planBlocks(
   memberId: string,
@@ -175,38 +186,29 @@ export function planBlocks(
       }))
       .sort((a, b) => a.from - b.from),
   );
-  const onCampus = items.filter((i) => i.kind !== 'external');
-  const externals = items.filter((i) => i.kind === 'external');
-  if (onCampus.length === 0) return externals.map(awayBlock);
+  if (items.length === 0) return [];
 
-  const firstStart = onCampus[0]!.from;
-  const leave = onCampus.at(-1)!.to;
-  const before = externals.filter((e) => e.to <= firstStart);
-  // 등교: 첫 캠퍼스 일정 5분 전. 그 앞에 외부 일정이 있으면 직전 외부 일정이 끝날 때
-  const arrive = before.length > 0 ? before.at(-1)!.to : firstStart - ARRIVE_EARLY_MIN;
-
+  // 등교: 첫 일정 5분 전
+  const arrive = items[0]!.from - ARRIVE_EARLY_MIN;
+  const leave = items.at(-1)!.to;
   const waitNodeFor = (item: Item): NodeId =>
-    item.kind === 'external'
-      ? campus.gateNode
-      : campus.buildings[campus.places[KIND_INFO[item.kind].place!].building].doorNode;
+    campus.buildings[campus.places[placeOf(item)].building].doorNode;
 
-  const blocks: Block[] = before.map(awayBlock);
+  const blocks: Block[] = [];
   let cursor = arrive;
   for (const item of items) {
-    if (item.from < arrive || item.to > leave) continue;
     blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item)));
-    blocks.push(item.kind === 'external' ? awayBlock(item) : classBlock(item));
+    blocks.push(classBlock(item));
     cursor = item.to;
   }
   blocks.push({ from: leave, to: leave, activity: { kind: 'home' } });
-  blocks.push(...externals.filter((e) => e.from >= leave).map(awayBlock));
   return blocks;
 }
 
 /**
  * 기숙사생의 하루. 밤(SLEEP_START_MIN~WAKE_MIN)엔 자기 침대에서 자고, 정문 대신 기숙사에서
  * 나와 일정을 소화한다. 일정 없는 낮 시간은 휴게실·공원·카페(dormFree)와 점심.
- * 외부 일정은 정문으로 나간다. bed는 기숙사생 사이의 침대 번호.
+ * 외부 일정은 카페에서 보낸다. bed는 기숙사생 사이의 침대 번호.
  */
 export function planDormBlocks(
   memberId: string,
@@ -228,9 +230,7 @@ export function planDormBlocks(
   const sleep: Activity = { kind: 'sleep', bed };
   const dormDoor = campus.buildings.dorm.doorNode;
   const waitNodeFor = (item: Item): NodeId =>
-    item.kind === 'external'
-      ? campus.gateNode
-      : campus.buildings[campus.places[KIND_INFO[item.kind].place!].building].doorNode;
+    campus.buildings[campus.places[placeOf(item)].building].doorNode;
 
   const blocks: Block[] = [];
   // 일정이 7시 전에 있으면 그 5분 전까지만 잔다
@@ -242,7 +242,7 @@ export function planDormBlocks(
   for (const item of items) {
     if (item.to <= cursor) continue;
     blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item), true));
-    blocks.push(item.kind === 'external' ? awayBlock(item) : classBlock(item));
+    blocks.push(classBlock(item));
     cursor = item.to;
   }
   const night = Math.max(cursor, SLEEP_START_MIN);

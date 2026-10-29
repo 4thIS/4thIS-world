@@ -180,21 +180,14 @@ describe('공원 산책', () => {
 });
 
 describe('외부 일정과 게시판', () => {
-  it('외부 일정만 있는 날은 캠퍼스에 없고 게시판에만 보인다', () => {
-    const p = plan([member([item('10:00', '12:00', 'external')], 'ext', '지우')]);
-    expect(sampleAt(p, 'ext', wed('11:00'))).toBeNull();
-    expect(boardAt(p, wed('11:00'))).toEqual([
-      { memberId: 'ext', username: '지우', title: '외부 일정', until: '12:00' },
-    ]);
-    expect(boardAt(p, wed('12:00'))).toEqual([]);
-  });
-
-  it('게시판은 끝나는 시각 순', () => {
-    const p = plan([
-      member([item('13:00', '15:00', 'external', '알바')], 'a', '가'),
-      member([item('13:00', '14:00', 'external', '병원')], 'b', '나'),
-    ]);
-    expect(boardAt(p, wed('13:30')).map((e) => e.until)).toEqual(['14:00', '15:00']);
+  it('외부 일정은 캠퍼스를 떠나지 않고 카페에 앉아 있어 게시판은 비어 있다', () => {
+    const p = plan([member([item('10:00', '12:00', 'external', '알바')], 'ext', '지우')]);
+    expect(sampleAt(p, 'ext', wed('11:00'))).toMatchObject({
+      placeId: 'cafe',
+      pose: 'sitSip',
+      status: '알바 ☕',
+    });
+    expect(boardAt(p, wed('11:00'))).toEqual([]);
   });
 });
 
