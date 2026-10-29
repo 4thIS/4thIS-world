@@ -5,6 +5,9 @@ import { useUi } from '../store';
 import { browserStore, hideIntroToday } from './introStorage';
 import './intro.css';
 
+/** 4thIS-world를 만든 사람 */
+export const MAKERS = ['박찬우', '이우진', '박효민', '김태희'] as const;
+
 /** 들어올 때마다 뜨는 소개 모달. "오늘 하루 보지 않기"를 고르면 다음 KST 자정까지 숨는다 */
 export function IntroScreen() {
   const { open, close } = useUi();
@@ -49,6 +52,7 @@ export function IntroScreen() {
           />
           오늘 하루 보지 않기
         </label>
+        <p className="intro__credits">{MAKERS.join(' · ')}</p>
       </div>
     </Modal>
   );
