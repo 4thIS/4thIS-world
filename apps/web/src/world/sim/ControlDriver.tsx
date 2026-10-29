@@ -3,7 +3,8 @@ import { useEffect, useRef } from 'react';
 import { Vector3 } from 'three';
 import { CAMPUS, CAMPUS_HALF, type Vec2 } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
-import { resolveMove } from './collision';
+import { moverFloor, moverHeight, stepMover, type MoverState } from './indoor';
+import { floorY } from '../campus/buildingGeometry';
 import { CONTROL_KEYS, CONTROL_SPEED, keyDirection, toWorld } from './input';
 
 /** 입력 칸에 글을 쓰는 중이면 키를 가로채지 않는다 */
@@ -17,6 +18,7 @@ function isTyping(target: EventTarget | null): boolean {
 /**
  * 내 캐릭터 조종 (§9): WASD·방향키는 카메라 기준으로 걷고, 바닥을 누르면(탭하면) 그 지점까지 걷는다.
  * 매 프레임 충돌을 풀어 로컬 위치를 옮기고, realtime.move가 초당 15회 이하로 서버에 보낸다.
+ * 건물은 문으로 드나들고, 계단 끝으로 들어가면 위·아래층으로 오르내린다(indoor.ts).
  */
 export function ControlDriver() {
   const controlling = useRealtime((s) => s.controlling);
@@ -24,6 +26,9 @@ export function ControlDriver() {
   const keys = useRef(new Set<string>());
   const clickTarget = useRef<Vec2 | null>(null);
   const look = useRef(new Vector3());
+  /** 계단 위인지까지 담은 내 위치. 조종을 시작할 때 local에서 만든다 */
+  const mover = useRef<MoverState | null>(null);
+  const floor = useRealtime((s) => s.local?.floor ?? 1);
 
   useEffect(() => {
     if (!controlling) return;
@@ -44,6 +49,7 @@ export function ControlDriver() {
       window.removeEventListener('blur', blur);
       pressed.clear();
       clickTarget.current = null;
+      mover.current = null;
     };
   }, [controlling]);
 
@@ -51,7 +57,8 @@ export function ControlDriver() {
     const rt = useRealtime.getState();
     const local = rt.local;
     if (!rt.controlling || !local) return;
-    const pos: Vec2 = [local.x, local.z];
+    mover.current ??= { pos: [local.x, local.z], floor: local.floor, stair: null };
+    const pos: Vec2 = mover.current.pos;
 
     let dir: Vec2 = [0, 0];
     const input = keyDirection(keys.current);
@@ -69,15 +76,19 @@ export function ControlDriver() {
 
     const moving = dir[0] !== 0 || dir[1] !== 0;
     const step = Math.min(CONTROL_SPEED * dt, 0.5);
-    const next = moving
-      ? resolveMove(CAMPUS, pos, [pos[0] + dir[0] * step, pos[1] + dir[1] * step])
-      : pos;
+    const nextState = moving
+      ? stepMover(CAMPUS, mover.current, [pos[0] + dir[0] * step, pos[1] + dir[1] * step])
+      : mover.current;
+    mover.current = nextState;
+    const next = nextState.pos;
     const stuck = moving && next[0] === pos[0] && next[1] === pos[1];
     if (stuck) clickTarget.current = null;
     rt.move(
       {
         x: next[0],
         z: next[1],
+        y: moverHeight(nextState),
+        floor: moverFloor(nextState),
         facing: moving ? Math.atan2(dir[0], dir[1]) : local.facing,
         moving: moving && !stuck,
       },
@@ -91,9 +102,9 @@ export function ControlDriver() {
   };
 
   if (!controlling) return null;
-  // 조종 중에만 바닥 전체를 덮는 투명한 판을 깔아 클릭·탭 지점을 받는다
+  // 조종 중에만 바닥 전체를 덮는 투명한 판을 깔아 클릭·탭 지점을 받는다 (지금 층 높이에)
   return (
-    <mesh rotation-x={-Math.PI / 2} position={[0, 0.02, 0]} onPointerDown={onFloor}>
+    <mesh rotation-x={-Math.PI / 2} position={[0, floorY(floor) + 0.02, 0]} onPointerDown={onFloor}>
       <planeGeometry args={[CAMPUS_HALF * 2, CAMPUS_HALF * 2]} />
       <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>

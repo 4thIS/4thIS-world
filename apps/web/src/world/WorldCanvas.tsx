@@ -1,6 +1,7 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import type { BuildingId } from '@4this/shared';
 import { useRealtime } from '../store/realtime';
 import { useWorld } from '../store/world';
 import { Campus } from './campus/Campus';
@@ -12,6 +13,7 @@ import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
 import { useFocusExit } from './sim/focusExit';
+import { buildingAt } from './sim/indoor';
 import { Professor } from './sim/Professor';
 import { SimMembers } from './sim/SimMembers';
 import { TextFallback } from './sim/TextFallback';
@@ -24,6 +26,17 @@ function WorldScene() {
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
   const focusBuilding = useWorld((s) => s.focusBuilding);
+  // 조종해서 건물 안에 들어가면 그 층 위를 숨겨 안이 보이게 한다 ("eng:2" 같은 문자열로 구독)
+  const inside = useRealtime((s) => {
+    if (!s.controlling || !s.local) return null;
+    const b = buildingAt([s.local.x, s.local.z]);
+    return b ? `${b.id}:${s.local.floor}` : null;
+  });
+  const cutaway = useMemo(() => {
+    if (!inside) return null;
+    const [building, floor] = inside.split(':');
+    return { building: building as BuildingId, floor: Number(floor) };
+  }, [inside]);
   return (
     <>
       <Campus
@@ -31,6 +44,7 @@ function WorldScene() {
         occupiedFloors={occupied}
         focusedBuilding={focusedBuilding}
         hiddenAboveFloor={hiddenAboveFloor}
+        cutaway={cutaway}
         onBuildingClick={focusBuilding}
       />
       <SimMembers />

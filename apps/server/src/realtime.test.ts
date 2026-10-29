@@ -112,7 +112,9 @@ describe('실시간 (Socket.IO 통합)', () => {
     tab1.socket.emit('control:move', { x: 5, z: 5, facing: 0, moving: true });
     tab2.socket.emit('control:move', { x: 1, z: 2, facing: 1.5, moving: true });
     await waitFor(() => guest.states.length > 0);
-    expect(last(guest.states)).toEqual([{ memberId: a.id, x: 1, z: 2, facing: 1.5, moving: true }]);
+    expect(last(guest.states)).toEqual([
+      { memberId: a.id, x: 1, z: 2, facing: 1.5, moving: true, y: 0, floor: 1 },
+    ]);
 
     // 조종 중인 탭이 끊기면 풀린다
     tab2.socket.disconnect();
@@ -146,6 +148,19 @@ describe('실시간 (Socket.IO 통합)', () => {
     me.socket.emit('control:move', { x: 100, z: -100, facing: 0, moving: false });
     await waitFor(() => last(guest.states)?.[0]?.x === 25);
     expect(last(guest.states)?.[0]).toMatchObject({ x: 25, z: -25, moving: false });
+  });
+
+  it('건물 위층 높이·층을 전하고, 범위를 벗어난 값은 버린다', async () => {
+    const a = await signupAs(t, '철수', { approve: true });
+    const guest = await connect();
+    const me = await connect(a.cookie);
+    me.socket.emit('control:start');
+    me.socket.emit('control:move', { x: 16, z: -2, facing: 0, moving: false, y: 3.2, floor: 2 });
+    await waitFor(() => guest.states.length > 0);
+    expect(last(guest.states)?.[0]).toMatchObject({ y: 3.2, floor: 2 });
+    me.socket.emit('control:move', { x: 17, z: -2, facing: 0, moving: false, y: 3.2, floor: 9 });
+    await pause(80);
+    expect(last(guest.states)?.[0]).toMatchObject({ x: 16, floor: 2 });
   });
 
   it('60초 무입력이면 control:released', async () => {
@@ -255,7 +270,7 @@ describe('실시간 (Socket.IO 통합)', () => {
     admin.socket.emit('control:move', { x: 2, z: 4, facing: 0, moving: true });
     await waitFor(() => guest.states.length > 0);
     expect(last(guest.states)).toEqual([
-      { memberId: ADMIN_ID, x: 2, z: 4, facing: 0, moving: true },
+      { memberId: ADMIN_ID, x: 2, z: 4, facing: 0, moving: true, y: 0, floor: 1 },
     ]);
 
     admin.socket.emit('emote', { emoji: '👋' });

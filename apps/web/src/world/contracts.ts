@@ -56,5 +56,7 @@ export interface CampusProps {
   focusedBuilding: BuildingId | null;
   /** 이 층보다 위층은 숨긴다. null이면 모두 보임 */
   hiddenAboveFloor: number | null;
+  /** 내가 조종해 들어가 있는 건물과 층. 그 건물은 이 층보다 위를 숨긴다 (포커스가 먼저) */
+  cutaway?: { building: BuildingId; floor: number } | null;
   onBuildingClick?: (id: BuildingId) => void;
 }

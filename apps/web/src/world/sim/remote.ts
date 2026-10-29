@@ -23,14 +23,14 @@ export function pushSample(track: RemoteTrack | undefined, sample: RemoteSample)
   return { prev: track ? track.last : null, last: sample };
 }
 
-/** 바닥 위 조종 상태 → Pose */
+/** 조종 상태 → Pose (건물 위층·계단이면 y가 0보다 크다) */
 export function controlPose(m: ControlMove): Pose {
   return {
-    position: [m.x, 0, m.z],
+    position: [m.x, m.y, m.z],
     facing: m.facing,
     pose: m.moving ? 'walk' : 'idle',
     placeId: 'transit',
-    floor: 1,
+    floor: m.floor,
     status: CONTROL_STATUS,
     opacity: 1,
   };
@@ -48,6 +48,8 @@ export function remotePose(track: RemoteTrack, now: number): Pose {
   return controlPose({
     x: prev.x + (last.x - prev.x) * k,
     z: prev.z + (last.z - prev.z) * k,
+    y: prev.y + (last.y - prev.y) * k,
+    floor: last.floor,
     facing: k < 1 ? prev.facing : last.facing,
     moving: last.moving,
   });
