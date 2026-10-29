@@ -33,13 +33,20 @@ const ENTRIES: PresenceEntry[] = [
 
 describe('TopBar', () => {
   it('로고·시각·하늘 아이콘', () => {
-    render(<TopBar clock="수 14:10" skyIcon="☀️" />);
+    render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={() => {}} />);
     expect(screen.getByText('4thIS-world')).toBeTruthy();
     expect(screen.getByLabelText('지금 시각').textContent).toBe('수 14:10 ☀️');
   });
 
+  it('🏠을 누르면 처음 시야로', () => {
+    const onHome = vi.fn();
+    render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={onHome} />);
+    fireEvent.click(screen.getByRole('button', { name: '처음 시야로' }));
+    expect(onHome).toHaveBeenCalledOnce();
+  });
+
   it('로고를 누르면 소개를 다시 연다', () => {
-    render(<TopBar clock="수 14:10" skyIcon="☀️" />);
+    render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: '4thIS-world 소개' }));
     expect(useUi.getState().screen).toBe('intro');
     useUi.getState().close();

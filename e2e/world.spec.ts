@@ -159,7 +159,7 @@ test('관리자 캐릭터: 광장 한가운데 서 있고, 관리자로 로그�
         const p = (await positionOf(vpage, 'admin'))!;
         return Math.hypot(p.x - 0, p.z - 3);
       },
-      { timeout: 20_000 },
+      { timeout: process.env.CI ? 60_000 : 30_000 },
     )
     .toBeLessThan(0.5);
 

@@ -19,7 +19,7 @@ export function useOverlayProps(): OverlayProps {
   const plan = useWorld((s) => s.plan);
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
-  const focusBuilding = useWorld((s) => s.focusBuilding);
+  const goHome = useWorld((s) => s.goHome);
   const focusMember = useWorld((s) => s.focusMember);
   const setHiddenAboveFloor = useWorld((s) => s.setHiddenAboveFloor);
   // 조종 중에는 local이 매 프레임 바뀌므로 필요한 값만 골라 구독한다
@@ -52,7 +52,7 @@ export function useOverlayProps(): OverlayProps {
       hiddenAboveFloor,
       onFloor: setHiddenAboveFloor,
       people: plan ? peopleIn(snapshotAt(plan, members, t, CAMPUS), focusedBuilding, CAMPUS) : [],
-      onClose: () => focusBuilding(null),
+      onClose: goHome,
     };
   }
 
@@ -77,7 +77,7 @@ export function useOverlayProps(): OverlayProps {
   );
 
   return {
-    topBar: { clock: formatClock(t), skyIcon: skyIconAt(t) },
+    topBar: { clock: formatClock(t), skyIcon: skyIconAt(t), onHome: goHome },
     presence: {
       entries,
       spectators: rt.presence.spectators,

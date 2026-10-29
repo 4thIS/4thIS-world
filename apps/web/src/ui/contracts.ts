@@ -65,6 +65,8 @@ export interface TopBarProps {
   clock: string;
   /** '☀️' 같은 하늘 아이콘 */
   skyIcon: string;
+  /** 🏠 처음 시야로 (포커스를 풀고 캠퍼스 전체를 본다) */
+  onHome: () => void;
 }
 
 /** UiRoot가 그리는 메인 오버레이 전체. cw의 useOverlayProps()가 만든다 */

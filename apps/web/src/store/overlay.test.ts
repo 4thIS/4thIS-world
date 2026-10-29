@@ -31,7 +31,7 @@ afterEach(() => {
 describe('useOverlayProps (cw#3 범위)', () => {
   it("상단 시계는 '수 14:10'과 낮 아이콘, 1초마다 갱신", () => {
     const { result } = renderHook(() => useOverlayProps());
-    expect(result.current.topBar).toEqual({ clock: '수 14:10', skyIcon: '☀️' });
+    expect(result.current.topBar).toMatchObject({ clock: '수 14:10', skyIcon: '☀️' });
     act(() => {
       vi.advanceTimersByTime(60_000);
     });
@@ -59,7 +59,10 @@ describe('useOverlayProps (cw#3 범위)', () => {
 
     act(() => panel.onFloor(1));
     expect(result.current.building?.hiddenAboveFloor).toBe(1);
+    const home = useWorld.getState().homeNonce;
     act(() => result.current.building!.onClose());
     expect(result.current.building).toBeNull();
+    // ✕로 닫으면 처음 시야로 돌아간다
+    expect(useWorld.getState().homeNonce).toBe(home + 1);
   });
 });
