@@ -10,6 +10,9 @@ export const MIN_SEATS: Record<PlaceId, number> = {
   'main-2f': 12,
   'main-3f': 8,
   cafe: 8,
+  'dorm-1f': 8,
+  'dorm-2f': 6,
+  'dorm-3f': 6,
 };
 
 const inside = (p: Vec2, min: Vec2, max: Vec2) =>

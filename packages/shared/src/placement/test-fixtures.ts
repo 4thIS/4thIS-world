@@ -59,6 +59,14 @@ export const LINE_CAMPUS: Campus = {
       max: [63, -2],
       doorNode: 'cafe-door',
     },
+    dorm: {
+      id: 'dorm',
+      name: '기숙사',
+      floors: 3,
+      min: [87, -14],
+      max: [93, -2],
+      doorNode: 'dorm-door',
+    },
   },
   places: {
     'eng-1f': place('eng-1f', 'eng', 1, 15),
@@ -69,6 +77,9 @@ export const LINE_CAMPUS: Campus = {
     'main-2f': place('main-2f', 'main', 2, 30),
     'main-3f': place('main-3f', 'main', 3, 30),
     cafe: place('cafe', 'cafe', 1, 60),
+    'dorm-1f': place('dorm-1f', 'dorm', 1, 90),
+    'dorm-2f': place('dorm-2f', 'dorm', 2, 90),
+    'dorm-3f': place('dorm-3f', 'dorm', 3, 90),
   },
   graph: {
     nodes: {
@@ -78,6 +89,7 @@ export const LINE_CAMPUS: Campus = {
       'lab-door': [45, 0],
       'cafe-door': [60, 0],
       park: [75, 0],
+      'dorm-door': [90, 0],
     },
     edges: [
       ['gate', 'eng-door'],
@@ -85,6 +97,7 @@ export const LINE_CAMPUS: Campus = {
       ['main-door', 'lab-door'],
       ['lab-door', 'cafe-door'],
       ['cafe-door', 'park'],
+      ['park', 'dorm-door'],
     ],
   },
   gateNode: 'gate',

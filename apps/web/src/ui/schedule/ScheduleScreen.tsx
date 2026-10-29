@@ -6,6 +6,7 @@ import { Modal } from '../common/Modal';
 import { MOBILE_QUERY, useMediaQuery } from '../common/useMediaQuery';
 import { errorMessage } from '../errors';
 import { useUi } from '../store';
+import { DormToggle } from './DormToggle';
 import { cleanItems, overlapping } from './grid';
 import { KindChips } from './KindChips';
 import { ScheduleListEditor } from './ScheduleListEditor';
@@ -99,6 +100,7 @@ export function ScheduleScreen() {
         {onboarding && (
           <p className="ui-note">마지막 단계예요! 매주 반복되는 일정을 넣어 주세요.</p>
         )}
+        <DormToggle />
         {status.kind === 'loading' ? (
           <p className="ui-note">불러오는 중…</p>
         ) : mobile ? (

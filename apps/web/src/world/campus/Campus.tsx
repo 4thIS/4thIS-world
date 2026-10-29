@@ -3,6 +3,7 @@ import { BUILDING_IDS, kstMinutes, type BuildingId } from '@4this/shared';
 import type { CampusProps } from '../contracts';
 import { Building } from './Building';
 import { CafeInterior, CafeTerrace } from './CafeInterior';
+import { DormInterior } from './DormInterior';
 import { EngInterior } from './EngInterior';
 import { Flowers } from './Flowers';
 import { Gate } from './Gate';
@@ -72,6 +73,7 @@ export function Campus({
       />
       <Building {...common('main')} interior={(floor) => <MainInterior floor={floor} />} />
       <Building {...common('cafe')} interior={() => <CafeInterior />} />
+      <Building {...common('dorm')} interior={(floor) => <DormInterior floor={floor} />} />
       <CafeTerrace />
     </group>
   );

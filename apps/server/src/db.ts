@@ -40,6 +40,10 @@ export const MIGRATIONS: readonly string[] = [
     value TEXT NOT NULL
   );
   `,
+  // 기숙사생 여부 (0/1)
+  `
+  ALTER TABLE members ADD COLUMN dorm INTEGER NOT NULL DEFAULT 0;
+  `,
 ];
 
 export function migrate(db: Db): void {

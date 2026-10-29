@@ -8,6 +8,8 @@ export const STATUS = {
   arriving: '등교 중',
   leaving: '하교 중',
   goingOut: '외출 중',
+  sleep: '자는 중 😴',
+  lounge: '휴식 중',
 } as const;
 
 const CLASS_LABEL: Record<Exclude<Kind, 'external'>, string> = {

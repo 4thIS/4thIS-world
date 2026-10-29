@@ -42,6 +42,30 @@ const engClassroom = (id: PlaceId, floor: number): Place => ({
 
 const MAIN_LANDING: Vec2 = [6.5, -12];
 
+/** 기숙사 계단참 (동쪽 벽 계단 옆) */
+const DORM_LANDING: Vec2 = [19, 16.8];
+
+/**
+ * 기숙사 침실 (2·3층 같은 배치): 침대 6개. 자리는 침대 가운데, facing은 발끝 방향
+ * (서쪽 벽 침대 4개는 동쪽을, 동쪽 벽 침대 2개는 서쪽을 향해 눕는다)
+ */
+const dormBedroom = (id: PlaceId, floor: number): Place => ({
+  id,
+  building: 'dorm',
+  floor,
+  landing: DORM_LANDING,
+  seats: [
+    seat(14.3, 9.3, E),
+    seat(14.3, 11.6, E),
+    seat(14.3, 13.9, E),
+    seat(14.3, 16.2, E),
+    seat(19.7, 9.3, W),
+    seat(19.7, 11.6, W),
+  ],
+  // 침대가 모자라면 가운데 바닥 매트
+  overflow: [seat(16.6, 9.3, E), seat(16.6, 11.1, E), seat(16.6, 12.9, E), seat(16.6, 14.7, E)],
+});
+
 export const CAMPUS: Campus = {
   buildings: {
     main: {
@@ -75,6 +99,14 @@ export const CAMPUS: Campus = {
       min: [-20, 7],
       max: [-12, 13],
       doorNode: 'cafe-door',
+    },
+    dorm: {
+      id: 'dorm',
+      name: '기숙사',
+      floors: 3,
+      min: [13, 8],
+      max: [21, 18],
+      doorNode: 'dorm-door',
     },
   },
   places: {
@@ -143,6 +175,17 @@ export const CAMPUS: Campus = {
         seat(-10, 8, E),
       ],
     },
+    // 기숙사 1층 휴게실: 4인 테이블 두 개, 넘치면 창가에 선다
+    'dorm-1f': {
+      id: 'dorm-1f',
+      building: 'dorm',
+      floor: 1,
+      landing: DORM_LANDING,
+      seats: [...table4(16, 10.5), ...table4(16, 14.5)],
+      overflow: [seat(18.5, 9, W), seat(18.5, 12.5, W), seat(14, 17, N)],
+    },
+    'dorm-2f': dormBedroom('dorm-2f', 2),
+    'dorm-3f': dormBedroom('dorm-3f', 3),
   },
   graph: {
     nodes: {
@@ -159,6 +202,7 @@ export const CAMPUS: Campus = {
       'lab-door': [-15, -9.5],
       sw: [-5, 10],
       'cafe-door': [-10.5, 10],
+      'dorm-door': [11, 13],
     },
     edges: [
       ['gate', 'south'],
@@ -174,6 +218,7 @@ export const CAMPUS: Campus = {
       ['south', 'sw'],
       ['sw', 'cafe-door'],
       ['park', 'sw'],
+      ['south', 'dorm-door'],
     ],
   },
   gateNode: 'gate',
@@ -197,6 +242,7 @@ export const CAMPUS: Campus = {
     { kind: 'box', min: [12, -9], max: [20, 5] },
     { kind: 'box', min: [-20, -19], max: [-10, -11] },
     { kind: 'box', min: [-20, 7], max: [-12, 13] },
+    { kind: 'box', min: [13, 8], max: [21, 18] },
     { kind: 'circle', center: [-15, 0], r: 3.5 },
   ],
 };

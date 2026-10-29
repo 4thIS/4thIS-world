@@ -165,3 +165,25 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
+
+/* 기숙사에 살아요 */
+.sch-dorm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+}
+
+.sch-dorm__label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sch-dorm__label small {
+  color: var(--ink-soft);
+  font-weight: 400;
+}

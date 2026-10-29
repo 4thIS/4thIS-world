@@ -22,5 +22,10 @@ export const MIN_PIECE_MIN = 10;
 export const PARK_SLOT_MIN = 2;
 /** 산책 지점 대신 벤치·연못가에 앉을 확률 (3번 중 1번) */
 export const PARK_SIT_CHANCE = 1 / 3;
+/** 기숙사생: 이 시각(분)부터 다음 날 WAKE_MIN까지 자기 침대에서 잔다 */
+export const SLEEP_START_MIN = 23 * 60;
+export const WAKE_MIN = 7 * 60;
+/** 기숙사생의 자유 시간 장소(휴게실·공원·카페)를 바꾸는 칸 길이 */
+export const DORM_SLOT_MIN = 90;
 /** 건물 앞에서 기다릴 때 문 노드에서 떨어지는 거리 (겹치지 않게) */
 export const WAIT_SPREAD_M = 0.8;

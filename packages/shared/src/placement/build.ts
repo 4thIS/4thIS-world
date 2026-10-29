@@ -1,4 +1,4 @@
-import type { BuildingId, Campus, NodeId, PlaceId, Vec2 } from '../campus/types';
+import type { BuildingId, Campus, NodeId, PlaceId, Seat, Vec2 } from '../campus/types';
 import { rand01 } from '../hash';
 import type { PoseKind } from '../schema/pose';
 import { FADE_MIN, PARK_SLOT_MIN, WAIT_SPREAD_M, WALK_M_PER_MIN } from './constants';
@@ -108,6 +108,22 @@ export function timeLegs(raw: readonly RawLeg[], start: number, available: numbe
   });
 }
 
+const BEDROOMS = ['dorm-2f', 'dorm-3f'] as const;
+
+/** 침대 번호 → 침실과 자리. 침대가 모자라면 침실 바닥 매트(overflow)를 번갈아 쓴다 */
+export function bedSpot(campus: Campus, bed: number): { placeId: PlaceId; seat: Seat } {
+  let k = bed;
+  for (const id of BEDROOMS) {
+    const seats = campus.places[id].seats;
+    if (k < seats.length) return { placeId: id, seat: seats[k]! };
+    k -= seats.length;
+  }
+  const mats = BEDROOMS.flatMap((id) =>
+    campus.places[id].overflow.map((seat) => ({ placeId: id as PlaceId, seat })),
+  );
+  return mats[k % mats.length]!;
+}
+
 interface Target {
   spot: Spot;
   /** 이곳으로 걷는 동안의 이름표 */
@@ -158,6 +174,32 @@ export function buildSegments(
     };
   };
 
+  const bedTarget = (bed: number): Target => {
+    const { placeId, seat } = bedSpot(campus, bed);
+    const place = campus.places[placeId];
+    return {
+      spot: {
+        kind: 'inside',
+        building: place.building,
+        floor: place.floor,
+        pos: seat.pos,
+        landing: place.landing,
+      },
+      status: STATUS.leaving,
+      stay: (from, to) => ({
+        kind: 'stay',
+        from,
+        to,
+        pos: seat.pos,
+        floor: place.floor,
+        facing: seat.facing,
+        pose: 'sleep',
+        placeId,
+        status: STATUS.sleep,
+      }),
+    };
+  };
+
   const waitTarget = (node: NodeId): Target => {
     const center = campus.graph.nodes[node]!;
     const angle = rand01(memberId, 'wait') * Math.PI * 2;
@@ -204,6 +246,14 @@ export function buildSegments(
         break;
       case 'cafe':
         target = seatTarget(i, 'cafe', 'sitSip', STATUS.cafe);
+        break;
+      case 'lounge':
+        target = seatTarget(i, 'dorm-1f', 'sitRest', STATUS.lounge);
+        break;
+      case 'sleep':
+        target = bedTarget(act.bed);
+        // 자정부터 자는 중이면 이미 침대에 있다 (정문에서 걸어오지 않는다)
+        if (block.from === 0) here = target.spot;
         break;
       case 'wait':
         target = waitTarget(act.node);

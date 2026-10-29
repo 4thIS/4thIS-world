@@ -10,7 +10,7 @@ export const FLOOR_HEIGHT = 3.2;
 
 export type Vec2 = readonly [x: number, z: number];
 
-export const BUILDING_IDS = ['eng', 'main', 'lab', 'cafe'] as const;
+export const BUILDING_IDS = ['eng', 'main', 'lab', 'cafe', 'dorm'] as const;
 export type BuildingId = (typeof BUILDING_IDS)[number];
 
 export const PLACE_IDS = [
@@ -22,6 +22,9 @@ export const PLACE_IDS = [
   'main-2f',
   'main-3f',
   'cafe',
+  'dorm-1f',
+  'dorm-2f',
+  'dorm-3f',
 ] as const;
 export type PlaceId = (typeof PLACE_IDS)[number];
 

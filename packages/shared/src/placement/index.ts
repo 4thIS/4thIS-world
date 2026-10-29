@@ -3,7 +3,7 @@ import { kstMinutes, kstWeekday } from '../time';
 import { buildSegments } from './build';
 import { findSegment, planMinutes, sampleSegment } from './sample';
 import { assignSeats, type SeatAssignment, type SeatRequest } from './seats';
-import { planBlocks, type Block } from './segments';
+import { planBlocks, planDormBlocks, type Block } from './segments';
 import { ADMIN_ID, adminPose } from './admin';
 import type { ComputeDayInput, DayPlan, Pose, Segment } from './types';
 
@@ -24,6 +24,8 @@ function seatPlace(block: Block): PlaceId | null {
       return 'main-1f';
     case 'cafe':
       return 'cafe';
+    case 'lounge':
+      return 'dorm-1f';
     default:
       return null;
   }
@@ -37,15 +39,21 @@ export function computeDay(input: ComputeDayInput): DayPlan {
   const { members, date, campus } = input;
   const weekday = kstWeekday(Date.parse(`${date}T12:00:00+09:00`));
 
-  // 1) 멤버마다 시간 규칙으로 구간을 나눈다
-  const blocksOf = members.map((m) =>
-    planBlocks(
-      m.id,
-      date,
-      m.schedules.filter((s) => s.day === weekday),
-      campus,
-    ),
+  // 1) 멤버마다 시간 규칙으로 구간을 나눈다. 기숙사생은 아이디 순으로 침대 번호를 받는다
+  const beds = new Map(
+    members
+      .filter((m) => m.dorm)
+      .map((m) => m.id)
+      .sort()
+      .map((id, i) => [id, i]),
   );
+  const blocksOf = members.map((m) => {
+    const items = m.schedules.filter((s) => s.day === weekday);
+    const bed = beds.get(m.id);
+    return bed === undefined
+      ? planBlocks(m.id, date, items, campus)
+      : planDormBlocks(m.id, date, items, campus, bed);
+  });
 
   // 2) 같은 장소의 구간을 모아 좌석을 색칠한다
   const requests: SeatRequest[] = [];
