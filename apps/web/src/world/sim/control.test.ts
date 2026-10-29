@@ -71,11 +71,13 @@ describe('다른 사람의 조종 상태', () => {
 });
 
 describe('조종이 풀린 뒤 걸어서 복귀', () => {
-  it('가장 가까운 노드를 거쳐 목표까지 1.5 m/s로 걷고, 끝나면 null', () => {
-    const walk = planReturn(CAMPUS, [0, 5], [10.5, -2], 0, '공강');
-    expect(walk.pts[0]).toEqual([0, 5]);
-    expect(walk.pts).toContainEqual(CAMPUS.graph.nodes['plaza']);
-    expect(walk.pts.at(-1)).toEqual([10.5, -2]);
+  it('목표까지 길을 찾지 않고 곧장(최단 거리) 1.5 m/s로 걷고, 끝나면 null', () => {
+    const walk = planReturn([0, 5], [10.5, -2], 0, '공강');
+    expect(walk.pts).toEqual([
+      [0, 5],
+      [10.5, -2],
+    ]);
+    expect(walk.length).toBeCloseTo(Math.hypot(10.5, 7));
     const mid = sampleReturn(walk, 1000)!;
     expect(mid).toMatchObject({ pose: 'walk', status: '공강' });
     const moved = Math.hypot(mid.position[0], mid.position[2] - 5);

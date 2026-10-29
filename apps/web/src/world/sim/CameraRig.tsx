@@ -7,6 +7,7 @@ import { useWorld } from '../../store/world';
 import { useUi } from '../../ui/store';
 import {
   CAMERA_KEYS,
+  FOLLOW_DISTANCE,
   OVERVIEW,
   acceptsCameraKeys,
   buildingGoal,
@@ -50,6 +51,9 @@ export function CameraRig() {
   const controls = useThree((s) => s.controls) as unknown as OrbitLike | null;
   const camera = useThree((s) => s.camera);
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
+  const focusedMember = useWorld((s) => s.focusedMember);
+  /** 캐릭터를 막 따라가기 시작했으면 FOLLOW_DISTANCE까지 다가간다. 그 뒤 거리는 사용자 마음(휠) */
+  const pullIn = useRef(false);
   const homeNonce = useWorld((s) => s.homeNonce);
   const goal = useRef<CameraGoal | null>(null);
   const keys = useRef(new Set<string>());
@@ -57,6 +61,10 @@ export function CameraRig() {
   useEffect(() => {
     goal.current = focusedBuilding ? buildingGoal(focusedBuilding, CAMPUS) : null;
   }, [focusedBuilding]);
+
+  useEffect(() => {
+    pullIn.current = focusedMember !== null;
+  }, [focusedMember]);
 
   // 처음 렌더(0)는 건너뛰고, goHome()할 때마다 처음 시야로 날아간다
   useEffect(() => {
@@ -94,7 +102,10 @@ export function CameraRig() {
   // 사용자가 끌기 시작하면 날아가던 카메라를 멈춘다
   useEffect(() => {
     if (!controls) return;
-    const stop = () => (goal.current = null);
+    const stop = () => {
+      goal.current = null;
+      pullIn.current = false; // 휠·끌기를 시작하면 다가가기를 멈추고 사용자가 정한 거리를 지킨다
+    };
     controls.addEventListener('start', stop);
     return () => controls.removeEventListener('start', stop);
   }, [controls]);
@@ -132,13 +143,17 @@ export function CameraRig() {
       controls.target.set(controls.target.x + dx, controls.target.y + dy, controls.target.z + dz);
       camera.position.set(camera.position.x + dx, camera.position.y + dy, camera.position.z + dz);
       const t = controls.target;
-      camera.position.set(
-        ...followPosition(
+      if (pullIn.current) {
+        const next = followPosition(
           [camera.position.x, camera.position.y, camera.position.z],
           [t.x, t.y, t.z],
           k,
-        ),
-      );
+        );
+        camera.position.set(...next);
+        if (Math.hypot(next[0] - t.x, next[1] - t.y, next[2] - t.z) <= FOLLOW_DISTANCE + 0.1) {
+          pullIn.current = false;
+        }
+      }
       controls.update();
       return;
     }

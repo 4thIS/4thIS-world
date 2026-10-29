@@ -2,33 +2,32 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import { CanvasTexture, SRGBColorSpace, type Sprite } from 'three';
 import { CAMPUS } from '@4this/shared';
-import { myMemberId, useRealtime } from '../../store/realtime';
 import { useWorld } from '../../store/world';
 import { bobOffset, markerAnchor } from './markerAnchor';
 import { memberObjects } from './registry';
 
-/** 분홍 동그라미 안의 흰 ✓ */
+/** 동그라미 없이 ✓만. 어느 바탕에서도 보이게 흰 테두리를 두른 분홍 ✓ */
 function checkTexture(): CanvasTexture {
   const size = 128;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#ff8fb1';
-  ctx.beginPath();
-  ctx.arc(size / 2, size / 2, size / 2 - 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = '#ffffff';
-  ctx.stroke();
-  ctx.lineWidth = 14;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(36, 66);
-  ctx.lineTo(56, 86);
-  ctx.lineTo(93, 44);
-  ctx.stroke();
+  const check = () => {
+    ctx.beginPath();
+    ctx.moveTo(24, 66);
+    ctx.lineTo(52, 94);
+    ctx.lineTo(104, 34);
+    ctx.stroke();
+  };
+  ctx.lineWidth = 34;
+  ctx.strokeStyle = '#ffffff';
+  check();
+  ctx.lineWidth = 20;
+  ctx.strokeStyle = '#ff6f9c';
+  check();
   const tex = new CanvasTexture(canvas);
   tex.colorSpace = SRGBColorSpace;
   return tex;
@@ -48,11 +47,6 @@ export function FocusMarker() {
     const sprite = ref.current;
     if (!sprite) return;
     const { focusedBuilding, focusedMember } = useWorld.getState();
-    // 내 캐릭터를 조종하는 동안에는 카메라가 나를 따라갈 뿐이라 표시하지 않는다(발밑 링이 있다)
-    if (useRealtime.getState().controlling && focusedMember === myMemberId()) {
-      sprite.visible = false;
-      return;
-    }
     const anchor = markerAnchor(focusedBuilding, focusedMember, CAMPUS);
     const bob = bobOffset(clock.elapsedTime);
     if (anchor?.kind === 'building') {
