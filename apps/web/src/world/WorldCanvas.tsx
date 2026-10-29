@@ -1,11 +1,11 @@
-import { OrbitControls } from '@react-three/drei';
+import { MapControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRealtime } from '../store/realtime';
 import { useWorld } from '../store/world';
 import { Campus } from './campus/Campus';
 import { BoardHotspot } from './sim/BoardHotspot';
-import { OVERVIEW } from './sim/camera';
+import { MAX_DISTANCE, MIN_DISTANCE, OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
 import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
@@ -76,7 +76,16 @@ export function WorldCanvas({
       >
         <color attach="background" args={['#fbeff6']} />
         <WorldScene />
-        <OrbitControls makeDefault target={OVERVIEW.target} maxPolarAngle={Math.PI * 0.42} />
+        {/* 지도식: 왼쪽 끌기 = 이동, 오른쪽 끌기 = 회전, 휠 = 커서 쪽으로 확대. 터치는 한 손가락 이동 */}
+        <MapControls
+          makeDefault
+          target={OVERVIEW.target}
+          maxPolarAngle={Math.PI * 0.42}
+          minDistance={MIN_DISTANCE}
+          maxDistance={MAX_DISTANCE}
+          zoomToCursor
+          dampingFactor={0.12}
+        />
         {children}
       </Canvas>
     </CanvasBoundary>

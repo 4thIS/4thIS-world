@@ -47,9 +47,9 @@ function currentState(): FocusExitState {
   };
 }
 
-/** 건물 포커스와 캐릭터 따라가기를 모두 풀고 전체 캠퍼스 시점으로 돌아간다 */
+/** 건물 포커스와 캐릭터 따라가기를 모두 풀고 처음 시야(캠퍼스 전체)로 돌아간다 */
 function clearFocus() {
-  useWorld.getState().focusBuilding(null);
+  useWorld.getState().goHome();
 }
 
 /**

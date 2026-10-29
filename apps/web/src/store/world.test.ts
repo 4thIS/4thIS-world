@@ -27,6 +27,20 @@ afterEach(() => {
 });
 
 describe('useWorld', () => {
+  it('goHome은 건물·캐릭터 포커스와 층 숨김을 풀고 처음 시야 신호를 올린다', () => {
+    const w = useWorld.getState();
+    w.focusBuilding('eng');
+    w.setHiddenAboveFloor(2);
+    useWorld.setState({ focusedMember: 'a' });
+    const before = useWorld.getState().homeNonce;
+    useWorld.getState().goHome();
+    const s = useWorld.getState();
+    expect(s.focusedBuilding).toBeNull();
+    expect(s.focusedMember).toBeNull();
+    expect(s.hiddenAboveFloor).toBeNull();
+    expect(s.homeNonce).toBe(before + 1);
+  });
+
   it('관리자 캐릭터가 오면 멤버 목록 끝에 시간표 없는 가상 멤버로 붙인다', () => {
     useWorld.getState().setWorld({ ...world(['a']), admin: { look: DEFAULT_ADMIN_LOOK } });
     const members = useWorld.getState().members;

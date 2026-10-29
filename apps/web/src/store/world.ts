@@ -31,6 +31,8 @@ export interface WorldState {
   hiddenAboveFloor: number | null;
   /** 카메라가 따라가는 멤버 (접속자 목록 클릭·내 조종) */
   focusedMember: string | null;
+  /** goHome()마다 1씩 오른다. 카메라가 보고 처음 시야로 돌아간다 */
+  homeNonce: number;
 
   /** GET /api/world를 불러 멤버·시계·계획을 갱신한다 */
   load: () => Promise<void>;
@@ -47,6 +49,8 @@ export interface WorldState {
   focusBuilding: (id: BuildingId | null) => void;
   setHiddenAboveFloor: (floor: number | null) => void;
   focusMember: (id: string | null) => void;
+  /** 포커스를 모두 풀고 카메라를 처음 시야(캠퍼스 전체)로 돌린다 */
+  goHome: () => void;
 }
 
 export const useWorld = create<WorldState>()((set, get) => ({
@@ -59,6 +63,7 @@ export const useWorld = create<WorldState>()((set, get) => ({
   focusedBuilding: null,
   hiddenAboveFloor: null,
   focusedMember: null,
+  homeNonce: 0,
 
   load: async () => {
     try {
@@ -108,6 +113,13 @@ export const useWorld = create<WorldState>()((set, get) => ({
   setHiddenAboveFloor: (floor) => set({ hiddenAboveFloor: floor }),
   focusMember: (id) =>
     set({ focusedMember: id, focusedBuilding: id ? null : get().focusedBuilding }),
+  goHome: () =>
+    set((s) => ({
+      focusedBuilding: null,
+      focusedMember: null,
+      hiddenAboveFloor: null,
+      homeNonce: s.homeNonce + 1,
+    })),
 }));
 
 /** 지금 시각 (서버 기준). 컴포넌트 밖에서도 쓸 수 있다 */
