@@ -44,6 +44,10 @@ export const MIGRATIONS: readonly string[] = [
   `
   ALTER TABLE members ADD COLUMN dorm INTEGER NOT NULL DEFAULT 0;
   `,
+  // 기본은 기숙사생: 이미 있던 멤버도 모두 기숙사생으로 (새 가입은 insertMember가 1로 넣는다)
+  `
+  UPDATE members SET dorm = 1;
+  `,
 ];
 
 export function migrate(db: Db): void {

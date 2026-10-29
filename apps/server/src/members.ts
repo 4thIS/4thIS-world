@@ -27,8 +27,9 @@ export function insertMember(
   m: { id: string; username: string; passwordHash: string; look: Look; createdAt: number },
 ): MemberRow {
   db.prepare(
-    `INSERT INTO members (id, username, password_hash, status, look, created_at)
-     VALUES (?, ?, ?, 'pending', ?, ?)`,
+    // 새 멤버는 기본으로 기숙사생 (시간표 화면에서 끌 수 있다)
+    `INSERT INTO members (id, username, password_hash, status, look, created_at, dorm)
+     VALUES (?, ?, ?, 'pending', ?, ?, 1)`,
   ).run(m.id, m.username, m.passwordHash, JSON.stringify(m.look), m.createdAt);
   return getMember(db, m.id)!;
 }

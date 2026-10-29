@@ -60,15 +60,15 @@ describe('/api/me', () => {
     expect(MeSchema.parse((await req('GET', API.me, a.cookie)).json()).look).toEqual(LOOK);
   });
 
-  it('PATCH /me로 기숙사생 여부를 바꾸면 내 정보와 /world에 담기고 world:changed', async () => {
+  it('새로 가입하면 기숙사생이고, PATCH /me로 끄면 내 정보와 /world에 담기고 world:changed', async () => {
     const a = await signupAs(t, '기숙', { approve: true });
-    expect(MeSchema.parse((await req('GET', API.me, a.cookie)).json()).dorm).toBe(false);
+    expect(MeSchema.parse((await req('GET', API.me, a.cookie)).json()).dorm).toBe(true);
     const changed = countWorldChanged(t);
-    const res = await req('PATCH', API.me, a.cookie, { dorm: true });
-    expect(MeSchema.parse(res.json()).dorm).toBe(true);
+    const res = await req('PATCH', API.me, a.cookie, { dorm: false });
+    expect(MeSchema.parse(res.json()).dorm).toBe(false);
     expect(changed()).toBe(1);
     const world = WorldResponseSchema.parse((await req('GET', API.world, a.cookie)).json());
-    expect(world.members.find((m) => m.id === a.id)?.dorm).toBe(true);
+    expect(world.members.find((m) => m.id === a.id)?.dorm).toBe(false);
   });
 
   it('잘못된 생김새는 400', async () => {
