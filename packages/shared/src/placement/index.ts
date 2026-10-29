@@ -36,7 +36,7 @@ function seatPlace(block: Block): PlaceId | null {
  * members에는 승인된 멤버만 넣는다.
  */
 export function computeDay(input: ComputeDayInput): DayPlan {
-  const { members, date, campus } = input;
+  const { members, date, campus, wetHours = [] } = input;
   const weekday = kstWeekday(Date.parse(`${date}T12:00:00+09:00`));
 
   // 1) 멤버마다 시간 규칙으로 구간을 나눈다. 기숙사생은 아이디 순으로 침대 번호를 받는다
@@ -51,8 +51,8 @@ export function computeDay(input: ComputeDayInput): DayPlan {
     const items = m.schedules.filter((s) => s.day === weekday);
     const bed = beds.get(m.id);
     return bed === undefined
-      ? planBlocks(m.id, date, items, campus)
-      : planDormBlocks(m.id, date, items, campus, bed);
+      ? planBlocks(m.id, date, items, campus, wetHours)
+      : planDormBlocks(m.id, date, items, campus, bed, wetHours);
   });
 
   // 2) 같은 장소의 구간을 모아 좌석을 색칠한다

@@ -62,6 +62,7 @@ export function dormFree(memberId: string, date: string, slot: number): 'lounge'
 /**
  * 빈 시간 [g0, g1)을 조각으로 나눈다 (§7.2-5). waitNode는 다음 장소의 입구.
  * dorm이면 자유 시간을 DORM_SLOT_MIN 칸마다 휴게실·공원·카페로 나눈다.
+ * wet[h]가 참인 시간(비·눈)에 걸친 공원 조각은 실내(통학생은 카페, 기숙사생은 휴게실)로 바꾼다.
  */
 export function gapBlocks(
   memberId: string,
@@ -70,6 +71,7 @@ export function gapBlocks(
   g1: number,
   waitNode: NodeId,
   dorm = false,
+  wet: readonly boolean[] = [],
 ): Block[] {
   if (g1 <= g0) return [];
   if (g1 - g0 < SHORT_GAP_MIN)
@@ -99,6 +101,13 @@ export function gapBlocks(
     pushFree(g0, g1);
   }
 
+  // 비·눈 오는 시간에는 공원에 가지 않는다
+  for (const p of pieces) {
+    if (p.activity.kind === 'park' && isWet(wet, p.from, p.to)) {
+      p.activity = { kind: dorm ? 'lounge' : 'cafe' };
+    }
+  }
+
   // 10분 미만 조각은 바로 앞 조각에 붙인다 (첫 조각이면 뒤 조각에)
   for (let i = 0; i < pieces.length && pieces.length > 1;) {
     const p = pieces[i]!;
@@ -118,6 +127,12 @@ export function gapBlocks(
     } else i++;
   }
   return pieces;
+}
+
+/** [from, to) 분 구간이 비·눈 오는 시간에 걸치나 */
+function isWet(wet: readonly boolean[], from: number, to: number): boolean {
+  for (let h = Math.floor(from / 60); h * 60 < to; h++) if (wet[h]) return true;
+  return false;
 }
 
 /** 맞닿은 같은 일정(종류·제목이 같음)은 하나로 합쳐 자리를 옮기지 않게 한다 */
@@ -175,6 +190,7 @@ export function planBlocks(
   date: string,
   dayItems: readonly ScheduleItem[],
   campus: Campus,
+  wet: readonly boolean[] = [],
 ): Block[] {
   const items = mergeContiguous(
     dayItems
@@ -197,7 +213,7 @@ export function planBlocks(
   const blocks: Block[] = [];
   let cursor = arrive;
   for (const item of items) {
-    blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item)));
+    blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item), false, wet));
     blocks.push(classBlock(item));
     cursor = item.to;
   }
@@ -216,6 +232,7 @@ export function planDormBlocks(
   dayItems: readonly ScheduleItem[],
   campus: Campus,
   bed: number,
+  wet: readonly boolean[] = [],
 ): Block[] {
   const items = mergeContiguous(
     dayItems
@@ -241,12 +258,12 @@ export function planDormBlocks(
   let cursor = wake;
   for (const item of items) {
     if (item.to <= cursor) continue;
-    blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item), true));
+    blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item), true, wet));
     blocks.push(classBlock(item));
     cursor = item.to;
   }
   const night = Math.max(cursor, SLEEP_START_MIN);
-  blocks.push(...gapBlocks(memberId, date, cursor, night, dormDoor, true));
+  blocks.push(...gapBlocks(memberId, date, cursor, night, dormDoor, true, wet));
   if (night < 24 * 60) blocks.push({ from: night, to: 24 * 60, activity: sleep });
   return blocks;
 }

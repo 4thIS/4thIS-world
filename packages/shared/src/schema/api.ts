@@ -20,6 +20,7 @@ export const API = {
   adminReject: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/reject`,
   adminBackup: '/api/admin/backup',
   adminLook: '/api/admin/look',
+  weather: '/api/weather',
 } as const;
 
 export const ERROR_CODES = [
