@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
-import { CAMPUS, boardAt, sampleAt } from '@4this/shared';
+import { ADMIN_ID, CAMPUS, boardAt, sampleAt } from '@4this/shared';
 import type { BuildingPanelProps, OverlayProps, PresenceEntry } from '../ui/contracts';
 import { formatClock, skyIconAt } from '../world/sim/labels';
 import { peopleIn, snapshotAt } from '../world/sim/occupancy';
@@ -76,10 +76,25 @@ export function useOverlayProps(): OverlayProps {
     a.isMe !== b.isMe ? (a.isMe ? -1 : 1) : a.username < b.username ? -1 : 1,
   );
 
+  // 접속하지 않은 멤버: 시간표상 지금 위치와 함께 이름 순 (관리자 캐릭터는 늘 광장이라 뺀다)
+  const onlineIds = new Set(rt.presence.members.map((p) => p.id));
+  const offline: PresenceEntry[] = members
+    .filter((m) => !onlineIds.has(m.id) && m.id !== ADMIN_ID)
+    .map((m) => ({
+      id: m.id,
+      username: m.username,
+      look: m.look,
+      status: (plan ? sampleAt(plan, m.id, t) : null)?.status ?? '캠퍼스 밖',
+      controlling: false,
+      isMe: m.id === me,
+    }))
+    .sort((a, b) => (a.username < b.username ? -1 : 1));
+
   return {
     topBar: { clock: formatClock(t), skyIcon: skyIconAt(t), onHome: goHome },
     presence: {
       entries,
+      offline,
       spectators: rt.presence.spectators,
       collapsed: rt.presenceCollapsed,
       onToggle: rt.togglePresence,

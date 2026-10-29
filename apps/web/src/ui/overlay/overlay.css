@@ -121,6 +121,36 @@
   color: var(--ink-soft);
 }
 
+/* 오프라인 멤버: 접속자보다 흐리게, 길어지면 따로 스크롤 */
+.ov-presence__offline {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 40vh;
+  border-top: 1px solid rgba(150, 110, 150, 0.15);
+}
+
+.ov-presence__subhead {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ov-presence__offline .ov-presence__list {
+  padding-bottom: 8px;
+}
+
+.ov-presence__item--offline {
+  opacity: 0.6;
+}
+
 .ui-face {
   flex: none;
 }

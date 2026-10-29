@@ -12,7 +12,14 @@ vi.mock('../store/overlay', () => ({ useOverlayProps: vi.fn() }));
 const noop = () => {};
 const FULL: OverlayProps = {
   topBar: { clock: '수 14:10', skyIcon: '☀️', onHome: () => {} },
-  presence: { entries: [], spectators: 3, collapsed: false, onToggle: noop, onSelect: noop },
+  presence: {
+    entries: [],
+    offline: [],
+    spectators: 3,
+    collapsed: false,
+    onToggle: noop,
+    onSelect: noop,
+  },
   emoteBar: { disabled: false, onEmote: noop },
   control: { controlling: false, disabled: false, onStart: noop, onStop: noop },
   connection: { state: 'reconnecting' },

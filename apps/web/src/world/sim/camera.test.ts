@@ -17,7 +17,7 @@ describe('buildingGoal', () => {
   it('건물 가운데를 남동쪽 위에서 본다', () => {
     const goal = buildingGoal('eng', CAMPUS);
     expect(goal.target[0]).toBe(16);
-    expect(goal.target[1]).toBeCloseTo(4.8);
+    expect(goal.target[1]).toBeCloseTo(4.8 + 2.5);
     expect(goal.target[2]).toBe(-2);
     expect(goal.position[0]).toBeGreaterThan(goal.target[0]);
     expect(goal.position[1]).toBeGreaterThan(goal.target[1]);

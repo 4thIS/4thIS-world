@@ -1,4 +1,4 @@
-import { MapControls } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRealtime } from '../store/realtime';
@@ -7,6 +7,7 @@ import { Campus } from './campus/Campus';
 import { BoardHotspot } from './sim/BoardHotspot';
 import { MAX_DISTANCE, MIN_DISTANCE, OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
+import { FocusMarker } from './sim/FocusMarker';
 import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
@@ -37,6 +38,7 @@ function WorldScene() {
       <BoardHotspot />
       <ControlDriver />
       <CameraRig />
+      <FocusMarker />
     </>
   );
 }
@@ -76,8 +78,8 @@ export function WorldCanvas({
       >
         <color attach="background" args={['#fbeff6']} />
         <WorldScene />
-        {/* 지도식: 왼쪽 끌기 = 이동, 오른쪽 끌기 = 회전, 휠 = 커서 쪽으로 확대. 터치는 한 손가락 이동 */}
-        <MapControls
+        {/* 왼쪽 끌기 = 회전, 오른쪽 끌기 = 이동, 휠 = 커서 쪽으로 확대. 더블 클릭 후 끌면 이동(CameraRig) */}
+        <OrbitControls
           makeDefault
           target={OVERVIEW.target}
           maxPolarAngle={Math.PI * 0.42}
