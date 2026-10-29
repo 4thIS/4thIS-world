@@ -78,7 +78,7 @@ export function myMemberId(): string | null {
 }
 
 /**
- * placement 자리로 걸어 돌아가는 길. 자리가 건물 안이면 그 건물 문까지 걷고(그다음은 placement가
+ * placement 자리로 곧장(최단 거리) 걸어 돌아가는 길. 자리가 건물 안이면 그 건물 문까지 걷고(그다음은 placement가
  * 자리로 옮긴다), 그날 캠퍼스에 없을 시각이면 정문 밖으로 걸어 나간다.
  */
 function returnFrom(memberId: string, from: Vec2): ReturnWalk {
@@ -92,7 +92,7 @@ function returnFrom(memberId: string, from: Vec2): ReturnWalk {
   } else if (target) {
     to = [target.position[0], target.position[2]];
   }
-  return planReturn(CAMPUS, from, to, Date.now(), target?.status ?? '하교 중');
+  return planReturn(from, to, Date.now(), target?.status ?? '하교 중');
 }
 
 export const useRealtime = create<RealtimeState>()((set, get) => ({

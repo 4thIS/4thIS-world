@@ -1,10 +1,7 @@
 import {
   WALK_SPEED_MPS,
   facingOf,
-  nearestNode,
   pathLength,
-  shortestPath,
-  type Campus,
   type ControlMove,
   type Pose,
   type Vec2,
@@ -64,20 +61,9 @@ export interface ReturnWalk {
   status: string;
 }
 
-/** from → 가장 가까운 노드 → (그래프 최단 경로) → 목표 근처 노드 → to */
-export function planReturn(
-  campus: Campus,
-  from: Vec2,
-  to: Vec2,
-  start: number,
-  status: string,
-): ReturnWalk {
-  const nodes = shortestPath(campus, nearestNode(campus, from), nearestNode(campus, to)).map(
-    (id) => campus.graph.nodes[id]!,
-  );
-  const pts = [from, ...nodes, to].filter(
-    (p, i, all) => i === 0 || p[0] !== all[i - 1]![0] || p[1] !== all[i - 1]![1],
-  );
+/** from → to 곧장 (길을 찾지 않고 최단 거리로) */
+export function planReturn(from: Vec2, to: Vec2, start: number, status: string): ReturnWalk {
+  const pts = from[0] === to[0] && from[1] === to[1] ? [from] : [from, to];
   return { start, pts, length: pathLength(pts), status };
 }
 
