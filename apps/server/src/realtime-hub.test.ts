@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SOCKET_LIMITS } from '@4this/shared';
 import { RealtimeHub } from './realtime-hub';
 
-const move = (x = 1, z = 2) => ({ x, z, facing: 0.5, moving: true });
+const move = (x = 1, z = 2, y = 0, floor = 1) => ({ x, z, facing: 0.5, moving: true, y, floor });
 
 describe('RealtimeHub', () => {
   let hub: RealtimeHub;
@@ -70,15 +70,25 @@ describe('RealtimeHub', () => {
     expect(hub.flushStates()).toBeNull();
     hub.move('s1', move(40, -99));
     expect(hub.flushStates()).toEqual([
-      { memberId: 'm1', x: 25, z: -25, facing: 0.5, moving: true },
+      { memberId: 'm1', x: 25, z: -25, facing: 0.5, moving: true, y: 0, floor: 1 },
     ]);
     expect(hub.flushStates()).toBeNull();
+  });
+
+  it('건물 위층의 높이와 층을 그대로 전한다', () => {
+    hub.connect('s1', 'm1');
+    hub.startControl('s1');
+    hub.move('s1', move(16, -2, 3.2, 2));
+    expect(hub.flushStates()).toEqual([
+      { memberId: 'm1', x: 16, z: -2, facing: 0.5, moving: true, y: 3.2, floor: 2 },
+    ]);
   });
 
   it('숫자가 아닌 좌표는 버린다', () => {
     hub.connect('s1', 'm1');
     hub.startControl('s1');
-    expect(hub.move('s1', { x: Number.NaN, z: 0, facing: 0, moving: false })).toBe(false);
+    expect(hub.move('s1', { ...move(), x: Number.NaN })).toBe(false);
+    expect(hub.move('s1', { ...move(), y: Number.NaN })).toBe(false);
   });
 
   it('이동은 소켓당 초당 15회까지, 1초가 지나면 다시 받는다', () => {

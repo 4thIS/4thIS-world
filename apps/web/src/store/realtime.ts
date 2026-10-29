@@ -12,7 +12,7 @@ import {
 } from '@4this/shared';
 import { createSocket, type GameSocket } from '../api/socket';
 import type { ActiveEmote } from '../world/contracts';
-import { freeSpot } from '../world/sim/collision';
+import { isIndoor, moverFloor, moverHeight, startMover } from '../world/sim/indoor';
 import { createThrottle } from '../world/sim/input';
 import { memberObjects } from '../world/sim/registry';
 import { planReturn, pushSample, type RemoteTrack, type ReturnWalk } from '../world/sim/remote';
@@ -68,7 +68,13 @@ let allowMove = createThrottle(SOCKET_LIMITS.movePerSec);
 let lastSent: ControlMove | null = null;
 
 const sameMove = (a: ControlMove | null, b: ControlMove) =>
-  a !== null && a.x === b.x && a.z === b.z && a.facing === b.facing && a.moving === b.moving;
+  a !== null &&
+  a.x === b.x &&
+  a.z === b.z &&
+  a.y === b.y &&
+  a.floor === b.floor &&
+  a.facing === b.facing &&
+  a.moving === b.moving;
 
 /** 로그인한 승인 멤버면 그 아이디, 관리자면 관리자 캐릭터 아이디 */
 export function myMemberId(): string | null {
@@ -81,7 +87,9 @@ export function myMemberId(): string | null {
  * placement 자리로 곧장(최단 거리) 걸어 돌아가는 길. 자리가 건물 안이면 그 건물 문까지 걷고(그다음은 placement가
  * 자리로 옮긴다), 그날 캠퍼스에 없을 시각이면 정문 밖으로 걸어 나간다.
  */
-function returnFrom(memberId: string, from: Vec2): ReturnWalk {
+function returnFrom(memberId: string, from: Vec2, floor: number): ReturnWalk | null {
+  // 건물 안(위층·계단 포함)에서 놓으면 걷지 않고 placement 자리로 바로 옮긴다
+  if (isIndoor(from, floor)) return null;
   const world = useWorld.getState();
   const t = world.now();
   const target = sampleAt(world.ensurePlan(), memberId, t);
@@ -139,7 +147,8 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
       const remotes = { ...st.remotes };
       delete remotes[memberId];
       const returning = { ...st.returning };
-      if (last) returning[memberId] = returnFrom(memberId, [last.x, last.z]);
+      const walk = last ? returnFrom(memberId, [last.x, last.z], last.floor) : null;
+      if (walk) returning[memberId] = walk;
       set({
         remotes,
         returning,
@@ -180,11 +189,22 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     const me = myMemberId();
     if (!socket || !me || get().connection !== 'connected') return;
     const shown = memberObjects.get(me);
-    const from: Vec2 = shown?.visible
-      ? [shown.position.x, shown.position.z]
-      : CAMPUS.graph.nodes[CAMPUS.gateNode]!;
-    const [x, z] = freeSpot(CAMPUS, from);
-    const local: ControlMove = { x, z, facing: Math.PI, moving: false };
+    const gate = CAMPUS.graph.nodes[CAMPUS.gateNode]!;
+    // 지금 보이는 자리에서 시작한다 (건물 위층 자리면 그 층에서)
+    const mover = startMover(
+      CAMPUS,
+      shown?.visible
+        ? [shown.position.x, shown.position.y, shown.position.z]
+        : [gate[0], 0, gate[1]],
+    );
+    const local: ControlMove = {
+      x: mover.pos[0],
+      z: mover.pos[1],
+      y: moverHeight(mover),
+      floor: moverFloor(mover),
+      facing: Math.PI,
+      moving: false,
+    };
     socket.emit('control:start');
     socket.emit('control:move', local);
     lastSent = local;
@@ -199,7 +219,8 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     const { local } = get();
     socket?.emit('control:stop');
     const returning = { ...get().returning };
-    if (me && local) returning[me] = returnFrom(me, [local.x, local.z]);
+    const walk = me && local ? returnFrom(me, [local.x, local.z], local.floor) : null;
+    if (me && walk) returning[me] = walk;
     set({ controlling: false, local: null, returning });
   },
 

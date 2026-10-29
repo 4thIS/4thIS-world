@@ -111,7 +111,9 @@ describe('연결·시계·presence', () => {
 
 describe('다른 사람의 조종', () => {
   it('control:state를 받아 그 위치에 그리고, 풀리면 걸어서 자리로 돌아간다', () => {
-    sock.serverEmit('control:state', [{ memberId: 'you', x: 0, z: 3, facing: 0, moving: true }]);
+    sock.serverEmit('control:state', [
+      { memberId: 'you', x: 0, z: 3, facing: 0, moving: true, y: 0, floor: 1 },
+    ]);
     expect(resolvePose('you', NOW)).toMatchObject({ position: [0, 0, 3], status: CONTROL_STATUS });
 
     sock.serverEmit('control:released', { memberId: 'you' });
@@ -149,7 +151,9 @@ describe('내 조종', () => {
     useRealtime.getState().startControl();
     sock.sent = [];
     for (let f = 0; f < 60; f++) {
-      useRealtime.getState().move({ x: f * 0.05, z: 20, facing: 0, moving: true }, 1000 + f * 16.7);
+      useRealtime
+        .getState()
+        .move({ x: f * 0.05, z: 20, facing: 0, moving: true, y: 0, floor: 1 }, 1000 + f * 16.7);
     }
     const sent = sock.sentOf('control:move').length;
     expect(sent).toBeLessThanOrEqual(15);
@@ -157,7 +161,9 @@ describe('내 조종', () => {
 
     sock.sent = [];
     for (let f = 0; f < 30; f++) {
-      useRealtime.getState().move({ x: 1, z: 20, facing: 0, moving: false }, 3000 + f * 100);
+      useRealtime
+        .getState()
+        .move({ x: 1, z: 20, facing: 0, moving: false, y: 0, floor: 1 }, 3000 + f * 100);
     }
     expect(sock.sentOf('control:move')).toHaveLength(1);
   });
@@ -168,6 +174,13 @@ describe('내 조종', () => {
     expect(sock.sentOf('control:stop')).toHaveLength(1);
     expect(useRealtime.getState().controlling).toBe(false);
     expect(useRealtime.getState().returning['me']).toBeDefined();
+  });
+
+  it('건물 안(위층)에서 그만두면 걷지 않고 바로 자리로 간다', () => {
+    useRealtime.getState().startControl();
+    useRealtime.getState().move({ x: 16, z: -2, facing: 0, moving: false, y: 3.2, floor: 2 }, 5000);
+    useRealtime.getState().stopControl();
+    expect(useRealtime.getState().returning['me']).toBeUndefined();
   });
 
   it('서버가 조종을 풀면(60초 무입력) 조종 상태가 꺼진다', () => {

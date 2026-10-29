@@ -57,12 +57,16 @@ describe('입력', () => {
 
 describe('다른 사람의 조종 상태', () => {
   it('두 상태 사이를 받은 간격만큼 보간한다', () => {
-    let track = pushSample(undefined, { x: 0, z: 0, facing: 0, moving: true, at: 1000 });
+    const base = { facing: 0, moving: true, y: 0, floor: 1 };
+    let track = pushSample(undefined, { ...base, x: 0, z: 0, at: 1000 });
     expect(remotePose(track, 1000).position).toEqual([0, 0, 0]);
-    track = pushSample(track, { x: 1, z: 0, facing: 1, moving: true, at: 1100 });
+    track = pushSample(track, { ...base, x: 1, z: 0, facing: 1, y: 3.2, floor: 2, at: 1100 });
     expect(remotePose(track, 1150).position[0]).toBeCloseTo(0.5);
+    // 계단을 오르면 높이도 보간한다
+    expect(remotePose(track, 1150).position[1]).toBeCloseTo(1.6);
     expect(remotePose(track, 1300)).toMatchObject({
-      position: [1, 0, 0],
+      position: [1, 3.2, 0],
+      floor: 2,
       facing: 1,
       pose: 'walk',
       status: CONTROL_STATUS,

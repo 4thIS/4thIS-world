@@ -26,10 +26,12 @@ export function Campus({
   occupiedFloors,
   focusedBuilding,
   hiddenAboveFloor,
+  cutaway = null,
   onBuildingClick,
 }: CampusProps) {
-  // 층 숨김은 포커스된 건물에만 적용한다
-  const hidden = (id: BuildingId) => (focusedBuilding === id ? hiddenAboveFloor : null);
+  // 층 숨김은 포커스된 건물에 먼저, 아니면 내가 들어가 있는 건물에 적용한다
+  const hidden = (id: BuildingId) =>
+    focusedBuilding === id ? hiddenAboveFloor : cutaway?.building === id ? cutaway.floor : null;
   // 하늘은 1분 단위로만 다시 계산한다
   const minute = Math.floor(kstMinutes(now));
   const sky = useMemo(() => skyAt(minute), [minute]);

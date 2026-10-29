@@ -105,7 +105,7 @@ export class RealtimeHub {
     if (!conn || !memberId) return false;
     const control = this.controls.get(memberId);
     if (!control || control.socketId !== socketId) return false;
-    if (![m.x, m.z, m.facing].every(Number.isFinite)) return false;
+    if (![m.x, m.z, m.facing, m.y].every(Number.isFinite)) return false;
 
     const t = this.now();
     if (t - conn.moveWindowStart >= 1000) {
@@ -122,6 +122,8 @@ export class RealtimeHub {
       z: clamp(m.z, -MAP_HALF, MAP_HALF),
       facing: m.facing,
       moving: m.moving,
+      y: m.y,
+      floor: m.floor,
     };
     this.dirty = true;
     return true;
