@@ -16,10 +16,20 @@ describe('planBlocks', () => {
     expect(planBlocks('m', WED, [], LINE_CAMPUS)).toEqual([]);
   });
 
-  it('외부 일정만 있으면 게시판용 away만 남는다', () => {
-    expect(brief(planBlocks('m', WED, [item('10:00', '12:00', 'external')], LINE_CAMPUS))).toEqual([
-      [H(10), H(12), 'away'],
+  it('외부 일정만 있어도 등교해서 카페에 앉아 있다 (외부 일정은 카페)', () => {
+    const blocks = planBlocks('m', WED, [item('10:00', '12:00', 'external')], LINE_CAMPUS);
+    expect(brief(blocks)).toEqual([
+      [H(9, 55), H(10), 'wait'],
+      [H(10), H(12), 'class'],
+      [H(12), H(12), 'home'],
     ]);
+    expect(blocks[0]!.activity).toEqual({ kind: 'wait', node: 'cafe-door' });
+    expect(blocks[1]!.activity).toEqual({
+      kind: 'class',
+      placeId: 'cafe',
+      pose: 'sitSip',
+      status: '외부 일정 ☕',
+    });
   });
 
   it('첫 캠퍼스 일정 5분 전에 등교해 건물 앞에서 기다린다', () => {
@@ -38,23 +48,7 @@ describe('planBlocks', () => {
     });
   });
 
-  it('앞에 외부 일정이 있으면 그 일정이 끝날 때 들어오고, 사이는 빈 시간 규칙', () => {
-    const id = idWithFree('park');
-    const blocks = planBlocks(
-      id,
-      WED,
-      [item('07:00', '08:00', 'external'), item('10:00', '11:00', 'library')],
-      LINE_CAMPUS,
-    );
-    expect(brief(blocks)).toEqual([
-      [H(7), H(8), 'away'],
-      [H(8), H(10), 'park'],
-      [H(10), H(11), 'class'],
-      [H(11), H(11), 'home'],
-    ]);
-  });
-
-  it('지우의 수요일 (설계 문서 §7.2 예시)', () => {
+  it('지우의 수요일: 외부 일정(알바)도 카페에서 보낸다', () => {
     const id = idWithFree('cafe');
     const blocks = planBlocks(
       id,
@@ -70,30 +64,32 @@ describe('planBlocks', () => {
       [H(8, 55), H(9), 'wait'],
       [H(9), H(12), 'class'],
       [H(12), H(13), 'lunch'],
-      [H(13), H(15), 'away'],
+      [H(13), H(15), 'class'],
       [H(15), H(16), 'cafe'],
       [H(16), H(18), 'class'],
       [H(18), H(18), 'home'],
     ]);
-    expect(blocks[3]!.activity).toEqual({ kind: 'away', title: '알바' });
+    expect(blocks[3]!.activity).toMatchObject({ placeId: 'cafe', status: '알바 ☕' });
   });
 
-  it('마지막 캠퍼스 일정 뒤의 외부 일정은 다시 들어오지 않는다', () => {
+  it('외부 일정이 첫 일정이면 그 5분 전에 등교하고, 마지막이면 끝나고 하교한다', () => {
     const blocks = planBlocks(
+      'm',
+      WED,
+      [item('07:00', '08:00', 'external'), item('10:00', '11:00', 'library')],
+      LINE_CAMPUS,
+    );
+    expect(brief(blocks)[0]).toEqual([H(6, 55), H(7), 'wait']);
+    const last = planBlocks(
       'm',
       WED,
       [item('09:00', '10:00', 'lecture2'), item('11:00', '12:00', 'external')],
       LINE_CAMPUS,
     );
-    expect(brief(blocks)).toEqual([
-      [H(8, 55), H(9), 'wait'],
-      [H(9), H(10), 'class'],
-      [H(10), H(10), 'home'],
-      [H(11), H(12), 'away'],
-    ]);
+    expect(brief(last).at(-1)).toEqual([H(12), H(12), 'home']);
   });
 
-  it('다음 일정이 외부 일정이면 빈 시간 규칙을 따르고 그 시각에 정문으로 간다', () => {
+  it('다음 일정이 외부 일정이면 카페 앞에서 기다린다', () => {
     const blocks = planBlocks(
       'm',
       WED,
@@ -107,9 +103,9 @@ describe('planBlocks', () => {
     expect(blocks[2]).toEqual({
       from: H(10),
       to: H(10, 10),
-      activity: { kind: 'wait', node: 'gate' },
+      activity: { kind: 'wait', node: 'cafe-door' },
     });
-    expect(blocks[3]!.activity).toEqual({ kind: 'away', title: '외부 일정' });
+    expect(blocks[3]!.activity).toMatchObject({ kind: 'class', placeId: 'cafe' });
   });
 
   it('맞닿은 같은 일정은 하나로 합친다 (자리를 옮기지 않는다)', () => {

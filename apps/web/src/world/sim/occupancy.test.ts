@@ -36,10 +36,10 @@ const members: PublicMember[] = [
 const plan = computeDay({ members, date: '2026-10-21', campus: CAMPUS });
 
 describe('snapshotAt · occupiedFloors', () => {
-  it('강의실과 교수님 자리의 층을 모은다', () => {
+  it('강의실·카페(외부 일정)와 교수님 자리의 층을 모은다', () => {
     const snap = snapshotAt(plan, members, WED_1435, CAMPUS);
     expect(snap.map((s) => s.id)).toEqual(['a', 'b', 'c', PROFESSOR_ID]);
-    expect(occupiedFloors(snap, CAMPUS)).toEqual(new Set(['eng:2', 'eng:3', 'lab:2']));
+    expect(occupiedFloors(snap, CAMPUS)).toEqual(new Set(['eng:2', 'eng:3', 'cafe:1', 'lab:2']));
   });
 
   it('밤에는 비어 있다', () => {

@@ -52,9 +52,10 @@ describe('planDormBlocks', () => {
     expect(brief(blocks).at(-1)).toEqual([H(23, 30), H(24), 'sleep']);
   });
 
-  it('외부 일정은 정문으로 나간다 (away)', () => {
+  it('외부 일정은 카페에서 보낸다', () => {
     const blocks = planDormBlocks('m', WED, [item('13:00', '15:00', 'external')], LINE_CAMPUS, 0);
-    expect(brief(blocks)).toContainEqual([H(13), H(15), 'away']);
+    expect(brief(blocks)).toContainEqual([H(13), H(15), 'class']);
+    expect(blocks.find((b) => b.from === H(13))!.activity).toMatchObject({ placeId: 'cafe' });
   });
 
   it('자유 시간 장소는 90분 칸마다 휴게실·공원·카페 중 하나로 정해진다 (결정적)', () => {

@@ -39,19 +39,13 @@ describe('지우의 수요일 (실제 캠퍼스, 설계 문서 §7.2 예시)', (
     });
   });
 
-  it('12:00 식당 → 13:00 정문 퇴장(게시판)', () => {
+  it('12:00 식당 → 13:00 알바는 카페에서 (정문으로 나가지 않는다)', () => {
     expect(at('12:05:00')).toMatchObject({ placeId: 'main-1f', pose: 'sitEat' });
-    expect(at('13:00:10')).toMatchObject({ status: '외출 중' });
-    expect(at('13:05:00')).toBeNull();
-    expect(boardAt(plan, wed('12:59:59'))).toEqual([]);
-    expect(boardAt(plan, wed('13:00:00'))).toEqual([
-      { memberId: id, username: '지우', title: '알바', until: '15:00' },
-    ]);
+    expect(at('13:10:00')).toMatchObject({ placeId: 'cafe', pose: 'sitSip', status: '알바 ☕' });
+    expect(boardAt(plan, wed('13:30:00'))).toEqual([]);
   });
 
-  it('15:00 정문 입장 → 카페 → 16:00 lab-2f → 18:00 하교', () => {
-    expect(boardAt(plan, wed('15:00:00'))).toEqual([]);
-    expect(at('15:00:05')).toMatchObject({ placeId: 'transit', status: '카페 ☕' });
+  it('15:00 카페에 그대로 → 16:00 lab-2f → 18:00 하교', () => {
     expect(at('15:10:00')).toMatchObject({ placeId: 'cafe', pose: 'sitSip' });
     const lab = at('16:05:00')!;
     expect(lab).toMatchObject({ placeId: 'lab-2f', status: '연구 중', floor: 2 });
