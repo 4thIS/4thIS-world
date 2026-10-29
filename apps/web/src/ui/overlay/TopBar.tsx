@@ -1,7 +1,7 @@
 import type { TopBarProps } from '../contracts';
 import { useUi } from '../store';
 
-/** 왼쪽 위: 로고(누르면 소개) · 요일과 시각 · 하늘 아이콘 · 🏠 처음 시야로 */
+/** 왼쪽 위: 로고(누르면 소개) · 요일과 시각 · 하늘 아이콘 · 🏠 처음 시야로 · ❔ 조작법 */
 export function TopBar({ clock, skyIcon, onHome }: TopBarProps) {
   const open = useUi((s) => s.open);
   return (
@@ -28,6 +28,15 @@ export function TopBar({ clock, skyIcon, onHome }: TopBarProps) {
         onClick={onHome}
       >
         🏠
+      </button>
+      <button
+        type="button"
+        className="ui-icon-btn ov-topbar__help"
+        aria-label="조작법"
+        title="조작법"
+        onClick={() => open('guide')}
+      >
+        ?
       </button>
     </header>
   );

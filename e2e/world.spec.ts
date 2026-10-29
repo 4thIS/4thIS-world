@@ -126,7 +126,7 @@ test('관리자 캐릭터: 광장 한가운데 서 있고, 관리자로 로그�
   const home = (await positionOf(vpage, 'admin'))!;
   expect(Math.hypot(home.x - 0, home.z - 3)).toBeLessThan(0.5);
 
-  // 2) 관리자 로그인: 소개 모달을 닫고 조종을 시작한다
+  // 2) 관리자 로그인: 소개 모달과 조작법 가이드를 닫고 조종을 시작한다
   const admin = await browser.newContext();
   expect(
     (await admin.request.post('/api/auth/admin', { data: { password: ADMIN_PASSWORD } })).ok(),
@@ -134,6 +134,8 @@ test('관리자 캐릭터: 광장 한가운데 서 있고, 관리자로 로그�
   const page = await admin.newPage();
   await page.goto('/');
   await page.getByRole('button', { name: '캠퍼스로 들어가기' }).click();
+  // 소개를 닫으면 조작법 가이드가 뜬다
+  await page.getByRole('button', { name: '알겠어요' }).click();
   await page.waitForFunction(() => window.__world?.connection() === 'connected');
   await page.getByRole('button', { name: /조종하기/ }).click();
   await vpage.waitForFunction(() => window.__world?.controlling().includes('admin'));

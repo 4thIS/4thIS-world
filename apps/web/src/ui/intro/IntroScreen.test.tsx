@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
-  useUi.getState().close();
+  useUi.setState({ screen: null, guideAfterClose: false });
 });
 
 const dialog = () => screen.queryByRole('dialog', { name: '4thIS-world에 오신 걸 환영해요' });
@@ -26,14 +26,16 @@ describe('IntroScreen', () => {
     expect(screen.getByText('박찬우 · 이우진 · 박효민 · 김태희')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: '가입하고 내 캐릭터 만들기' }));
     expect(useUi.getState().screen).toBe('signup');
+    // 가입 창을 닫은 뒤에 가이드가 뜬다
+    expect(useUi.getState().guideAfterClose).toBe(true);
     expect(localStorage.getItem(INTRO_KEY)).toBeNull();
   });
 
-  it('구경하기는 닫기만 한다. 오늘 하루 보지 않기를 고르면 기한을 저장한다', () => {
+  it('구경하기는 소개를 닫고 조작법 가이드를 띄운다. 오늘 하루 보지 않기를 고르면 기한을 저장한다', () => {
     render(<ScreenHost />);
     fireEvent.click(screen.getByLabelText('오늘 하루 보지 않기'));
     fireEvent.click(screen.getByRole('button', { name: '구경하기' }));
-    expect(useUi.getState().screen).toBeNull();
+    expect(useUi.getState().screen).toBe('guide');
     expect(Number(localStorage.getItem(INTRO_KEY))).toBeGreaterThan(Date.now());
   });
 

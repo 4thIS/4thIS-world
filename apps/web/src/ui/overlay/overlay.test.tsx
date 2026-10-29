@@ -38,6 +38,13 @@ describe('TopBar', () => {
     expect(screen.getByLabelText('지금 시각').textContent).toBe('수 14:10 ☀️');
   });
 
+  it('❔를 누르면 조작법 가이드', () => {
+    render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: '조작법' }));
+    expect(useUi.getState().screen).toBe('guide');
+    useUi.getState().close();
+  });
+
   it('🏠을 누르면 처음 시야로', () => {
     const onHome = vi.fn();
     render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={onHome} />);
