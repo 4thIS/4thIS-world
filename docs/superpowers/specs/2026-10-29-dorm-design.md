@@ -14,6 +14,7 @@
 
 - `PublicMember.dorm?`, `Me.dorm?`, `PATCH /api/me { dorm }` (승인 멤버면 `world:changed`). DB `members.dorm` 칸 추가(마이그레이션 2)
 - 시간표 화면 위 "🏠 기숙사에 살아요" 체크 — 바꾸면 바로 저장
+- **기본은 기숙사생** (2026-10-29 팀장 결정): 새 가입은 `dorm = 1`, 마이그레이션 3이 이미 있던 멤버도 모두 1로 바꾼다. 통학하는 사람은 체크를 끈다
 - 침대 번호는 기숙사생 아이디 정렬 순서. 2층 6 → 3층 6 → 간이침대 순
 
 ## 하루 (placement `planDormBlocks`)

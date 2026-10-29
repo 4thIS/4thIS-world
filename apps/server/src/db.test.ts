@@ -2,7 +2,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { MIGRATIONS, openDb } from './db';
+import Database from 'better-sqlite3';
+import { MIGRATIONS, migrate, openDb } from './db';
 
 describe('openDb', () => {
   const dirs: string[] = [];
@@ -19,6 +20,20 @@ describe('openDb', () => {
     expect(tables).toEqual(['members', 'schedules', 'sessions', 'settings']);
     expect(db.pragma('user_version', { simple: true })).toBe(MIGRATIONS.length);
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
+    db.close();
+  });
+
+  it('기숙사 기본값 마이그레이션: 이미 있던 멤버도 모두 기숙사생이 된다', () => {
+    const db = new Database(':memory:');
+    db.exec(MIGRATIONS[0]!);
+    db.exec(MIGRATIONS[1]!);
+    db.pragma('user_version = 2');
+    db.prepare(
+      "INSERT INTO members (id, username, password_hash, status, look, created_at) VALUES ('m1', '철수', 'h', 'approved', '{}', 1)",
+    ).run();
+    expect(db.prepare('SELECT dorm FROM members').pluck().get()).toBe(0);
+    migrate(db);
+    expect(db.prepare('SELECT dorm FROM members').pluck().get()).toBe(1);
     db.close();
   });
 
