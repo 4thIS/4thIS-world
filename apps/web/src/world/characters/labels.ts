@@ -58,4 +58,5 @@ export const POSE_LABELS: Record<PoseKind, string> = {
   sitRead: '독서',
   sitSip: '커피',
   sitRest: '쉬기',
+  sleep: '자기',
 };

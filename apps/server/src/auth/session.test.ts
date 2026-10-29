@@ -40,7 +40,7 @@ describe('세션 미들웨어', () => {
     insertMember(t.db, { id: 'm1', username: '철수', passwordHash: 'x', look, createdAt: 1 });
     expect(await sessionWith(createSession(t.db, { memberId: 'm1' }))).toEqual({
       kind: 'member',
-      me: { id: 'm1', username: '철수', status: 'pending', look },
+      me: { id: 'm1', username: '철수', status: 'pending', look, dorm: false },
     });
   });
 

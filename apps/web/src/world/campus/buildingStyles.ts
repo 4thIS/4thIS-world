@@ -38,4 +38,10 @@ export const BUILDING_STYLES: Record<BuildingId, BuildingStyle> = {
     floor: '#f3eadf',
     stairs: null,
   },
+  dorm: {
+    wall: '#efe6fb',
+    trim: '#c3b1ec',
+    floor: '#f5ece4',
+    stairs: { start: [20.3, 16.4], dir: 'n', width: 1 },
+  },
 };

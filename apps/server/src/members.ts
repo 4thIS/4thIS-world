@@ -9,6 +9,8 @@ export interface MemberRow {
   status: MemberStatus;
   look: string;
   created_at: number;
+  /** 기숙사생이면 1 */
+  dorm: number;
 }
 
 export function getMember(db: Db, id: string): MemberRow | undefined {
@@ -35,7 +37,13 @@ export function insertMember(
 export function updateMember(
   db: Db,
   id: string,
-  patch: { username?: string; passwordHash?: string; status?: MemberStatus; look?: Look },
+  patch: {
+    username?: string;
+    passwordHash?: string;
+    status?: MemberStatus;
+    look?: Look;
+    dorm?: boolean;
+  },
 ): MemberRow | undefined {
   const sets: string[] = [];
   const values: (string | number)[] = [];
@@ -54,6 +62,10 @@ export function updateMember(
   if (patch.look !== undefined) {
     sets.push('look = ?');
     values.push(JSON.stringify(patch.look));
+  }
+  if (patch.dorm !== undefined) {
+    sets.push('dorm = ?');
+    values.push(patch.dorm ? 1 : 0);
   }
   if (sets.length > 0) {
     db.prepare(`UPDATE members SET ${sets.join(', ')} WHERE id = ?`).run(...values, id);
@@ -78,7 +90,13 @@ export function parseLook(row: MemberRow): Look {
 }
 
 export function toMe(row: MemberRow): Me {
-  return { id: row.id, username: row.username, status: row.status, look: parseLook(row) };
+  return {
+    id: row.id,
+    username: row.username,
+    status: row.status,
+    look: parseLook(row),
+    dorm: row.dorm === 1,
+  };
 }
 
 function scheduleCount(db: Db, id: string): number {

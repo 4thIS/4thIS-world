@@ -48,12 +48,16 @@ export function registerMeRoutes(app: FastifyInstance): void {
       }
       passwordHash = await hashPassword(body.password.next);
     }
-    const updated = updateMember(db, member.id, { look: body.look, passwordHash })!;
+    const updated = updateMember(db, member.id, {
+      look: body.look,
+      dorm: body.dorm,
+      passwordHash,
+    })!;
     if (passwordHash && request.auth.kind === 'member') {
       // 다른 기기의 세션은 끊고 지금 세션만 남긴다
       deleteMemberSessions(db, member.id, request.auth.sessionId);
     }
-    if (body.look) changed(updated);
+    if (body.look || body.dorm !== undefined) changed(updated);
     return toMe(updated);
   });
 

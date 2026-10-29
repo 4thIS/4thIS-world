@@ -15,6 +15,7 @@ export function registerWorldRoutes(app: FastifyInstance): void {
       username: row.username,
       look: parseLook(row),
       schedules: schedules.get(row.id) ?? [],
+      dorm: row.dorm === 1,
     }));
     return { serverTime: Date.now(), members, admin: { look: getAdminLook(db) } };
   });

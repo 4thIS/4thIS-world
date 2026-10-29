@@ -8,5 +8,7 @@ export const POSE_KINDS = [
   'sitRead',
   'sitSip',
   'sitRest',
+  /** 침대에 누워 자기 (기숙사) */
+  'sleep',
 ] as const;
 export type PoseKind = (typeof POSE_KINDS)[number];

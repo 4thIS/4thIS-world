@@ -350,7 +350,7 @@ export const TREES: TreeSpot[] = [
   { pos: [10, -12], scale: 1.0, kind: 'cherry' },
   { pos: [22.5, -14], scale: 1.2, kind: 'green' },
   { pos: [22.5, 9], scale: 1.0, kind: 'cherry' },
-  { pos: [15, 10], scale: 1.1, kind: 'green' },
+  { pos: [23.2, 13], scale: 1.1, kind: 'green' },
   { pos: [9, 16], scale: 1.0, kind: 'cherry' },
   { pos: [-8, 17], scale: 1.1, kind: 'green' },
   { pos: [-17, 18], scale: 1.0, kind: 'cherry' },
@@ -397,7 +397,7 @@ export const BUSHES: Vec2[] = [
 
 /** 쓰레기통 (KayKit trash_A) */
 export const TRASH_CANS: Vec2[] = [
-  [2.1, 12.5],
+  [2.1, 11.6],
   [6.1, 1.8],
   [-13.2, -4.8],
 ];

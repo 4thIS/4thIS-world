@@ -4,6 +4,7 @@ import {
   ApiErrorSchema,
   MeSchema,
   SchedulesResponseSchema,
+  WorldResponseSchema,
   type Look,
   type ScheduleItem,
 } from '@4this/shared';
@@ -57,6 +58,17 @@ describe('/api/me', () => {
     expect(res.statusCode).toBe(200);
     expect(MeSchema.parse(res.json()).look).toEqual(LOOK);
     expect(MeSchema.parse((await req('GET', API.me, a.cookie)).json()).look).toEqual(LOOK);
+  });
+
+  it('PATCH /me로 기숙사생 여부를 바꾸면 내 정보와 /world에 담기고 world:changed', async () => {
+    const a = await signupAs(t, '기숙', { approve: true });
+    expect(MeSchema.parse((await req('GET', API.me, a.cookie)).json()).dorm).toBe(false);
+    const changed = countWorldChanged(t);
+    const res = await req('PATCH', API.me, a.cookie, { dorm: true });
+    expect(MeSchema.parse(res.json()).dorm).toBe(true);
+    expect(changed()).toBe(1);
+    const world = WorldResponseSchema.parse((await req('GET', API.world, a.cookie)).json());
+    expect(world.members.find((m) => m.id === a.id)?.dorm).toBe(true);
   });
 
   it('잘못된 생김새는 400', async () => {

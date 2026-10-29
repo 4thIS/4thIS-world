@@ -5,6 +5,9 @@ import { KIND_INFO, type Kind, type ScheduleItem } from '../schema/schedule';
 import { toMinutes } from '../time';
 import {
   ARRIVE_EARLY_MIN,
+  DORM_SLOT_MIN,
+  SLEEP_START_MIN,
+  WAKE_MIN,
   LUNCH_END_MIN,
   LUNCH_MAX_MIN,
   LUNCH_START_MIN,
@@ -19,6 +22,10 @@ export type Activity =
   | { kind: 'lunch' }
   | { kind: 'cafe' }
   | { kind: 'park' }
+  /** 기숙사 1층 휴게실 */
+  | { kind: 'lounge' }
+  /** 기숙사 침대에서 자기. bed는 기숙사생 사이의 침대 번호 */
+  | { kind: 'sleep'; bed: number }
   /** 다음 장소 입구(건물 문 노드 또는 정문 노드) 앞에서 서서 기다린다 */
   | { kind: 'wait'; node: NodeId }
   | { kind: 'away'; title: string }
@@ -46,13 +53,23 @@ export function freeChoice(memberId: string, date: string): 'park' | 'cafe' {
   return mix32(hashString(memberId + date)) % 2 === 0 ? 'park' : 'cafe';
 }
 
-/** 빈 시간 [g0, g1)을 조각으로 나눈다 (§7.2-5). waitNode는 다음 장소의 입구 */
+/** 기숙사생의 자유 시간 장소. DORM_SLOT_MIN 칸(slot)마다 휴게실·공원·카페 중 하나 */
+export function dormFree(memberId: string, date: string, slot: number): 'lounge' | 'park' | 'cafe' {
+  const options = ['lounge', 'park', 'cafe'] as const;
+  return options[mix32(hashString(`${memberId}|${date}|${slot}`)) % options.length]!;
+}
+
+/**
+ * 빈 시간 [g0, g1)을 조각으로 나눈다 (§7.2-5). waitNode는 다음 장소의 입구.
+ * dorm이면 자유 시간을 DORM_SLOT_MIN 칸마다 휴게실·공원·카페로 나눈다.
+ */
 export function gapBlocks(
   memberId: string,
   date: string,
   g0: number,
   g1: number,
   waitNode: NodeId,
+  dorm = false,
 ): Block[] {
   if (g1 <= g0) return [];
   if (g1 - g0 < SHORT_GAP_MIN)
@@ -60,14 +77,26 @@ export function gapBlocks(
 
   const free: Activity = { kind: freeChoice(memberId, date) };
   const pieces: Block[] = [];
+  const pushFree = (a: number, b: number) => {
+    if (!dorm) {
+      pieces.push({ from: a, to: b, activity: free });
+      return;
+    }
+    for (let s = a; s < b;) {
+      const slot = Math.floor(s / DORM_SLOT_MIN);
+      const e = Math.min(b, (slot + 1) * DORM_SLOT_MIN);
+      pieces.push({ from: s, to: e, activity: { kind: dormFree(memberId, date, slot) } });
+      s = e;
+    }
+  };
   const ls = Math.max(g0, LUNCH_START_MIN);
   const le = Math.min(g1, LUNCH_END_MIN, ls + LUNCH_MAX_MIN);
   if (le > ls) {
-    if (ls > g0) pieces.push({ from: g0, to: ls, activity: free });
+    if (ls > g0) pushFree(g0, ls);
     pieces.push({ from: ls, to: le, activity: { kind: 'lunch' } });
-    if (g1 > le) pieces.push({ from: le, to: g1, activity: free });
+    if (g1 > le) pushFree(le, g1);
   } else {
-    pieces.push({ from: g0, to: g1, activity: free });
+    pushFree(g0, g1);
   }
 
   // 10분 미만 조각은 바로 앞 조각에 붙인다 (첫 조각이면 뒤 조각에)
@@ -171,5 +200,53 @@ export function planBlocks(
   }
   blocks.push({ from: leave, to: leave, activity: { kind: 'home' } });
   blocks.push(...externals.filter((e) => e.from >= leave).map(awayBlock));
+  return blocks;
+}
+
+/**
+ * 기숙사생의 하루. 밤(SLEEP_START_MIN~WAKE_MIN)엔 자기 침대에서 자고, 정문 대신 기숙사에서
+ * 나와 일정을 소화한다. 일정 없는 낮 시간은 휴게실·공원·카페(dormFree)와 점심.
+ * 외부 일정은 정문으로 나간다. bed는 기숙사생 사이의 침대 번호.
+ */
+export function planDormBlocks(
+  memberId: string,
+  date: string,
+  dayItems: readonly ScheduleItem[],
+  campus: Campus,
+  bed: number,
+): Block[] {
+  const items = mergeContiguous(
+    dayItems
+      .map((i) => ({
+        from: toMinutes(i.start),
+        to: toMinutes(i.end),
+        kind: i.kind,
+        title: i.title,
+      }))
+      .sort((a, b) => a.from - b.from),
+  );
+  const sleep: Activity = { kind: 'sleep', bed };
+  const dormDoor = campus.buildings.dorm.doorNode;
+  const waitNodeFor = (item: Item): NodeId =>
+    item.kind === 'external'
+      ? campus.gateNode
+      : campus.buildings[campus.places[KIND_INFO[item.kind].place!].building].doorNode;
+
+  const blocks: Block[] = [];
+  // 일정이 7시 전에 있으면 그 5분 전까지만 잔다
+  const first = items[0];
+  const wake = first ? Math.max(0, Math.min(WAKE_MIN, first.from - ARRIVE_EARLY_MIN)) : WAKE_MIN;
+  if (wake > 0) blocks.push({ from: 0, to: wake, activity: sleep });
+
+  let cursor = wake;
+  for (const item of items) {
+    if (item.to <= cursor) continue;
+    blocks.push(...gapBlocks(memberId, date, cursor, item.from, waitNodeFor(item), true));
+    blocks.push(item.kind === 'external' ? awayBlock(item) : classBlock(item));
+    cursor = item.to;
+  }
+  const night = Math.max(cursor, SLEEP_START_MIN);
+  blocks.push(...gapBlocks(memberId, date, cursor, night, dormDoor, true));
+  if (night < 24 * 60) blocks.push({ from: night, to: 24 * 60, activity: sleep });
   return blocks;
 }

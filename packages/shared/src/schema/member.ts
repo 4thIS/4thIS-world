@@ -20,6 +20,8 @@ export const PublicMemberSchema = z.object({
   username: z.string(),
   look: LookSchema,
   schedules: z.array(ScheduleItemSchema),
+  /** 기숙사생이면 정문 대신 기숙사에서 등하교하고 밤엔 기숙사에서 잔다. 없으면 false */
+  dorm: z.boolean().optional(),
 });
 export type PublicMember = z.infer<typeof PublicMemberSchema>;
 
@@ -29,6 +31,8 @@ export const MeSchema = z.object({
   username: z.string(),
   status: z.enum(MEMBER_STATUSES),
   look: LookSchema,
+  /** 기숙사생인가 (예전 서버 응답에는 없다) */
+  dorm: z.boolean().optional(),
 });
 export type Me = z.infer<typeof MeSchema>;
 

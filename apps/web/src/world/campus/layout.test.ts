@@ -58,8 +58,8 @@ describe('pondCircle', () => {
 });
 
 describe('pathSegments', () => {
-  it('간선마다 길 하나 + 건물 4개 문 + 정문 밖', () => {
-    expect(segs).toHaveLength(CAMPUS.graph.edges.length + 4 + 1);
+  it('간선마다 길 하나 + 건물마다 문 + 정문 밖', () => {
+    expect(segs).toHaveLength(CAMPUS.graph.edges.length + Object.keys(CAMPUS.buildings).length + 1);
   });
 
   it('모든 그래프 노드는 길 위에 있다', () => {

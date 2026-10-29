@@ -28,7 +28,9 @@ describe('openDb', () => {
     const path = join(dir, 'nested', 'world.db');
     const db = openDb(path);
     expect(db.pragma('journal_mode', { simple: true })).toBe('wal');
-    db.prepare("INSERT INTO members VALUES ('m1', '철수', 'h', 'pending', '{}', 1)").run();
+    db.prepare(
+      "INSERT INTO members (id, username, password_hash, status, look, created_at) VALUES ('m1', '철수', 'h', 'pending', '{}', 1)",
+    ).run();
     db.close();
 
     const again = openDb(path);
@@ -38,7 +40,9 @@ describe('openDb', () => {
 
   it('멤버를 지우면 시간표와 세션도 지워진다', () => {
     const db = openDb(':memory:');
-    db.prepare("INSERT INTO members VALUES ('m1', '철수', 'h', 'approved', '{}', 1)").run();
+    db.prepare(
+      "INSERT INTO members (id, username, password_hash, status, look, created_at) VALUES ('m1', '철수', 'h', 'approved', '{}', 1)",
+    ).run();
     db.prepare(
       "INSERT INTO schedules VALUES ('s1', 'm1', 0, '09:00', '10:00', 'lecture1', NULL)",
     ).run();
@@ -51,9 +55,15 @@ describe('openDb', () => {
 
   it('아이디는 대소문자를 가리지 않고 중복을 막는다', () => {
     const db = openDb(':memory:');
-    db.prepare("INSERT INTO members VALUES ('m1', 'Kim', 'h', 'pending', '{}', 1)").run();
+    db.prepare(
+      "INSERT INTO members (id, username, password_hash, status, look, created_at) VALUES ('m1', 'Kim', 'h', 'pending', '{}', 1)",
+    ).run();
     expect(() =>
-      db.prepare("INSERT INTO members VALUES ('m2', 'kim', 'h', 'pending', '{}', 1)").run(),
+      db
+        .prepare(
+          "INSERT INTO members (id, username, password_hash, status, look, created_at) VALUES ('m2', 'kim', 'h', 'pending', '{}', 1)",
+        )
+        .run(),
     ).toThrow(/UNIQUE/);
     db.close();
   });

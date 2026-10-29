@@ -9,6 +9,7 @@ import {
   SITTING_POSES,
   tailSwing,
   withStretch,
+  BED_HEIGHT,
 } from './poses';
 
 describe('poseFrame', () => {
@@ -46,6 +47,16 @@ describe('poseFrame', () => {
     const f = poseFrame('walk', 0.2, 0);
     expect(Math.sign(f.feet[0].z - 0.08)).toBe(-Math.sign(f.feet[1].z - 0.08));
     expect(Math.sign(f.arms[0].swing)).toBe(-Math.sign(f.arms[1].swing));
+  });
+
+  it('자기는 침대 위에 등을 대고 누워 숨 쉬듯 살짝 오르내린다', () => {
+    const a = poseFrame('sleep', 0, 0);
+    const b = poseFrame('sleep', 1, 0);
+    expect(a.bodyPitch).toBeCloseTo(-Math.PI / 2);
+    // 몸통 아래가 침대 매트리스 위에 온다
+    expect((a.bodyY - 0.42) * CHARACTER_SCALE).toBeGreaterThan(BED_HEIGHT - 0.05);
+    expect(a.bodyY).not.toBe(b.bodyY);
+    expect(a.prop).toBeNull();
   });
 
   it('포즈마다 맞는 소품을 든다', () => {

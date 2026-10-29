@@ -9,6 +9,12 @@ export const CHARACTER_SCALE = 0.62;
 /** 의자·벤치 앉는 면 높이(m). 가구(hm)도 이 높이에 맞춘다 */
 export const SEAT_HEIGHT = 0.45;
 
+/** 침대 매트리스 윗면 높이(m). 기숙사 침대(hm)도 이 높이에 맞춘다 */
+export const BED_HEIGHT = 0.5;
+
+/** 누운 몸통의 높이(몸 단위): 몸통 반지름만큼 매트리스 위로 올린다 */
+const LIE_LIFT = BED_HEIGHT / CHARACTER_SCALE + 0.44;
+
 /** 몸통 아래 끝(몸 단위). 앉을 때 이 점이 SEAT_HEIGHT에 오도록 몸을 올린다 */
 const TORSO_BOTTOM = 0.15;
 
@@ -165,6 +171,19 @@ export function poseFrame(pose: PoseKind, t: number, phase: number): PoseFrame {
       f.bodyPitch = -0.08;
       f.headRoll = Math.sin(p * 0.7) * 0.08;
       f.arms = [arm(-0.3, 0.7), arm(-0.3, 0.7)];
+      return f;
+    }
+    case 'sleep': {
+      // 등을 대고 눕는다: 몸을 뒤로 90도 젖혀 머리는 뒤(-z), 발은 앞(facing)으로. 숨 쉬듯 오르내린다
+      const f = standing();
+      f.bodyY = LIE_LIFT + Math.sin(p * 1.2) * 0.02;
+      f.bodyPitch = -Math.PI / 2;
+      f.headRoll = 0.25 + Math.sin(p * 0.4) * 0.05;
+      f.arms = [arm(0, 0.2), arm(0, 0.2)];
+      f.feet = [
+        { y: BED_HEIGHT / CHARACTER_SCALE + 0.1, z: 0.3 },
+        { y: BED_HEIGHT / CHARACTER_SCALE + 0.1, z: 0.3 },
+      ];
       return f;
     }
   }
