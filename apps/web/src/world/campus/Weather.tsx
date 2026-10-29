@@ -121,8 +121,8 @@ export function Weather({
   weather: WeatherNow | null;
   hidden: (id: BuildingId) => number | null;
 }) {
-  const rainGeo = useMemo(() => new BoxGeometry(0.02, 0.45, 0.02), []);
-  const snowGeo = useMemo(() => new IcosahedronGeometry(0.06, 0), []);
+  const rainGeo = useMemo(() => new BoxGeometry(0.035, 0.6, 0.035), []);
+  const snowGeo = useMemo(() => new IcosahedronGeometry(0.08, 0), []);
   useEffect(
     () => () => {
       rainGeo.dispose();
@@ -141,8 +141,8 @@ export function Weather({
           count={count}
           geometry={rainGeo}
           speed={RAIN_SPEED}
-          color="#c9dcf5"
-          opacity={0.55}
+          color="#9fbde6"
+          opacity={0.7}
           drift={false}
         />
       )}
