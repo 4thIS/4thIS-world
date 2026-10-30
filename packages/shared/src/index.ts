@@ -9,6 +9,7 @@ export * from './schema/socket';
 export * from './schema/weather';
 export * from './schema/chat';
 export * from './schema/motion';
+export * from './schema/shot';
 export * from './campus/types';
 export * from './campus/data';
 export * from './campus/validate';

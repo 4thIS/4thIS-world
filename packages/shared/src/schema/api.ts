@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FeaturesSchema } from './shot';
 import { LookSchema } from './look';
 import { AdminMemberSchema, PasswordSchema, PublicMemberSchema, UsernameSchema } from './member';
 import { ScheduleItemSchema, ScheduleListSchema } from './schedule';
@@ -22,6 +23,8 @@ export const API = {
   adminSchedules: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/schedules`,
   adminBackup: '/api/admin/backup',
   adminLook: '/api/admin/look',
+  /** 관리자: 기능 켜기·끄기 (장난감 쏘기) */
+  adminFeatures: '/api/admin/features',
   weather: '/api/weather',
 } as const;
 
@@ -53,6 +56,8 @@ export const WorldResponseSchema = z.object({
   members: z.array(PublicMemberSchema),
   /** 관리자 캐릭터 (사이트에 하나, 24시간 광장 중앙). 서버는 항상 보낸다 */
   admin: z.object({ look: LookSchema }).optional(),
+  /** 관리자가 켜고 끄는 기능. 없으면 기본값(DEFAULT_FEATURES) */
+  features: FeaturesSchema.optional(),
 });
 export type WorldResponse = z.infer<typeof WorldResponseSchema>;
 
