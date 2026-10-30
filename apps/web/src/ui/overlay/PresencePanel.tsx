@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ADMIN_ID } from '@4this/shared';
 import { AnimalFace } from '../common/AnimalFace';
 import type { PresencePanelProps } from '../contracts';
 
@@ -14,6 +15,7 @@ export function PresencePanel({
   collapsed,
   onToggle,
   onSelect,
+  onSchedule,
 }: PresencePanelProps) {
   const [offlineOpen, setOfflineOpen] = useState(true);
   return (
@@ -45,6 +47,7 @@ export function PresencePanel({
                     {e.controlling ? '🎮 조종' : e.status}
                   </span>
                 </button>
+                <ScheduleButton id={e.id} username={e.username} onSchedule={onSchedule} />
               </li>
             ))}
           </ul>
@@ -76,6 +79,7 @@ export function PresencePanel({
                         </span>
                         <span className="ov-presence__status">{e.status}</span>
                       </button>
+                      <ScheduleButton id={e.id} username={e.username} onSchedule={onSchedule} />
                     </li>
                   ))}
                 </ul>
@@ -85,5 +89,29 @@ export function PresencePanel({
         </>
       )}
     </aside>
+  );
+}
+
+/** 줄 오른쪽 📅: 그 사람 시간표 보기. 로그인하지 않았거나 관리자 캐릭터면 없다 */
+function ScheduleButton({
+  id,
+  username,
+  onSchedule,
+}: {
+  id: string;
+  username: string;
+  onSchedule?: PresencePanelProps['onSchedule'];
+}) {
+  if (!onSchedule || id === ADMIN_ID) return null;
+  return (
+    <button
+      type="button"
+      className="ov-presence__sched"
+      aria-label={`${username} 시간표`}
+      title={`${username} 시간표`}
+      onClick={() => onSchedule(id, username)}
+    >
+      📅
+    </button>
   );
 }

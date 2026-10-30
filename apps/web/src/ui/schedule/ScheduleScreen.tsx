@@ -5,11 +5,12 @@ import { useSession } from '../../store/session';
 import { Modal } from '../common/Modal';
 import { MOBILE_QUERY, useMediaQuery } from '../common/useMediaQuery';
 import { errorMessage } from '../errors';
-import { useUi } from '../store';
+import { useUi, type ScheduleOwner } from '../store';
 import { BlockEditor } from './BlockEditor';
 import { cleanItems, overlapping } from './grid';
 import { KindLegend } from './KindLegend';
 import { ScheduleListEditor } from './ScheduleListEditor';
+import { ScheduleViewer } from './ScheduleViewer';
 import { WeekGrid } from './WeekGrid';
 import './schedule.css';
 
@@ -19,8 +20,30 @@ const NEW_KIND: Kind = 'lecture1';
 type Status =
   { kind: 'loading' } | { kind: 'ready' } | { kind: 'saved' } | { kind: 'error'; message: string };
 
-/** 내 시간표 편집 (설계 문서 §7.1, §9). 데스크톱은 주간 격자, 모바일은 목록 + 폼 */
+/**
+ * 시간표 화면 (설계 문서 §7.1, §9). 데스크톱은 주간 격자, 모바일은 목록 + 폼.
+ * 내 시간표는 고치고, 다른 사람 시간표는 멤버는 보기만(ScheduleViewer), 관리자는 고칠 수 있다.
+ */
 export function ScheduleScreen() {
+  const session = useSession((s) => s.session);
+  const scheduleOf = useUi((s) => s.scheduleOf);
+  const myId = session.kind === 'member' ? session.me.id : null;
+  const other = scheduleOf && scheduleOf.id !== myId ? scheduleOf : null;
+  const close = useUi((s) => s.close);
+
+  if (other && session.kind === 'member') return <ScheduleViewer owner={other} />;
+  if (other && session.kind !== 'admin') {
+    return (
+      <Modal title={`${other.username}의 시간표`} onClose={close}>
+        <p className="ui-note">로그인하면 다른 사람 시간표를 볼 수 있어요.</p>
+      </Modal>
+    );
+  }
+  return <ScheduleEditor owner={other} />;
+}
+
+/** 시간표 고치기. owner가 있으면 관리자가 그 사람 시간표를 고친다 */
+function ScheduleEditor({ owner }: { owner: ScheduleOwner | null }) {
   const session = useSession((s) => s.session);
   const { onboarding, close } = useUi();
   const mobile = useMediaQuery(MOBILE_QUERY);
@@ -36,12 +59,13 @@ export function ScheduleScreen() {
   const [loaded, setLoaded] = useState(false);
   const overlaps = useMemo(() => overlapping(items), [items]);
   const isMember = session.kind === 'member';
+  const canEdit = owner ? session.kind === 'admin' : isMember;
+  const ownerId = owner?.id ?? null;
 
   useEffect(() => {
-    if (!isMember) return;
+    if (!canEdit) return;
     let alive = true;
-    api
-      .mySchedules()
+    (ownerId ? api.adminSchedules(ownerId) : api.mySchedules())
       .then((res) => {
         if (!alive) return;
         setItems(res.items);
@@ -54,9 +78,9 @@ export function ScheduleScreen() {
     return () => {
       alive = false;
     };
-  }, [isMember]);
+  }, [canEdit, ownerId]);
 
-  if (!isMember) {
+  if (!canEdit) {
     return (
       <Modal title="내 시간표" onClose={close}>
         <p className="ui-note">로그인한 멤버만 시간표를 만들 수 있어요.</p>
@@ -73,7 +97,8 @@ export function ScheduleScreen() {
   const save = async () => {
     setBusy(true);
     try {
-      const res = await api.putMySchedules({ items: cleanItems(items) });
+      const body = { items: cleanItems(items) };
+      const res = await (ownerId ? api.putAdminSchedules(ownerId, body) : api.putMySchedules(body));
       setItems(res.items);
       setSaveCount((n) => n + 1);
       setSelected(null);
@@ -87,7 +112,7 @@ export function ScheduleScreen() {
   };
 
   return (
-    <Modal title="내 시간표" onClose={close} wide>
+    <Modal title={owner ? `${owner.username}의 시간표 (관리자)` : '내 시간표'} onClose={close} wide>
       <div className="ui-form">
         {onboarding && (
           <p className="ui-note">마지막 단계예요! 매주 반복되는 일정을 넣어 주세요.</p>

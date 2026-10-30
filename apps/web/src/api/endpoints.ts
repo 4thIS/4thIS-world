@@ -34,6 +34,10 @@ export const api = {
   mySchedules: () => request('GET', API.mySchedules, SchedulesResponseSchema),
   putMySchedules: (body: PutSchedulesRequest) =>
     request('PUT', API.mySchedules, SchedulesResponseSchema, body),
+  /** 관리자: 다른 사람 시간표 */
+  adminSchedules: (id: string) => request('GET', API.adminSchedules(id), SchedulesResponseSchema),
+  putAdminSchedules: (id: string, body: PutSchedulesRequest) =>
+    request('PUT', API.adminSchedules(id), SchedulesResponseSchema, body),
   adminMembers: () => request('GET', API.adminMembers, AdminMembersResponseSchema),
   adminApprove: (id: string) => request('POST', API.adminApprove(id), AdminMemberSchema),
   adminReject: (id: string) => request('POST', API.adminReject(id), AdminMemberSchema),
