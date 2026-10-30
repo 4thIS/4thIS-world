@@ -25,18 +25,24 @@ export interface CharacterColors {
 
 const hex = (c: Color) => `#${c.getHexString()}`;
 
+/** 주둥이가 흰 동물, 코·귀 안쪽이 분홍인 동물 */
+const WHITE_MUZZLE = new Set<CharacterLook['animal']>(['cat', 'panda', 'fox']);
+const PINK_NOSE = new Set<CharacterLook['animal']>(['cat', 'rabbit']);
+
 /** 생김새 → 부위별 색 (프로토타입 makeCharacter의 색 규칙) */
 export function characterColors(look: CharacterLook): CharacterColors {
   const fur = resolveColor(look.animal, look.color);
   return {
     fur,
     dark: hex(new Color(fur).multiplyScalar(0.82)),
-    muzzle: look.animal === 'cat' ? '#fffaf4' : hex(new Color(fur).lerp(new Color('#ffffff'), 0.5)),
+    muzzle: WHITE_MUZZLE.has(look.animal)
+      ? '#fffaf4'
+      : hex(new Color(fur).lerp(new Color('#ffffff'), 0.5)),
     belly: '#fffaf4',
     ink: '#4a3a45',
-    nose: look.animal === 'cat' ? '#ff9fb6' : '#4a3a45',
+    nose: PINK_NOSE.has(look.animal) ? '#ff9fb6' : '#4a3a45',
     cheek: '#ffb3c7',
-    innerEar: look.animal === 'cat' ? '#ffc4d3' : '#f7d9c4',
+    innerEar: PINK_NOSE.has(look.animal) ? '#ffc4d3' : '#f7d9c4',
     beak: '#ffb37a',
     mane: '#e8a35f',
   };

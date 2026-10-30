@@ -6,6 +6,10 @@ export const ANIMAL_LABELS: Record<Animal | 'lion', string> = {
   cat: '고양이',
   bear: '곰',
   duck: '오리',
+  rabbit: '토끼',
+  panda: '판다',
+  fox: '여우',
+  penguin: '펭귄',
   lion: '사자',
 };
 
@@ -14,6 +18,10 @@ export const ANIMAL_EMOJI: Record<Animal | 'lion', string> = {
   cat: '🐱',
   bear: '🐻',
   duck: '🦆',
+  rabbit: '🐰',
+  panda: '🐼',
+  fox: '🦊',
+  penguin: '🐧',
   lion: '🦁',
 };
 
@@ -35,18 +43,26 @@ export const HEAD_LABELS: Record<(typeof HEADS)[number], string> = {
   beanie: '비니',
   ribbon: '리본',
   cap: '모자',
+  crown: '왕관',
+  flowerPin: '꽃핀',
+  gradCap: '학사모',
+  headphones: '헤드폰',
 };
 
 export const EYES_LABELS: Record<(typeof EYES)[number], string> = {
   none: '없음',
   glasses: '안경',
   sunglasses: '선글라스',
+  goggles: '고글',
 };
 
 export const NECK_LABELS: Record<(typeof NECKS)[number], string> = {
   none: '없음',
   scarf: '목도리',
   bowtie: '나비넥타이',
+  necktie: '넥타이',
+  cape: '망토',
+  backpack: '가방',
 };
 
 export const POSE_LABELS: Record<PoseKind, string> = {

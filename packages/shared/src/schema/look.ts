@@ -1,11 +1,21 @@
 import { z } from 'zod';
 
-export const ANIMALS = ['dog', 'cat', 'bear', 'duck'] as const;
+export const ANIMALS = ['dog', 'cat', 'bear', 'duck', 'rabbit', 'panda', 'fox', 'penguin'] as const;
 export type Animal = (typeof ANIMALS)[number];
 
-export const HEADS = ['none', 'strawHat', 'beanie', 'ribbon', 'cap'] as const;
-export const EYES = ['none', 'glasses', 'sunglasses'] as const;
-export const NECKS = ['none', 'scarf', 'bowtie'] as const;
+export const HEADS = [
+  'none',
+  'strawHat',
+  'beanie',
+  'ribbon',
+  'cap',
+  'crown',
+  'flowerPin',
+  'gradCap',
+  'headphones',
+] as const;
+export const EYES = ['none', 'glasses', 'sunglasses', 'goggles'] as const;
+export const NECKS = ['none', 'scarf', 'bowtie', 'necktie', 'cape', 'backpack'] as const;
 
 export const PALETTE = {
   pink: '#ffd6e2',
@@ -37,6 +47,10 @@ export const ANIMAL_DEFAULT_COLOR: Record<Animal | 'lion', string> = {
   cat: '#e2dcf3',
   bear: '#e9c7a8',
   duck: '#fff1a8',
+  rabbit: '#f6e2ea',
+  panda: '#fbfaf7',
+  fox: '#f6b27a',
+  penguin: '#8fa3c8',
   lion: '#f5cf8e',
 };
 
