@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SOCKET_LIMITS } from '@4this/shared';
+import { CHAT_HISTORY_MAX, SOCKET_LIMITS } from '@4this/shared';
 import { RealtimeHub } from './realtime-hub';
 
 const move = (x = 1, z = 2, y = 0, floor = 1) => ({ x, z, facing: 0.5, moving: true, y, floor });
@@ -185,6 +185,18 @@ describe('RealtimeHub', () => {
     vi.advanceTimersByTime(1000);
     hub.motion('s1', 'lie', [0, 0]);
     expect(hub.disconnectClearsMotion('s1')).toBe('m1');
+  });
+
+  it('최근 채팅을 100개까지 기억한다 (오래된 것부터)', () => {
+    hub.connect('s1', 'm1');
+    for (let i = 0; i < CHAT_HISTORY_MAX + 5; i++) {
+      hub.chat('s1', `말 ${i}`);
+      vi.advanceTimersByTime(1000);
+    }
+    const history = hub.chatHistory();
+    expect(history).toHaveLength(CHAT_HISTORY_MAX);
+    expect(history[0]!.text).toBe('말 5');
+    expect(history.at(-1)!.text).toBe(`말 ${CHAT_HISTORY_MAX + 4}`);
   });
 
   it('승인 취소되면 구경꾼으로 바뀌고 조종이 풀린다', () => {

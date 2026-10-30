@@ -81,6 +81,8 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     if (!sendPresence()) socket.emit('presence', hub.presence());
     // 누워 있는 사람들을 새로 온 사람에게도 보여 준다
     for (const e of hub.heldMotions()) socket.emit('motion', e);
+    // 최근 채팅 기록 (채팅 로그 창)
+    socket.emit('chat:history', hub.chatHistory());
 
     socket.on('control:start', () => {
       if (hub.startControl(socket.id)) sendPresence();

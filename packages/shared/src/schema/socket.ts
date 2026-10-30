@@ -62,6 +62,8 @@ export interface ServerToClientEvents {
   'world:changed': () => void;
   /** 말풍선 채팅 (기록은 남기지 않는다) */
   chat: (e: ChatEvent) => void;
+  /** 접속하자마자 받는 최근 채팅 (오래된 것부터, 최대 CHAT_HISTORY_MAX개) */
+  'chat:history': (events: ChatEvent[]) => void;
   /** 모션. kind가 null이면 눕기 그만 */
   motion: (e: MotionEvent) => void;
   /** 서버가 받은 날씨가 바뀌었다 → GET /api/weather를 다시 부른다 */
