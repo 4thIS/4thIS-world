@@ -3,6 +3,7 @@ import { kstDate, PasswordSchema, UsernameSchema, type AdminMember } from '@4thi
 import { api } from '../../api/endpoints';
 import { AnimalFace } from '../common/AnimalFace';
 import { errorMessage } from '../errors';
+import { useUi } from '../store';
 
 export const STATUS_LABELS: Record<AdminMember['status'], string> = {
   pending: '승인 대기',
@@ -87,6 +88,17 @@ export function MemberRow({ member, onUpdated, onDeleted }: MemberRowProps) {
       <td className="adm-actions">
         {mode === 'view' ? (
           <div className="ui-row">
+            <button
+              type="button"
+              className="ui-btn ui-btn--small"
+              onClick={() =>
+                useUi
+                  .getState()
+                  .open('schedule', { member: { id: member.id, username: member.username } })
+              }
+            >
+              시간표
+            </button>
             <button type="button" className="ui-btn ui-btn--small" onClick={() => start('rename')}>
               이름 변경
             </button>

@@ -23,6 +23,8 @@ export interface PresencePanelProps {
   collapsed: boolean;
   onToggle: () => void;
   onSelect: (memberId: string) => void;
+  /** 로그인했으면: 그 사람 시간표 보기 (관리자는 고치기). 관리자 캐릭터 줄에는 없다 */
+  onSchedule?: (memberId: string, username: string) => void;
 }
 
 /** EmoteBar: 이모지 8개 버튼 */

@@ -124,6 +124,20 @@ describe('PresencePanel', () => {
     expect(screen.queryByRole('list', { name: '오프라인 멤버' })).toBeNull();
   });
 
+  it('로그인했으면 줄마다 📅로 그 사람 시간표를 연다 (관리자 캐릭터 줄은 없다)', () => {
+    const onSchedule = vi.fn();
+    const withAdmin = [...ENTRIES, { ...ENTRIES[1]!, id: 'admin', username: '관리자' }];
+    render(<PresencePanel {...props} entries={withAdmin} onSchedule={onSchedule} />);
+    fireEvent.click(screen.getByRole('button', { name: '지우 시간표' }));
+    expect(onSchedule).toHaveBeenCalledWith('m2', '지우');
+    expect(screen.queryByRole('button', { name: '관리자 시간표' })).toBeNull();
+  });
+
+  it('로그인하지 않았으면 📅가 없다', () => {
+    render(<PresencePanel {...props} />);
+    expect(screen.queryByRole('button', { name: /시간표$/ })).toBeNull();
+  });
+
   it('오프라인 멤버가 없으면 그 칸을 그리지 않는다', () => {
     render(<PresencePanel {...props} />);
     expect(screen.queryByRole('button', { name: /오프라인/ })).toBeNull();

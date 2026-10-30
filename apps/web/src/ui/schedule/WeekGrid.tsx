@@ -28,6 +28,8 @@ interface WeekGridProps {
   onCreated?: (index: number) => void;
   /** 블록을 끌지 않고 눌렀을 때 (일정 창을 띄운다) */
   onOpen?: (index: number) => void;
+  /** 다른 사람 시간표 보기: 끌기·누르기를 받지 않는다 */
+  readOnly?: boolean;
 }
 
 const HOURS = Array.from({ length: SLOT_COUNT / 2 }, (_, i) => i * 2);
@@ -46,6 +48,7 @@ export function WeekGrid({
   onSelect,
   onCreated,
   onOpen,
+  readOnly = false,
 }: WeekGridProps) {
   const body = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -127,10 +130,10 @@ export function WeekGrid({
           className="sch-grid__body"
           data-testid="week-grid"
           style={{ height: SLOT_COUNT * ROW_PX }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerDown={readOnly ? undefined : onPointerDown}
+          onPointerMove={readOnly ? undefined : onPointerMove}
+          onPointerUp={readOnly ? undefined : onPointerUp}
+          onPointerCancel={readOnly ? undefined : onPointerUp}
         >
           {shown.map((item, i) => (
             <Block

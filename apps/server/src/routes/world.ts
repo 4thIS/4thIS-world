@@ -15,7 +15,8 @@ export function registerWorldRoutes(app: FastifyInstance): void {
       username: row.username,
       look: parseLook(row),
       schedules: schedules.get(row.id) ?? [],
-      dorm: row.dorm === 1,
+      // 모두 기숙사에 산다 (2026-10-30 팀장 결정). DB의 dorm 칸은 쓰지 않는다
+      dorm: true,
     }));
     return { serverTime: Date.now(), members, admin: { look: getAdminLook(db) } };
   });

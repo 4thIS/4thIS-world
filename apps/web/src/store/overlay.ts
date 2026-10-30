@@ -12,6 +12,7 @@ function hhmm(at: number): string {
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 import { myMemberId, useRealtime } from './realtime';
+import { useUi } from '../ui/store';
 import { useSession } from './session';
 import { weatherIcon, weatherLabel } from '../world/campus/weatherSky';
 import { useSound } from './sound';
@@ -56,8 +57,9 @@ export function useOverlayProps(): OverlayProps {
       toggleChatLog: s.toggleChatLog,
     })),
   );
-  useSession((s) => s.session); // 로그인 상태가 바뀌면 다시 렌더
+  const session = useSession((s) => s.session); // 로그인 상태가 바뀌면 다시 렌더
   const me = myMemberId();
+  const signedIn = session.kind === 'admin' || session.kind === 'member';
   const online = rt.connection === 'connected';
 
   let building: BuildingPanelProps | null = null;
@@ -126,6 +128,10 @@ export function useOverlayProps(): OverlayProps {
       collapsed: rt.presenceCollapsed,
       onToggle: rt.togglePresence,
       onSelect: (id) => focusMember(id),
+      // 로그인한 사람만 다른 사람 시간표를 본다 (관리자는 고친다)
+      onSchedule: signedIn
+        ? (id, username) => useUi.getState().open('schedule', { member: { id, username } })
+        : undefined,
     },
     emoteBar: { disabled: !online || !me, onEmote: rt.sendEmote },
     chat: { disabled: !online || !me, onSend: useRealtime.getState().sendChat },

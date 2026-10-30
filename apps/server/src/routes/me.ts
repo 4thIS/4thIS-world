@@ -15,7 +15,7 @@ import { deleteMember, toMe, updateMember, type MemberRow } from '../members';
 import { listSchedules, replaceSchedules } from '../schedules';
 
 /** 겹치는 시간표면 409 overlap. detail = { indices: [앞, 뒤], items: [앞 일정, 뒤 일정] } */
-function assertNoOverlap(body: unknown): void {
+export function assertNoOverlap(body: unknown): void {
   const items = (body as { items?: unknown } | null)?.items;
   const list = ScheduleItemSchema.array().safeParse(items);
   if (!list.success) return;
@@ -48,16 +48,12 @@ export function registerMeRoutes(app: FastifyInstance): void {
       }
       passwordHash = await hashPassword(body.password.next);
     }
-    const updated = updateMember(db, member.id, {
-      look: body.look,
-      dorm: body.dorm,
-      passwordHash,
-    })!;
+    const updated = updateMember(db, member.id, { look: body.look, passwordHash })!;
     if (passwordHash && request.auth.kind === 'member') {
       // 다른 기기의 세션은 끊고 지금 세션만 남긴다
       deleteMemberSessions(db, member.id, request.auth.sessionId);
     }
-    if (body.look || body.dorm !== undefined) changed(updated);
+    if (body.look) changed(updated);
     return toMe(updated);
   });
 
