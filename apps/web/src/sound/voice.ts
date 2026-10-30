@@ -120,7 +120,16 @@ export interface Voice {
 }
 
 /** 동물마다 높이(높고 귀엽게): 오리가 가장 높고 곰이 가장 낮다. 사자 교수님 같은 그 밖의 동물은 낮게 */
-const ANIMAL_RATE: Record<Animal, number> = { duck: 2.6, cat: 2.35, dog: 2.15, bear: 1.75 };
+const ANIMAL_RATE: Record<Animal, number> = {
+  duck: 2.6,
+  penguin: 2.5,
+  rabbit: 2.45,
+  cat: 2.35,
+  fox: 2.25,
+  dog: 2.15,
+  panda: 1.85,
+  bear: 1.75,
+};
 
 /** 동물 목소리에 멤버마다 ±6% */
 export function voiceOf(animal: Animal | string, memberId: string): Voice {

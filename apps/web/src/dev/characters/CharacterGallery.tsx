@@ -171,7 +171,7 @@ export function CharacterGallery() {
       <div style={panel}>
         <b style={{ fontSize: 14 }}>🐾 캐릭터 갤러리</b>
         <p style={{ margin: '4px 0 10px', opacity: 0.75 }}>
-          줄: 강아지·고양이·곰·오리·사자 / 칸: 포즈 9종. 캐릭터를 누르면 ❤️
+          줄: 동물 8종·사자 / 칸: 포즈 9종. 캐릭터를 누르면 ❤️
         </p>
         <ChipRow
           title="색"

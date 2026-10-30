@@ -31,6 +31,10 @@ export const ANIMAL_ICON: Record<Animal | 'lion', string> = {
   cat: '🐱',
   bear: '🐻',
   duck: '🦆',
+  rabbit: '🐰',
+  panda: '🐼',
+  fox: '🦊',
+  penguin: '🐧',
   lion: '🦁',
 };
 
