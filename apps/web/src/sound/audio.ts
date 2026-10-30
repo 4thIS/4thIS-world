@@ -40,7 +40,12 @@ export function speak(syllables: readonly Syllable[], volume: number): void {
   if (ctx.state !== 'running') return;
   const out = ctx.createGain();
   out.gain.value = 0.9 * volume;
-  out.connect(ctx.destination);
+  // 높게 올린 소리의 쨍한 부분을 깎아 둥글게
+  const round = ctx.createBiquadFilter();
+  round.type = 'lowpass';
+  round.frequency.value = 2800;
+  round.Q.value = 0.5;
+  round.connect(out).connect(ctx.destination);
 
   let t = ctx.currentTime + 0.02;
   for (const s of syllables) {
@@ -50,11 +55,12 @@ export function speak(syllables: readonly Syllable[], volume: number): void {
       src.buffer = voice;
       src.playbackRate.value = s.rate;
       // 조각 앞부분(첫소리 + 모음)만 빠르게: 들리는 길이 dur 동안 원래 소리 dur × rate만큼 지나간다
+      // 부드럽게 들어가고 나와서 뚝뚝 끊기지 않게 (둥근 소리)
       env.gain.setValueAtTime(0, t);
-      env.gain.linearRampToValueAtTime(s.gain, t + 0.006);
-      env.gain.setValueAtTime(s.gain, t + s.dur - 0.012);
+      env.gain.linearRampToValueAtTime(s.gain, t + 0.012);
+      env.gain.setValueAtTime(s.gain, t + s.dur - 0.02);
       env.gain.linearRampToValueAtTime(0, t + s.dur);
-      src.connect(env).connect(out);
+      src.connect(env).connect(round);
       src.start(t, s.slot * SLOT_SEC + LEAD_SEC, s.dur * s.rate);
     }
     t += s.dur + 0.008;

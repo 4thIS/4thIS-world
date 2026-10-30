@@ -60,7 +60,10 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       new Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse),
     );
     if (!frustum.containsPoint(p)) return;
-    speak(syllablesOf(latest.text, voice), volumeAt(camera.position.distanceTo(p)));
+    speak(
+      syllablesOf(latest.text, voice),
+      volumeAt(camera.position.distanceTo(p)) * useSound.getState().volume,
+    );
   }, [chats, camera, voice]);
 
   useEffect(() => {

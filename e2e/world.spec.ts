@@ -105,6 +105,7 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
   await page.keyboard.up('w');
 
   // 7) 이모지가 상대에게 보인다
+  await page.getByRole('button', { name: '이모지' }).click();
   await page.getByRole('button', { name: '👋' }).click();
   await expect.poll(() => emoteOf(vpage, me.id)).toBe('👋');
 
@@ -157,6 +158,7 @@ test('관리자 캐릭터: 광장 한가운데 서 있고, 관리자로 로그�
     })
     .toBeGreaterThan(1);
   await page.keyboard.up('w');
+  await page.getByRole('button', { name: '이모지' }).click();
   await page.getByRole('button', { name: '👋' }).click();
   await expect.poll(() => emoteOf(vpage, 'admin')).toBe('👋');
 

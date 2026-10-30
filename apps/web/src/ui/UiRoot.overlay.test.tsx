@@ -54,7 +54,7 @@ describe('UiRoot 오버레이 배치', () => {
     expect(screen.getByRole('region', { name: '본관 정보' })).toBeTruthy();
     expect(screen.getByRole('region', { name: '외부 일정 게시판' })).toBeTruthy();
     expect(screen.getByRole('button', { name: '🎮 조종하기' })).toBeTruthy();
-    expect(screen.getByRole('group', { name: '이모지 반응' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '이모지' })).toBeTruthy();
     expect(screen.getByRole('button', { name: '로그인' })).toBeTruthy();
   });
 
@@ -68,7 +68,7 @@ describe('UiRoot 오버레이 배치', () => {
     });
     render(<UiRoot />);
     expect(screen.queryByRole('button', { name: '🎮 조종하기' })).toBeNull();
-    expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '이모지' })).toBeNull();
     expect(screen.queryByRole('region')).toBeNull();
     expect(screen.queryByRole('status')).toBeNull();
   });

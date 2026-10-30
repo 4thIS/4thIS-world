@@ -34,8 +34,11 @@ export function UiRoot() {
       {overlay.canControl && (
         <div className="ov-bottom">
           <ControlButton {...overlay.control} />
-          <EmoteBar {...overlay.emoteBar} />
-          <ChatInput {...overlay.chat} />
+          {/* 긴 채팅 바 + 오른쪽 이모지 버튼(누르면 위로 펼쳐짐) */}
+          <div className="ov-chatrow">
+            <ChatInput {...overlay.chat} />
+            <EmoteBar {...overlay.emoteBar} />
+          </div>
         </div>
       )}
       <ScreenHost />

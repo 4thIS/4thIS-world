@@ -78,6 +78,9 @@ export interface TopBarProps {
   /** 대사음 켜짐 (🔊/🔈) */
   soundOn?: boolean;
   onToggleSound?: () => void;
+  /** 대사음 크기 0~1 (켜져 있을 때 옆에 막대) */
+  volume?: number;
+  onVolume?: (v: number) => void;
   /** 🏠 처음 시야로 (포커스를 풀고 캠퍼스 전체를 본다) */
   onHome: () => void;
 }
