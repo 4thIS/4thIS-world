@@ -352,6 +352,16 @@
   overflow: hidden;
 }
 
+/* 잡고 좌우로 끌어 돌린다. 세로 스크롤은 그대로 */
+.ui-preview--turn {
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.ui-preview--turn:active {
+  cursor: grabbing;
+}
+
 /* WebGL이 없는 브라우저의 미리보기 */
 .ui-preview--flat {
   display: grid;
