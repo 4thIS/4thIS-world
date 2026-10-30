@@ -1,6 +1,6 @@
 import type { Ref } from 'react';
 import type { Group } from 'three';
-import type { BuildingId, Emoji, Look, PoseKind } from '@4this/shared';
+import type { BuildingId, Emoji, Look, PoseKind, WeatherNow } from '@4this/shared';
 
 /** 사자 교수님 전용 생김새 (학생은 고를 수 없다) */
 export interface LionLook {
@@ -39,6 +39,8 @@ export interface CharacterProps {
   highlight?: boolean;
   /** 0~1, 출입 페이드 */
   opacity?: number;
+  /** 비·눈 올 때 바깥에서 우산을 쓴다 */
+  umbrella?: boolean;
   onClick?: () => void;
   ref?: Ref<Group>;
 }
@@ -56,6 +58,8 @@ export interface CampusProps {
   focusedBuilding: BuildingId | null;
   /** 이 층보다 위층은 숨긴다. null이면 모두 보임 */
   hiddenAboveFloor: number | null;
+  /** 실시간 날씨. 없으면 맑음 */
+  weather?: WeatherNow | null;
   /** 내가 조종해 들어가 있는 건물과 층. 그 건물은 이 층보다 위를 숨긴다 (포커스가 먼저) */
   cutaway?: { building: BuildingId; floor: number } | null;
   onBuildingClick?: (id: BuildingId) => void;

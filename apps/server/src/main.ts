@@ -10,6 +10,7 @@ if (config.sessionSecret.length < 32) {
 const db = openDb(config.dbPath);
 const app = buildApp({ config, db });
 attachRealtime(app);
+app.weather?.start();
 
 let closing = false;
 async function shutdown(signal: string) {

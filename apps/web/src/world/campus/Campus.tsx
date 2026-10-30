@@ -19,6 +19,8 @@ import { Paths } from './Paths';
 import { litFloorsOf } from './nightLights';
 import { Pond } from './Pond';
 import { skyAt } from './sky';
+import { Weather } from './Weather';
+import { snowCover, withWeather } from './weatherSky';
 import { Trees } from './Trees';
 
 /** 4thIS 캠퍼스 전체 (지형·길·자연물·정문·소품·건물·조명) */
@@ -28,6 +30,7 @@ export function Campus({
   focusedBuilding,
   hiddenAboveFloor,
   cutaway = null,
+  weather = null,
   onBuildingClick,
 }: CampusProps) {
   // 층 숨김은 포커스된 건물에 먼저, 아니면 내가 들어가 있는 건물에 적용한다
@@ -35,7 +38,9 @@ export function Campus({
     focusedBuilding === id ? hiddenAboveFloor : cutaway?.building === id ? cutaway.floor : null;
   // 하늘은 1분 단위로만 다시 계산한다
   const minute = Math.floor(kstMinutes(now));
-  const sky = useMemo(() => skyAt(minute), [minute]);
+  const sky = useMemo(() => withWeather(skyAt(minute), weather), [minute, weather]);
+  // 눈이 많이 쌓이면 풀잎은 덮여 안 보인다
+  const grassHidden = snowCover(weather) > 0.6;
   const lit = useMemo(
     () =>
       Object.fromEntries(BUILDING_IDS.map((id) => [id, litFloorsOf(occupiedFloors, id)])) as Record<
@@ -55,9 +60,9 @@ export function Campus({
   return (
     <group>
       <Lights sky={sky} />
-      <Ground />
+      <Ground weather={weather} />
       <Paths />
-      <Grass />
+      {!grassHidden && <Grass />}
       <Trees />
       <Flowers />
       <Pond />
@@ -75,6 +80,7 @@ export function Campus({
       <Building {...common('cafe')} interior={() => <CafeInterior />} />
       <Building {...common('dorm')} interior={(floor) => <DormInterior floor={floor} />} />
       <CafeTerrace />
+      <Weather weather={weather} hidden={hidden} />
     </group>
   );
 }

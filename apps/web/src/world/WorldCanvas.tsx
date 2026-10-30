@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { BuildingId } from '@4this/shared';
 import { useRealtime } from '../store/realtime';
+import { useWeather } from '../store/weather';
 import { useWorld } from '../store/world';
 import { Campus } from './campus/Campus';
 import { BoardHotspot } from './sim/BoardHotspot';
@@ -26,6 +27,7 @@ function WorldScene() {
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
   const focusBuilding = useWorld((s) => s.focusBuilding);
+  const weather = useWeather((s) => s.now);
   // 조종해서 건물 안에 들어가면 그 층 위를 숨겨 안이 보이게 한다 ("eng:2" 같은 문자열로 구독)
   const inside = useRealtime((s) => {
     if (!s.controlling || !s.local) return null;
@@ -45,6 +47,7 @@ function WorldScene() {
         focusedBuilding={focusedBuilding}
         hiddenAboveFloor={hiddenAboveFloor}
         cutaway={cutaway}
+        weather={weather}
         onBuildingClick={focusBuilding}
       />
       <SimMembers />
@@ -77,6 +80,7 @@ export function WorldCanvas({
     installWorldDebug();
     if (!autoLoad) return;
     void useWorld.getState().load();
+    void useWeather.getState().load();
     return useRealtime.getState().connect();
   }, [autoLoad]);
 

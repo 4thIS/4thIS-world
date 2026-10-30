@@ -2,6 +2,7 @@ import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_LOOK } from '@4this/shared';
 import { useOverlayProps } from './overlay';
+import { useWeather } from './weather';
 import { useWorld } from './world';
 
 const WED_1410 = Date.parse('2026-10-21T14:10:00+09:00');
@@ -55,6 +56,18 @@ describe('useOverlayProps (cw#3 범위)', () => {
         isMe: false,
       },
     ]);
+  });
+
+  it('비가 오면 상단 아이콘이 🌧️이고 날씨 설명이 붙는다', () => {
+    useWeather.setState({
+      now: { kind: 'rain', intensity: 0.5, precipitation: 2.1, temperature: 12.4, code: 61 },
+    });
+    const { result } = renderHook(() => useOverlayProps());
+    expect(result.current.topBar).toMatchObject({
+      skyIcon: '🌧️',
+      weatherLabel: '서대문구 · 비 2.1mm · 12°C',
+    });
+    useWeather.setState({ now: null });
   });
 
   it('건물을 누르기 전에는 building이 없다', () => {

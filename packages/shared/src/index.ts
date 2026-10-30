@@ -6,6 +6,7 @@ export * from './schema/schedule';
 export * from './schema/member';
 export * from './schema/api';
 export * from './schema/socket';
+export * from './schema/weather';
 export * from './campus/types';
 export * from './campus/data';
 export * from './campus/validate';

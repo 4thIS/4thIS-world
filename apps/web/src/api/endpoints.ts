@@ -1,4 +1,5 @@
 import {
+  WeatherResponseSchema,
   AdminLookSchema,
   AdminMemberSchema,
   AdminMembersResponseSchema,
@@ -21,6 +22,7 @@ import { request } from './http';
 /** 서버 REST 전부. 화면 코드는 fetch 대신 이것만 쓴다 */
 export const api = {
   world: () => request('GET', API.world, WorldResponseSchema),
+  weather: () => request('GET', API.weather, WeatherResponseSchema),
   session: () => request('GET', API.session, SessionSchema),
   signup: (body: SignupRequest) => request('POST', API.signup, SessionSchema, body),
   login: (body: LoginRequest) => request('POST', API.login, SessionSchema, body),

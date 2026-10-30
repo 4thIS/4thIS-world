@@ -54,6 +54,8 @@ export interface EmoteEvent {
 export interface ServerToClientEvents {
   presence: (p: Presence) => void;
   'world:changed': () => void;
+  /** 서버가 받은 날씨가 바뀌었다 → GET /api/weather를 다시 부른다 */
+  'weather:changed': () => void;
   'control:state': (states: ControlState[]) => void;
   'control:released': (p: { memberId: string }) => void;
   emote: (e: EmoteEvent) => void;

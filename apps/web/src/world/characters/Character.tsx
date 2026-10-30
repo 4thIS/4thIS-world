@@ -14,6 +14,7 @@ import { HighlightRing } from './HighlightRing';
 import { OpacityStepContext, opacityStep, useMat } from './materials';
 import { NameTag } from './NameTag';
 import { ANIMAL_PARTS } from './parts';
+import { Umbrella } from './Umbrella';
 import {
   blinkScale,
   CHARACTER_SCALE,
@@ -41,6 +42,7 @@ export function Character({
   emote = null,
   highlight = false,
   opacity = 1,
+  umbrella = false,
   onClick,
   ref,
 }: CharacterProps) {
@@ -129,6 +131,7 @@ export function Character({
       <OpacityStepContext value={step}>
         <HighlightRing visible={highlight} />
         <group scale={CHARACTER_SCALE}>
+          {umbrella && <Umbrella phase={phase} />}
           <group ref={body}>
             {/* 둥근 몸통 + 배 */}
             <mesh

@@ -10,6 +10,8 @@ export interface ComputeDayInput {
   /** KST 날짜 'YYYY-MM-DD' */
   date: string;
   campus: Campus;
+  /** 오늘 0~23시 각 시간에 비·눈이 오나. 그 시간엔 공원 대신 실내로 간다. 없으면 맑음 */
+  wetHours?: readonly boolean[];
 }
 
 /** 한 시각의 캐릭터 상태. 월드는 이것만 보고 그린다 */

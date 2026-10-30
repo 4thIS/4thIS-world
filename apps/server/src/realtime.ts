@@ -120,10 +120,13 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     io.emit('world:changed');
   };
   app.events.on('world:changed', onWorldChanged);
+  const onWeatherChanged = () => io.emit('weather:changed');
+  app.events.on('weather:changed', onWeatherChanged);
 
   app.addHook('preClose', async () => {
     clearInterval(timer);
     app.events.off('world:changed', onWorldChanged);
+    app.events.off('weather:changed', onWeatherChanged);
     // 소켓에 끊김 패킷을 보내지 않고 전송만 닫는다. 그래야 클라이언트가 자동으로 다시 붙는다 (io server disconnect면 재연결하지 않는다)
     io.engine.close();
   });
