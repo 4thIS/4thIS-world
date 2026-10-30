@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CAMPUS, DEFAULT_LOOK, type Session } from '@4this/shared';
+import { Object3D } from 'three';
 import type { GameSocket } from '../api/socket';
+import { registerMember } from '../world/sim/registry';
 import { resolvePose } from '../world/sim/resolvePose';
 import { CONTROL_STATUS } from '../world/sim/remote';
 import { useRealtime } from './realtime';
@@ -277,5 +279,45 @@ describe('채팅 기록', () => {
     expect(useRealtime.getState()).toMatchObject({ chatLogOpen: true, chatUnread: false });
     sock.serverEmit('chat', event('또'));
     expect(useRealtime.getState().chatUnread).toBe(false);
+  });
+});
+
+describe('장난감 쏘기', () => {
+  it('조종 중이면 보는 방향으로 쏘고, 앞에 있는 캐릭터를 맞힌다', () => {
+    const target = new Object3D();
+    target.position.set(0, 0, 25);
+    registerMember('you', target);
+    useRealtime.getState().startControl(); // 정문(0, 22)에서 남쪽(+z)을 본다
+    useRealtime.setState({
+      local: { x: 0, z: 22, y: 0, floor: 1, facing: 0, moving: false },
+    });
+    expect(useRealtime.getState().sendShot()).toBe(true);
+    expect(sock.sentOf('shot')[0]).toMatchObject({ weapon: 'water', hit: 'you', dist: 3 });
+    registerMember('you', null);
+  });
+
+  it('조종 중이 아니거나 관리자가 껐으면 쏘지 않는다', () => {
+    expect(useRealtime.getState().sendShot()).toBe(false);
+    useRealtime.getState().startControl();
+    useWorld.setState({ features: { shooting: false } });
+    expect(useRealtime.getState().sendShot()).toBe(false);
+    expect(sock.sentOf('shot')).toHaveLength(0);
+  });
+
+  it('받으면 날아가는 동안 그리고, 맞은 캐릭터는 잠깐 반응한다', () => {
+    sock.serverEmit('shot', {
+      memberId: 'me',
+      weapon: 'snow',
+      from: [0, 1, 0],
+      dir: [0, 1],
+      hit: 'you',
+      dist: 5.5,
+      at: NOW,
+    });
+    expect(useRealtime.getState().shots).toHaveLength(1);
+    expect(useRealtime.getState().hits['you']?.weapon).toBe('snow');
+    vi.advanceTimersByTime(3000);
+    expect(useRealtime.getState().shots).toHaveLength(0);
+    expect(useRealtime.getState().hits['you']).toBeUndefined();
   });
 });

@@ -1,4 +1,4 @@
-import type { BoardEntry, BuildingId, Emoji, Look, Motion } from '@4this/shared';
+import type { BoardEntry, BuildingId, Emoji, Look, Motion, Weapon } from '@4this/shared';
 
 /**
  * th가 만드는 표시용 컴포넌트의 props. 스토어·소켓 연결은 cw가 한다.
@@ -52,6 +52,13 @@ export interface ChatLogProps {
   /** 닫혀 있는 동안 새 채팅이 왔다 */
   unread: boolean;
   onToggle: () => void;
+}
+
+/** WeaponBar: 장난감 쏘기 (조종 중·관리자가 켰을 때만) */
+export interface WeaponBarProps {
+  weapon: Weapon;
+  onPick: (weapon: Weapon) => void;
+  onFire: () => void;
 }
 
 /** MotionBar: 모션 버튼 (누르면 위로 8개가 펼쳐진다) */
@@ -121,6 +128,8 @@ export interface OverlayProps {
   emoteBar: EmoteBarProps;
   chat: ChatInputProps;
   motionBar: MotionBarProps;
+  /** 조종 중이고 관리자가 켰을 때만 */
+  weaponBar: WeaponBarProps | null;
   /** 채팅 기록 (구경꾼도 본다) */
   chatLog: ChatLogProps;
   control: ControlButtonProps;

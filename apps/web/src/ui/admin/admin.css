@@ -113,3 +113,18 @@ a.ui-btn {
   color: #c24766;
   font-weight: 600;
 }
+
+/* 기능 켜기·끄기 */
+.adm-feature {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.adm-feature small {
+  color: var(--ink-soft);
+  font-weight: 400;
+}

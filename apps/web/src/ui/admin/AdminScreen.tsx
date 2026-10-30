@@ -6,6 +6,7 @@ import { AnimalFace } from '../common/AnimalFace';
 import { Modal } from '../common/Modal';
 import { errorMessage } from '../errors';
 import { useUi } from '../store';
+import { AdminFeatures } from './AdminFeatures';
 import { AdminLookSection } from './AdminLookSection';
 import { MemberRow } from './MemberRow';
 import './admin.css';
@@ -56,6 +57,7 @@ export function AdminScreen() {
     <Modal title="관리자" onClose={close} wide>
       <div className="ui-form">
         <AdminLookSection />
+        <AdminFeatures />
         <div className="ui-row ui-row--between">
           <h3 className="adm-title">
             승인 대기 <span className="adm-badge">{pending.length}</span>

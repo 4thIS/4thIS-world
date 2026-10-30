@@ -23,6 +23,7 @@ const FULL: OverlayProps = {
   emoteBar: { disabled: false, onEmote: noop },
   chat: { disabled: false, onSend: () => 'sent' as const },
   motionBar: { disabled: false, onMotion: noop },
+  weaponBar: null,
   chatLog: { entries: [], open: false, unread: false, onToggle: noop },
   control: { controlling: false, disabled: false, onStart: noop, onStop: noop },
   connection: { state: 'reconnecting' },

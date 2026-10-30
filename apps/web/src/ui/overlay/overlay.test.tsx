@@ -8,6 +8,7 @@ import { ConnectionBadge } from './ConnectionBadge';
 import { ControlButton } from './ControlButton';
 import { EmoteBar } from './EmoteBar';
 import { MotionBar } from './MotionBar';
+import { WeaponBar } from './WeaponBar';
 import { PresencePanel } from './PresencePanel';
 import { TopBar } from './TopBar';
 
@@ -198,6 +199,19 @@ describe('MotionBar (모션 버튼)', () => {
     render(<MotionBar disabled onMotion={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: '모션' }));
     expect(screen.queryByRole('group', { name: '모션' })).toBeNull();
+  });
+});
+
+describe('WeaponBar (장난감 쏘기)', () => {
+  it('그림을 누르면 그걸로 골라 바로 쏘고, F 키로도 쏜다', () => {
+    const onPick = vi.fn();
+    const onFire = vi.fn();
+    render(<WeaponBar weapon="water" onPick={onPick} onFire={onFire} />);
+    fireEvent.click(screen.getByRole('button', { name: '눈덩이 쏘기' }));
+    expect(onPick).toHaveBeenCalledWith('snow');
+    expect(onFire).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(window, { code: 'KeyF' });
+    expect(onFire).toHaveBeenCalledTimes(2);
   });
 });
 

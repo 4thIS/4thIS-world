@@ -10,6 +10,7 @@ import { BoardHotspot } from './sim/BoardHotspot';
 import { MAX_DISTANCE, MIN_DISTANCE, OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
 import { FocusMarker } from './sim/FocusMarker';
+import { Projectiles } from './sim/Projectiles';
 import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
@@ -56,6 +57,7 @@ function WorldScene() {
       <ControlDriver />
       <CameraRig />
       <FocusMarker />
+      <Projectiles />
     </>
   );
 }

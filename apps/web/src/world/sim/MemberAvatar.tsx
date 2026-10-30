@@ -47,6 +47,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const focusMember = useWorld((s) => s.focusMember);
   const emote = useRealtime((s) => s.emotes[member.id] ?? null);
   const chats = useRealtime((s) => s.chats[member.id]);
+  const hit = useRealtime((s) => s.hits[member.id] ?? null);
   const motion = useRealtime((s) => s.motions[member.id] ?? null);
   /** 눕기 자리를 벗어났으면(시간표대로 걷기 시작 등) 그리지 않는다 */
   const lieValid = useRef(true);
@@ -129,6 +130,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       emote={emote}
       chats={chats}
       motion={motionShown ? motion : null}
+      hit={hit}
       highlight={isMe}
       umbrella={umbrella}
       onClick={() => focusMember(member.id)}

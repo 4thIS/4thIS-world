@@ -9,6 +9,7 @@ import { ConnectionBadge } from './overlay/ConnectionBadge';
 import { ControlButton } from './overlay/ControlButton';
 import { EmoteBar } from './overlay/EmoteBar';
 import { MotionBar } from './overlay/MotionBar';
+import { WeaponBar } from './overlay/WeaponBar';
 import { PresencePanel } from './overlay/PresencePanel';
 import { TopBar } from './overlay/TopBar';
 import { ScreenHost } from './ScreenHost';
@@ -36,6 +37,7 @@ export function UiRoot() {
       {overlay.canControl && (
         <div className="ov-bottom">
           <ControlButton {...overlay.control} />
+          {overlay.weaponBar && <WeaponBar {...overlay.weaponBar} />}
           {/* 긴 채팅 바 + 오른쪽 이모지·모션 버튼(누르면 위로 펼쳐짐) */}
           <div className="ov-chatrow">
             {/* 채팅 기록 삼각형은 채팅 바 바로 오른쪽(입력칸 안 끝)에 */}
