@@ -24,6 +24,10 @@ interface WeekGridProps {
   kind: Kind;
   onChange: (items: ScheduleItem[], selected: number | null) => void;
   onSelect: (index: number | null) => void;
+  /** 빈 칸을 끌어 새 일정을 만들었을 때 (일정 창을 띄운다) */
+  onCreated?: (index: number) => void;
+  /** 블록을 끌지 않고 눌렀을 때 (일정 창을 띄운다) */
+  onOpen?: (index: number) => void;
 }
 
 const HOURS = Array.from({ length: SLOT_COUNT / 2 }, (_, i) => i * 2);
@@ -33,7 +37,16 @@ const HOURS = Array.from({ length: SLOT_COUNT / 2 }, (_, i) => i * 2);
  * 빈 칸을 끌면 만들기, 블록을 끌면 이동(다른 요일 포함), 블록 위·아래 손잡이를 끌면 길이 조절.
  * 계산은 모두 grid.ts의 순수 함수가 한다.
  */
-export function WeekGrid({ items, overlaps, selected, kind, onChange, onSelect }: WeekGridProps) {
+export function WeekGrid({
+  items,
+  overlaps,
+  selected,
+  kind,
+  onChange,
+  onSelect,
+  onCreated,
+  onOpen,
+}: WeekGridProps) {
   const body = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [preview, setPreview] = useState<ScheduleItem | null>(null);
@@ -73,7 +86,16 @@ export function WeekGrid({ items, overlaps, selected, kind, onChange, onSelect }
   const onPointerUp = () => {
     if (drag && preview) {
       const index = drag.mode === 'create' ? items.length : drag.index;
-      onChange(applyDrag(items, drag, preview), index);
+      const tapped =
+        drag.mode === 'move' &&
+        preview.day === drag.origin.day &&
+        preview.start === drag.origin.start &&
+        preview.end === drag.origin.end;
+      if (tapped) onOpen?.(index);
+      else {
+        onChange(applyDrag(items, drag, preview), index);
+        if (drag.mode === 'create') onCreated?.(index);
+      }
     }
     setDrag(null);
     setPreview(null);

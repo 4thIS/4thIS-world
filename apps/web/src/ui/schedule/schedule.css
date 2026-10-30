@@ -187,3 +187,12 @@
   color: var(--ink-soft);
   font-weight: 400;
 }
+
+/* 시간표 창 위에 겹쳐 뜨는 일정 창 */
+.sch-editor__backdrop {
+  z-index: 11;
+}
+
+.sch-editor {
+  width: min(420px, 100%);
+}

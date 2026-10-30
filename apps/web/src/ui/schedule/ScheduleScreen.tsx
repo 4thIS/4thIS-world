@@ -6,6 +6,7 @@ import { Modal } from '../common/Modal';
 import { MOBILE_QUERY, useMediaQuery } from '../common/useMediaQuery';
 import { errorMessage } from '../errors';
 import { useUi } from '../store';
+import { BlockEditor } from './BlockEditor';
 import { DormToggle } from './DormToggle';
 import { cleanItems, overlapping } from './grid';
 import { KindChips } from './KindChips';
@@ -25,6 +26,8 @@ export function ScheduleScreen() {
   const [selected, setSelected] = useState<number | null>(null);
   const [kind, setKind] = useState<Kind>('lecture1');
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
+  /** 겹쳐 뜨는 일정 창: 고치는 일정 번호와 방금 만든 것인지 */
+  const [editing, setEditing] = useState<{ index: number; isNew: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   /** 저장이 끝날 때마다 늘려 목록 편집기를 새로 띄운다: 서버가 정렬해 돌려주면 편집 중 번호가 어긋난다 */
   const [saveCount, setSaveCount] = useState(0);
@@ -113,7 +116,8 @@ export function ScheduleScreen() {
         ) : (
           <>
             <p className="ui-note">
-              빈 칸을 끌어 만들고, 블록을 끌어 옮기고, 위·아래 끝을 끌어 길이를 바꿔요.
+              빈 칸을 끌어 만들고, 블록을 끌어 옮기고, 위·아래 끝을 끌어 길이를 바꿔요. 블록을
+              누르면 제목·시간·종류를 고칠 수 있어요.
             </p>
             <KindChips value={current?.kind ?? kind} onChange={pickKind} />
             <WeekGrid
@@ -123,34 +127,36 @@ export function ScheduleScreen() {
               kind={kind}
               onChange={change}
               onSelect={setSelected}
+              onCreated={(index) => setEditing({ index, isNew: true })}
+              onOpen={(index) => setEditing({ index, isNew: false })}
             />
-            {/* 선택이 없어도 자리를 지켜 모달 높이가 바뀌지 않게 한다 */}
-            <div className="ui-row sch-selected">
-              <label className="ui-field sch-selected__title">
-                제목 (선택, 20자까지)
-                <input
-                  className="ui-input"
-                  maxLength={20}
-                  disabled={!current}
-                  placeholder={current ? '예: 자료구조, 알바' : '블록을 누르면 제목을 쓸 수 있어요'}
-                  value={current?.title ?? ''}
-                  onChange={(e) => updateSelected({ title: e.target.value })}
-                />
-              </label>
-              <button
-                type="button"
-                className="ui-btn"
-                disabled={!current}
-                onClick={() =>
+            {editing && items[editing.index] && (
+              <BlockEditor
+                key={editing.index}
+                item={items[editing.index]!}
+                isNew={editing.isNew}
+                onDone={(item) => {
+                  change(items.map((it, i) => (i === editing.index ? item : it)));
+                  setEditing(null);
+                }}
+                onDelete={() => {
                   change(
-                    items.filter((_, i) => i !== selected),
+                    items.filter((_, i) => i !== editing.index),
                     null,
-                  )
-                }
-              >
-                일정 삭제
-              </button>
-            </div>
+                  );
+                  setEditing(null);
+                }}
+                onCancel={() => {
+                  if (editing.isNew) {
+                    change(
+                      items.filter((_, i) => i !== editing.index),
+                      null,
+                    );
+                  }
+                  setEditing(null);
+                }}
+              />
+            )}
           </>
         )}
         {overlaps.size > 0 && (
