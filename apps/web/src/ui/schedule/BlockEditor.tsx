@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type FormEvent } from 'react';
 import { WEEKDAY_LABELS, type ScheduleItem } from '@4this/shared';
 import { slotToTime, SLOT_COUNT, timeToSlot } from './grid';
 import { KindChips } from './KindChips';
+import { kindPlace } from './kindPlaces';
 
 const BOUNDS = Array.from({ length: SLOT_COUNT + 1 }, (_, i) => i);
 
@@ -115,6 +116,7 @@ export function BlockEditor({ item, isNew, onDone, onDelete, onCancel }: BlockEd
             </label>
           </div>
           <KindChips value={kind} onChange={setKind} />
+          <p className="ui-note sch-editor__place">📍 {kindPlace(kind)}에서 보내요</p>
           <label className="ui-field">
             제목 (선택, 20자까지)
             <input
