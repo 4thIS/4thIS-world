@@ -299,7 +299,7 @@ describe('장난감 쏘기', () => {
   it('조종 중이 아니거나 관리자가 껐으면 쏘지 않는다', () => {
     expect(useRealtime.getState().sendShot()).toBe(false);
     useRealtime.getState().startControl();
-    useWorld.setState({ features: { shooting: false } });
+    useWorld.setState({ features: { weapon: null } });
     expect(useRealtime.getState().sendShot()).toBe(false);
     expect(sock.sentOf('shot')).toHaveLength(0);
   });

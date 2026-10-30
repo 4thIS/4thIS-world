@@ -54,10 +54,9 @@ export interface ChatLogProps {
   onToggle: () => void;
 }
 
-/** WeaponBar: 장난감 쏘기 (조종 중·관리자가 켰을 때만) */
+/** WeaponBar: 장난감 쏘기 (조종 중·관리자가 켰을 때만). 관리자가 고른 하나 */
 export interface WeaponBarProps {
   weapon: Weapon;
-  onPick: (weapon: Weapon) => void;
   onFire: () => void;
 }
 

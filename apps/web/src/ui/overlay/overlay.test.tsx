@@ -203,12 +203,10 @@ describe('MotionBar (모션 버튼)', () => {
 });
 
 describe('WeaponBar (장난감 쏘기)', () => {
-  it('그림을 누르면 그걸로 골라 바로 쏘고, F 키로도 쏜다', () => {
-    const onPick = vi.fn();
+  it('관리자가 켠 장난감 하나를 버튼이나 F 키로 쏜다', () => {
     const onFire = vi.fn();
-    render(<WeaponBar weapon="water" onPick={onPick} onFire={onFire} />);
+    render(<WeaponBar weapon="snow" onFire={onFire} />);
     fireEvent.click(screen.getByRole('button', { name: '눈덩이 쏘기' }));
-    expect(onPick).toHaveBeenCalledWith('snow');
     expect(onFire).toHaveBeenCalledTimes(1);
     fireEvent.keyDown(window, { code: 'KeyF' });
     expect(onFire).toHaveBeenCalledTimes(2);

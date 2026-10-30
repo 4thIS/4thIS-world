@@ -2,7 +2,15 @@ import { create } from 'zustand';
 
 /** 월드 위에 뜨는 화면. 라우터 없이 이 값 하나로 고른다 */
 export type Screen =
-  'intro' | 'guide' | 'login' | 'signup' | 'adminLogin' | 'customize' | 'schedule' | 'admin';
+  | 'intro'
+  | 'guide'
+  | 'login'
+  | 'signup'
+  | 'adminLogin'
+  | 'customize'
+  | 'schedule'
+  | 'admin'
+  | 'adminSettings';
 
 /** 시간표를 볼 사람 */
 export interface ScheduleOwner {
