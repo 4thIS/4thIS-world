@@ -1,6 +1,6 @@
 import type { Ref } from 'react';
 import type { Group } from 'three';
-import type { BuildingId, Emoji, Look, PoseKind, WeatherNow } from '@4this/shared';
+import type { BuildingId, Emoji, Look, Motion, PoseKind, WeatherNow } from '@4this/shared';
 
 /** 사자 교수님 전용 생김새 (학생은 고를 수 없다) */
 export interface LionLook {
@@ -18,6 +18,13 @@ export const PROFESSOR_LOOK: LionLook = {
   neck: 'bowtie',
 };
 export type CharacterLook = Look | LionLook;
+
+/** 지금 하는 모션 */
+export interface ActiveMotion {
+  kind: Motion;
+  /** 시작 시각 performance.now() ms */
+  at: number;
+}
 
 /** 머리 위 말풍선 채팅 한 개 */
 export interface ActiveChat {
@@ -44,6 +51,8 @@ export interface CharacterProps {
   name?: string;
   status?: string;
   emote?: ActiveEmote | null;
+  /** 모션 버튼으로 하는 동작 (없으면 null) */
+  motion?: ActiveMotion | null;
   /** 머리 위 말풍선 (오래된 것부터, 최대 3개) */
   chats?: readonly ActiveChat[];
   /** 내 캐릭터 발밑 링 */

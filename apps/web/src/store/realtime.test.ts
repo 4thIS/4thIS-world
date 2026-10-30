@@ -230,3 +230,29 @@ describe('말풍선 채팅', () => {
     expect(sock.sentOf('chat')).toEqual([{ text: '안녕' }, { text: '또' }]);
   });
 });
+
+describe('모션', () => {
+  const motion = (kind: string | null, pos: [number, number] = [0, 3]) =>
+    sock.serverEmit('motion', { memberId: 'you', kind, pos, at: NOW });
+
+  it('한 번 하는 모션은 끝나면 사라지고, 눕기는 그만둘 때까지 남는다', () => {
+    motion('wave');
+    expect(useRealtime.getState().motions['you']?.kind).toBe('wave');
+    vi.advanceTimersByTime(2600);
+    expect(useRealtime.getState().motions['you']).toBeUndefined();
+    motion('lie', [1, 2]);
+    vi.advanceTimersByTime(60_000);
+    expect(useRealtime.getState().motions['you']).toMatchObject({ kind: 'lie', pos: [1, 2] });
+    motion(null);
+    expect(useRealtime.getState().motions['you']).toBeUndefined();
+  });
+
+  it('보낼 때 내 자리를 붙이고, 1초 안에 또 보내면 막는다', () => {
+    expect(useRealtime.getState().sendMotion('cheer')).toBe(true);
+    expect(useRealtime.getState().sendMotion('wave')).toBe(false);
+    vi.advanceTimersByTime(1000);
+    expect(useRealtime.getState().sendMotion('wave')).toBe(true);
+    expect(sock.sentOf('motion')).toHaveLength(2);
+    expect(sock.sentOf('motion')[0]).toMatchObject({ kind: 'cheer' });
+  });
+});

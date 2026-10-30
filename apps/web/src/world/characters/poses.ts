@@ -41,6 +41,8 @@ export interface PoseFrame {
   bodyY: number;
   bodyRoll: number;
   bodyPitch: number;
+  /** 몸 전체를 세로축으로 돌리기 (춤). 없으면 0 */
+  bodyYaw?: number;
   headYaw: number;
   headPitch: number;
   headRoll: number;

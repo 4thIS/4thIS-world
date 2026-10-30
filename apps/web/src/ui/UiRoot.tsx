@@ -7,6 +7,7 @@ import { ChatInput } from './overlay/ChatInput';
 import { ConnectionBadge } from './overlay/ConnectionBadge';
 import { ControlButton } from './overlay/ControlButton';
 import { EmoteBar } from './overlay/EmoteBar';
+import { MotionBar } from './overlay/MotionBar';
 import { PresencePanel } from './overlay/PresencePanel';
 import { TopBar } from './overlay/TopBar';
 import { ScreenHost } from './ScreenHost';
@@ -34,10 +35,11 @@ export function UiRoot() {
       {overlay.canControl && (
         <div className="ov-bottom">
           <ControlButton {...overlay.control} />
-          {/* 긴 채팅 바 + 오른쪽 이모지 버튼(누르면 위로 펼쳐짐) */}
+          {/* 긴 채팅 바 + 오른쪽 이모지·모션 버튼(누르면 위로 펼쳐짐) */}
           <div className="ov-chatrow">
             <ChatInput {...overlay.chat} />
             <EmoteBar {...overlay.emoteBar} />
+            <MotionBar {...overlay.motionBar} />
           </div>
         </div>
       )}

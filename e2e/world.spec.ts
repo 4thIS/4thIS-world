@@ -117,7 +117,14 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
     .poll(() => vpage.evaluate((id) => window.__world!.chatsOf(id), me.id))
     .toEqual(['안녕 **']);
 
-  // 9) 자동으로 돌아가면 조종 표시가 사라진다
+  // 9) 모션: 모션 버튼을 펼쳐 만세를 고르면 구경꾼에게도 보인다
+  await page.getByRole('button', { name: '모션' }).click();
+  await page.getByRole('button', { name: '만세' }).click();
+  await expect
+    .poll(() => vpage.evaluate((id) => window.__world!.motionOf(id), me.id))
+    .toBe('cheer');
+
+  // 10) 자동으로 돌아가면 조종 표시가 사라진다
   await page.getByRole('button', { name: /자동으로/ }).click();
   await vpage.waitForFunction((id) => !window.__world?.controlling().includes(id), me.id);
 

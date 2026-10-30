@@ -1,4 +1,4 @@
-import type { BoardEntry, BuildingId, Emoji, Look } from '@4this/shared';
+import type { BoardEntry, BuildingId, Emoji, Look, Motion } from '@4this/shared';
 
 /**
  * th가 만드는 표시용 컴포넌트의 props. 스토어·소켓 연결은 cw가 한다.
@@ -29,6 +29,12 @@ export interface PresencePanelProps {
 export interface EmoteBarProps {
   disabled: boolean;
   onEmote: (emoji: Emoji) => void;
+}
+
+/** MotionBar: 모션 버튼 (누르면 위로 8개가 펼쳐진다) */
+export interface MotionBarProps {
+  disabled: boolean;
+  onMotion: (kind: Motion) => void;
 }
 
 /** ChatInput: 말풍선 채팅 입력칸. onSend는 다듬어 비었으면 'empty', 너무 빠르면 'tooFast' */
@@ -91,6 +97,7 @@ export interface OverlayProps {
   presence: PresencePanelProps;
   emoteBar: EmoteBarProps;
   chat: ChatInputProps;
+  motionBar: MotionBarProps;
   control: ControlButtonProps;
   connection: ConnectionBadgeProps;
   /** 게시판을 열었을 때만 */
