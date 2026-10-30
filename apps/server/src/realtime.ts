@@ -6,11 +6,13 @@ import {
   ControlMoveSchema,
   EmoteRequestSchema,
   MotionRequestSchema,
+  ShotRequestSchema,
   SOCKET_LIMITS,
   type ClientToServerEvents,
   type ServerToClientEvents,
 } from '@4this/shared';
 import { resolveSession, SESSION_COOKIE } from './auth/session';
+import { getFeatures } from './features';
 import { RealtimeHub } from './realtime-hub';
 
 export type WorldServer = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -121,6 +123,14 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
       if (!parsed.success) return;
       const event = hub.motion(socket.id, parsed.data.kind, parsed.data.pos);
       if (event) io.emit('motion', event);
+    });
+
+    socket.on('shot', (payload) => {
+      if (!getFeatures(app.db).shooting) return;
+      const parsed = ShotRequestSchema.safeParse(payload);
+      if (!parsed.success) return;
+      const event = hub.shot(socket.id, parsed.data);
+      if (event) io.emit('shot', event);
     });
 
     socket.on('disconnect', () => {

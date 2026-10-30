@@ -7,6 +7,8 @@ import {
   type ChatEvent,
   type Motion,
   type MotionEvent,
+  type ShotEvent,
+  type ShotRequest,
   type ControlMove,
   type ControlState,
   type Emoji,
@@ -45,6 +47,7 @@ export class RealtimeHub {
   private lastChat = new Map<string, number>();
   private history: ChatEvent[] = [];
   private lastMotion = new Map<string, number>();
+  private shotTimes = new Map<string, number[]>();
   /** 계속하는 모션(눕기). 새로 접속한 사람에게도 보낸다 */
   private held = new Map<string, MotionEvent>();
   private dirty = false;
@@ -185,6 +188,17 @@ export class RealtimeHub {
     if (HELD_MOTIONS.has(kind)) this.held.set(memberId, event);
     else this.held.delete(memberId);
     return event;
+  }
+
+  /** 장난감 쏘기. 조종 중인 탭만, 1초 창에 shotPerSec회까지. 보낼 이벤트 또는 null */
+  shot(socketId: string, req: ShotRequest): ShotEvent | null {
+    const memberId = this.memberOf(socketId);
+    if (!memberId || this.controls.get(memberId)?.socketId !== socketId) return null;
+    const t = this.now();
+    const recent = (this.shotTimes.get(memberId) ?? []).filter((s) => t - s < 1000);
+    if (recent.length >= SOCKET_LIMITS.shotPerSec) return null;
+    this.shotTimes.set(memberId, [...recent, t]);
+    return { ...req, memberId, at: t };
   }
 
   /** 지금 계속 중인 모션(눕기)들. 새로 접속한 소켓에 보낸다 */

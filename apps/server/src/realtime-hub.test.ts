@@ -199,6 +199,27 @@ describe('RealtimeHub', () => {
     expect(history.at(-1)!.text).toBe(`말 ${CHAT_HISTORY_MAX + 4}`);
   });
 
+  it('장난감 쏘기: 조종 중인 탭만, 초당 3회', () => {
+    const shot = {
+      weapon: 'water' as const,
+      from: [0, 1, 0] as [number, number, number],
+      dir: [0, 1] as [number, number],
+      hit: null,
+      dist: 12,
+    };
+    hub.connect('s1', 'm1');
+    hub.connect('g1', null);
+    expect(hub.shot('g1', shot)).toBeNull();
+    expect(hub.shot('s1', shot)).toBeNull(); // 조종 중이 아니다
+    hub.startControl('s1');
+    expect(hub.shot('s1', shot)).toEqual({ ...shot, memberId: 'm1', at: Date.now() });
+    expect(hub.shot('s1', shot)).not.toBeNull();
+    expect(hub.shot('s1', shot)).not.toBeNull();
+    expect(hub.shot('s1', shot)).toBeNull();
+    vi.advanceTimersByTime(1000);
+    expect(hub.shot('s1', shot)).not.toBeNull();
+  });
+
   it('승인 취소되면 구경꾼으로 바뀌고 조종이 풀린다', () => {
     hub.connect('s1', 'm1');
     hub.startControl('s1');
