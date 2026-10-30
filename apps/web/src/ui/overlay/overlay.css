@@ -230,6 +230,7 @@
 }
 
 .ov-chatrow {
+  position: relative;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -301,6 +302,93 @@
   padding: 8px;
   border-radius: 18px;
   animation: ov-pop-up 0.16s ease-out;
+}
+
+/* 채팅 기록: 채팅 바 줄 위로 펼쳐지는 반투명 창 */
+.ov-chatlog {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  left: 0;
+  max-height: 240px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: rgba(255, 250, 253, 0.72);
+  box-shadow: 0 8px 24px rgba(150, 110, 150, 0.2);
+  backdrop-filter: blur(6px);
+  animation: ov-pop-up 0.16s ease-out;
+}
+
+.ov-chatrow--log-only .ov-chatlog {
+  left: 50%;
+  right: auto;
+  width: min(420px, 92vw);
+  transform: translateX(-50%);
+  animation: none;
+}
+
+.ov-chatlog__list {
+  margin: 0;
+  padding: 10px 14px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ov-chatlog__row {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ov-chatlog__row .ui-face {
+  flex: none;
+  align-self: center;
+}
+
+.ov-chatlog__time {
+  flex: none;
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.ov-chatlog__name {
+  flex: none;
+}
+
+.ov-chatlog__row--me .ov-chatlog__name {
+  color: #e2577f;
+}
+
+.ov-chatlog__text {
+  overflow-wrap: anywhere;
+}
+
+.ov-chatlog__empty {
+  margin: 0;
+  padding: 14px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-align: center;
+}
+
+.ov-chatlog__toggle {
+  position: relative;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.ov-chatlog__dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff6f9c;
 }
 
 /* 모션 판: 그림 + 이름 */

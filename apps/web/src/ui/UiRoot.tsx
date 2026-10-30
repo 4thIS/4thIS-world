@@ -4,6 +4,7 @@ import { PendingBanner } from './account/PendingBanner';
 import { BoardPanel } from './overlay/BoardPanel';
 import { BuildingPanel } from './overlay/BuildingPanel';
 import { ChatInput } from './overlay/ChatInput';
+import { ChatLog } from './overlay/ChatLog';
 import { ConnectionBadge } from './overlay/ConnectionBadge';
 import { ControlButton } from './overlay/ControlButton';
 import { EmoteBar } from './overlay/EmoteBar';
@@ -40,6 +41,15 @@ export function UiRoot() {
             <ChatInput {...overlay.chat} />
             <EmoteBar {...overlay.emoteBar} />
             <MotionBar {...overlay.motionBar} />
+            <ChatLog {...overlay.chatLog} />
+          </div>
+        </div>
+      )}
+      {/* 구경꾼(조종 버튼이 없는 사람)도 채팅 기록은 본다 */}
+      {!overlay.canControl && (
+        <div className="ov-bottom">
+          <div className="ov-chatrow ov-chatrow--log-only">
+            <ChatLog {...overlay.chatLog} />
           </div>
         </div>
       )}

@@ -2,11 +2,13 @@ import { create } from 'zustand';
 import {
   ADMIN_ID,
   CAMPUS,
+  CHAT_HISTORY_MAX,
   HELD_MOTIONS,
   MOTION_DURATION_MS,
   SOCKET_LIMITS,
   cleanChat,
   sampleAt,
+  type ChatEvent,
   type ControlMove,
   type Emoji,
   type Motion,
@@ -42,6 +44,13 @@ export interface RealtimeState {
   emotes: Record<string, ActiveEmote>;
   /** 멤버별 지금 하는 모션. 눕기는 pos(누운 자리)를 벗어나면 그리지 않는다 */
   motions: Record<string, ActiveMotion & { pos: [number, number] }>;
+  /** 채팅 기록 (오래된 것부터, 최대 CHAT_HISTORY_MAX개). 접속하면 서버가 최근 기록을 준다 */
+  chatLog: ChatEvent[];
+  /** 채팅 기록 창이 열렸나 (브라우저에 기억) */
+  chatLogOpen: boolean;
+  /** 닫혀 있는 동안 새 채팅이 왔다 */
+  chatUnread: boolean;
+  toggleChatLog: () => void;
   /** 멤버별 머리 위 말풍선 (오래된 것부터, 최대 CHAT_STACK_MAX개) */
   chats: Record<string, ActiveChat[]>;
   /** 내가 조종 중인가 */
@@ -84,6 +93,16 @@ let lastSent: ControlMove | null = null;
 let chatSeq = 0;
 let lastChatSent = -Infinity;
 let lastMotionSent = -Infinity;
+
+/** 채팅 기록 창을 열어 두었는지 (브라우저에 기억) */
+const LOG_OPEN_KEY = '4this-chat-log-open';
+function savedLogOpen(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem(LOG_OPEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 const sameMove = (a: ControlMove | null, b: ControlMove) =>
   a !== null &&
@@ -129,6 +148,18 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
   returning: {},
   emotes: {},
   chats: {},
+  chatLog: [],
+  chatLogOpen: savedLogOpen(),
+  chatUnread: false,
+  toggleChatLog: () => {
+    const open = !get().chatLogOpen;
+    try {
+      window.localStorage.setItem(LOG_OPEN_KEY, open ? '1' : '0');
+    } catch {
+      // 저장소가 막혀 있으면 이번 방문 동안만
+    }
+    set({ chatLogOpen: open, chatUnread: false });
+  },
   motions: {},
   controlling: false,
   local: null,
@@ -176,7 +207,15 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
         ...(isMe ? { controlling: false, local: null } : {}),
       });
     });
-    s.on('chat', ({ memberId, text }) => {
+    s.on('chat:history', (events) =>
+      set({ chatLog: events.slice(-CHAT_HISTORY_MAX), chatUnread: false }),
+    );
+    s.on('chat', (event) => {
+      const { memberId, text } = event;
+      set((st) => ({
+        chatLog: [...st.chatLog, event].slice(-CHAT_HISTORY_MAX),
+        chatUnread: st.chatUnread || !st.chatLogOpen,
+      }));
       const chat: ActiveChat = { id: ++chatSeq, text, at: performance.now() };
       set((st) => ({
         chats: {
