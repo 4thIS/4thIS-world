@@ -377,16 +377,32 @@
 
 .ov-chatlog__toggle {
   position: relative;
-  font-size: 14px;
+  flex: none;
+  padding: 4px 2px 4px 6px;
+  border: none;
+  background: none;
   color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ov-chatlog__toggle:hover {
+  color: #e2577f;
+}
+
+/* 구경꾼: 채팅 바 없이 삼각형만 (누르기 쉽게 조금 크게) */
+.ov-chatrow--log-only .ov-chatlog__toggle {
+  padding: 8px 12px;
+  font-size: 16px;
 }
 
 .ov-chatlog__dot {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 9px;
-  height: 9px;
+  top: 0;
+  right: -2px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #ff6f9c;
 }

@@ -38,10 +38,12 @@ export function UiRoot() {
           <ControlButton {...overlay.control} />
           {/* 긴 채팅 바 + 오른쪽 이모지·모션 버튼(누르면 위로 펼쳐짐) */}
           <div className="ov-chatrow">
-            <ChatInput {...overlay.chat} />
+            {/* 채팅 기록 삼각형은 채팅 바 바로 오른쪽(입력칸 안 끝)에 */}
+            <ChatInput {...overlay.chat}>
+              <ChatLog {...overlay.chatLog} />
+            </ChatInput>
             <EmoteBar {...overlay.emoteBar} />
             <MotionBar {...overlay.motionBar} />
-            <ChatLog {...overlay.chatLog} />
           </div>
         </div>
       )}
