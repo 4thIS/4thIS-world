@@ -26,6 +26,8 @@ export function useOverlayProps(): OverlayProps {
   const weather = useWeather((s) => s.now);
   const soundOn = useSound((s) => s.enabled);
   const toggleSound = useSound((s) => s.toggle);
+  const volume = useSound((s) => s.volume);
+  const setVolume = useSound((s) => s.setVolume);
   const focusMember = useWorld((s) => s.focusMember);
   const setHiddenAboveFloor = useWorld((s) => s.setHiddenAboveFloor);
   // 조종 중에는 local이 매 프레임 바뀌므로 필요한 값만 골라 구독한다
@@ -103,6 +105,8 @@ export function useOverlayProps(): OverlayProps {
       weatherLabel: weatherLabel(weather),
       soundOn,
       onToggleSound: toggleSound,
+      volume,
+      onVolume: setVolume,
       onHome: goHome,
     },
     presence: {

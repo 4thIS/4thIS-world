@@ -8,6 +8,8 @@ export function TopBar({
   weatherLabel,
   soundOn = false,
   onToggleSound,
+  volume = 0.7,
+  onVolume,
   onHome,
 }: TopBarProps) {
   const open = useUi((s) => s.open);
@@ -56,6 +58,17 @@ export function TopBar({
         >
           {soundOn ? '🔊' : '🔈'}
         </button>
+      )}
+      {soundOn && onVolume && (
+        <input
+          type="range"
+          className="ov-topbar__volume"
+          aria-label="대사음 크기"
+          min={0}
+          max={100}
+          value={Math.round(volume * 100)}
+          onChange={(e) => onVolume(Number(e.target.value) / 100)}
+        />
       )}
     </header>
   );

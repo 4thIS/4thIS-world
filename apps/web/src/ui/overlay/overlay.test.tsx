@@ -54,6 +54,18 @@ describe('TopBar', () => {
     expect(onToggleSound).toHaveBeenCalledOnce();
   });
 
+  it('대사음을 켜면 크기 막대가 나오고, 움직이면 0~1로 알린다', () => {
+    const onVolume = vi.fn();
+    const props = { clock: '수 14:10', skyIcon: '☀️', onHome: () => {}, onToggleSound: () => {} };
+    const { rerender } = render(<TopBar {...props} onVolume={onVolume} />);
+    expect(screen.queryByRole('slider', { name: '대사음 크기' })).toBeNull();
+    rerender(<TopBar {...props} soundOn volume={0.7} onVolume={onVolume} />);
+    const slider = screen.getByRole('slider', { name: '대사음 크기' }) as HTMLInputElement;
+    expect(slider.value).toBe('70');
+    fireEvent.change(slider, { target: { value: '30' } });
+    expect(onVolume).toHaveBeenCalledWith(0.3);
+  });
+
   it('🏠을 누르면 처음 시야로', () => {
     const onHome = vi.fn();
     render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={onHome} />);
@@ -125,20 +137,33 @@ describe('PresencePanel', () => {
   });
 });
 
-describe('EmoteBar', () => {
-  it('8개 버튼, 누르면 그 이모지', () => {
+describe('EmoteBar (이모지 버튼)', () => {
+  it('누르면 위로 펼쳐져 8개가 보이고, 고르면 보내고 닫힌다', () => {
     const onEmote = vi.fn();
     render(<EmoteBar disabled={false} onEmote={onEmote} />);
-    expect(screen.getAllByRole('button')).toHaveLength(8);
+    expect(screen.queryByRole('button', { name: '🎉' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '이모지' }));
+    expect(screen.getByRole('group', { name: '이모지 반응' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: /^.{1,2}$/u })).toHaveLength(8);
     fireEvent.click(screen.getByRole('button', { name: '🎉' }));
     expect(onEmote).toHaveBeenCalledWith('🎉');
+    expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
   });
 
-  it('비활성이면 누를 수 없다', () => {
-    const onEmote = vi.fn();
-    render(<EmoteBar disabled onEmote={onEmote} />);
-    fireEvent.click(screen.getByRole('button', { name: '👋' }));
-    expect(onEmote).not.toHaveBeenCalled();
+  it('바깥을 누르거나 Esc면 닫힌다', () => {
+    render(<EmoteBar disabled={false} onEmote={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: '이모지' }));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '이모지' }));
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
+  });
+
+  it('비활성이면 펼칠 수 없다', () => {
+    render(<EmoteBar disabled onEmote={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: '이모지' }));
+    expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
   });
 });
 

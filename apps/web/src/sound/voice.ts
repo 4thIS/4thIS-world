@@ -119,12 +119,12 @@ export interface Voice {
   rate: number;
 }
 
-/** 동물마다 높이: 오리가 가장 높고 곰이 가장 낮다. 사자 교수님 같은 그 밖의 동물은 낮게 */
-const ANIMAL_RATE: Record<Animal, number> = { duck: 2.05, cat: 1.85, dog: 1.65, bear: 1.3 };
+/** 동물마다 높이(높고 귀엽게): 오리가 가장 높고 곰이 가장 낮다. 사자 교수님 같은 그 밖의 동물은 낮게 */
+const ANIMAL_RATE: Record<Animal, number> = { duck: 2.6, cat: 2.35, dog: 2.15, bear: 1.75 };
 
 /** 동물 목소리에 멤버마다 ±6% */
 export function voiceOf(animal: Animal | string, memberId: string): Voice {
-  const base = ANIMAL_RATE[animal as Animal] ?? 1.35;
+  const base = ANIMAL_RATE[animal as Animal] ?? 1.8;
   return { rate: base * (0.94 + rand01(memberId, 'voice') * 0.12) };
 }
 
@@ -146,7 +146,7 @@ const lilt = (ch: string) => 1 + ((hashString(ch) % 9) - 4) * 0.025;
 export function syllablesOf(text: string, voice: Voice): Syllable[] {
   const excited = text.includes('!');
   const asking = text.trimEnd().endsWith('?');
-  const dur = excited ? 0.062 : 0.075;
+  const dur = excited ? 0.06 : 0.07;
   const gain = excited ? 1 : 0.8;
   const out: Syllable[] = [];
   for (const ch of text) {

@@ -37,6 +37,11 @@
   font-weight: 800;
 }
 
+.ov-topbar__volume {
+  width: 80px;
+  accent-color: #ff8fb1;
+}
+
 .ov-topbar__clock {
   color: var(--ink-soft);
   font-weight: 600;
@@ -219,12 +224,20 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  padding: 6px 12px;
+  width: min(460px, 52vw);
+  padding: 7px 16px;
   border-radius: 999px;
 }
 
+.ov-chatrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .ov-chat__input {
-  width: 190px;
+  flex: 1;
+  min-width: 0;
   padding: 6px 4px;
   border: 0;
   background: transparent;
@@ -258,11 +271,43 @@
   white-space: nowrap;
 }
 
-.ov-emotes {
-  display: flex;
-  gap: 2px;
-  padding: 6px 10px;
-  border-radius: 999px;
+/* 채팅 바 오른쪽 이모지 버튼과 위로 펼쳐지는 이모지 */
+.ov-emoji {
+  position: relative;
+  flex: none;
+}
+
+.ov-emoji__toggle {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.ov-emoji__toggle:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ov-emoji__pop {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: grid;
+  grid-template-columns: repeat(4, 38px);
+  gap: 4px;
+  padding: 8px;
+  border-radius: 18px;
+  animation: ov-pop-up 0.16s ease-out;
+}
+
+@keyframes ov-pop-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
 }
 
 .ov-emote {
@@ -298,6 +343,11 @@
     display: none;
   }
 
+  /* 상단 바가 좁아 크기 막대는 숨긴다 (휴대폰은 기기 음량으로 조절) */
+  .ov-topbar__volume {
+    display: none;
+  }
+
   .ov-presence {
     top: auto;
     right: 0;
@@ -325,9 +375,9 @@
     bottom: calc(34vh + 10px);
   }
 
-  .ov-emotes {
-    max-width: 100%;
-    overflow-x: auto;
+  .ov-chat {
+    flex: 1;
+    width: auto;
   }
 
   .ov-emote {
