@@ -1,5 +1,8 @@
 import {
   SOCKET_LIMITS,
+  cleanChat,
+  maskProfanity,
+  type ChatEvent,
   type ControlMove,
   type ControlState,
   type Emoji,
@@ -35,6 +38,7 @@ export class RealtimeHub {
   /** memberId → 조종 정보. 멤버당 하나, 마지막으로 start한 소켓이 가진다 */
   private controls = new Map<string, Control>();
   private lastEmote = new Map<string, number>();
+  private lastChat = new Map<string, number>();
   private dirty = false;
 
   constructor(private readonly now: () => number = Date.now) {}
@@ -138,6 +142,19 @@ export class RealtimeHub {
     if (last !== undefined && t - last < 1000 / SOCKET_LIMITS.emotePerSec) return null;
     this.lastEmote.set(memberId, t);
     return { memberId, emoji, at: t };
+  }
+
+  /** 말풍선 채팅. 승인 멤버만, 멤버당 초당 chatPerSec회. 다듬고 욕설을 가린 이벤트 또는 null */
+  chat(socketId: string, raw: string): ChatEvent | null {
+    const memberId = this.memberOf(socketId);
+    if (!memberId) return null;
+    const text = cleanChat(raw);
+    if (!text) return null;
+    const t = this.now();
+    const last = this.lastChat.get(memberId);
+    if (last !== undefined && t - last < 1000 / SOCKET_LIMITS.chatPerSec) return null;
+    this.lastChat.set(memberId, t);
+    return { memberId, text: maskProfanity(text), at: t };
   }
 
   /** 10 Hz마다 부른다. 지난번 이후 바뀐 게 있으면 조종 중인 멤버 전체 위치, 없으면 null */

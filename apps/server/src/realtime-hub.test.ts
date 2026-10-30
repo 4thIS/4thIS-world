@@ -126,6 +126,24 @@ describe('RealtimeHub', () => {
     expect(hub.emote('s2', '❤️')?.emoji).toBe('❤️');
   });
 
+  it('채팅은 멤버만, 멤버당 초당 1회, 다듬고 욕설을 가려 서버 시각을 붙인다', () => {
+    hub.connect('s1', 'm1');
+    hub.connect('s2', 'm1');
+    hub.connect('g1', null);
+    expect(hub.chat('g1', '안녕')).toBeNull();
+    expect(hub.chat('s1', '  안녕\n 씨발  ')).toEqual({
+      memberId: 'm1',
+      text: '안녕 **',
+      at: Date.now(),
+    });
+    expect(hub.chat('s2', '또')).toBeNull();
+    vi.advanceTimersByTime(1000);
+    // 비었거나 30자를 넘으면 버리고, 횟수도 세지 않는다
+    expect(hub.chat('s1', '   ')).toBeNull();
+    expect(hub.chat('s1', '가'.repeat(31))).toBeNull();
+    expect(hub.chat('s1', '다시')?.text).toBe('다시');
+  });
+
   it('승인 취소되면 구경꾼으로 바뀌고 조종이 풀린다', () => {
     hub.connect('s1', 'm1');
     hub.startControl('s1');

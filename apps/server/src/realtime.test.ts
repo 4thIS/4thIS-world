@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   ADMIN_ID,
   API,
+  type ChatEvent,
   type ClientToServerEvents,
   type ControlState,
   type EmoteEvent,
@@ -276,6 +277,19 @@ describe('실시간 (Socket.IO 통합)', () => {
     admin.socket.emit('emote', { emoji: '👋' });
     await waitFor(() => guest.emotes.length === 1);
     expect(guest.emotes[0]).toMatchObject({ memberId: ADMIN_ID, emoji: '👋' });
+  });
+
+  it('채팅은 모두에게 가고(구경꾼 포함), 구경꾼은 보낼 수 없다', async () => {
+    const a = await signupAs(t, '철수', { approve: true });
+    const guest = await connect();
+    const me = await connect(a.cookie);
+    const chats: ChatEvent[] = [];
+    guest.socket.on('chat', (e) => chats.push(e));
+    guest.socket.emit('chat', { text: '나도' });
+    me.socket.emit('chat', { text: '안녕하세요' });
+    await waitFor(() => chats.length === 1);
+    await pause(80);
+    expect(chats).toEqual([{ memberId: a.id, text: '안녕하세요', at: clock }]);
   });
 
   it('시간표가 바뀌면 world:changed', async () => {
