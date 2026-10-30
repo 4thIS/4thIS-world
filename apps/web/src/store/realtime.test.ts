@@ -201,3 +201,32 @@ describe('내 조종', () => {
     expect(sock.sentOf('emote')).toEqual([{ emoji: '🎉' }]);
   });
 });
+
+describe('말풍선 채팅', () => {
+  const chat = (text: string) => sock.serverEmit('chat', { memberId: 'you', text, at: NOW });
+
+  it('받으면 3초 동안 떠 있고, 새 말풍선은 아래에 쌓이며 오래된 것부터 사라진다', () => {
+    chat('하나');
+    vi.advanceTimersByTime(1000);
+    chat('둘');
+    expect(useRealtime.getState().chats['you']!.map((c) => c.text)).toEqual(['하나', '둘']);
+    vi.advanceTimersByTime(2000);
+    expect(useRealtime.getState().chats['you']!.map((c) => c.text)).toEqual(['둘']);
+    vi.advanceTimersByTime(1000);
+    expect(useRealtime.getState().chats['you']).toBeUndefined();
+  });
+
+  it('한 사람에게 최대 3개, 넘치면 가장 오래된 것부터 지운다', () => {
+    for (const t of ['1', '2', '3', '4']) chat(t);
+    expect(useRealtime.getState().chats['you']!.map((c) => c.text)).toEqual(['2', '3', '4']);
+  });
+
+  it('보낼 때 다듬고, 비었으면 보내지 않고, 1초 안에 또 보내면 막는다', () => {
+    expect(useRealtime.getState().sendChat('   ')).toBe('empty');
+    expect(useRealtime.getState().sendChat('  안녕  ')).toBe('sent');
+    expect(useRealtime.getState().sendChat('또')).toBe('tooFast');
+    vi.advanceTimersByTime(1000);
+    expect(useRealtime.getState().sendChat('또')).toBe('sent');
+    expect(sock.sentOf('chat')).toEqual([{ text: '안녕' }, { text: '또' }]);
+  });
+});

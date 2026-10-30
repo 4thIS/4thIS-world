@@ -19,6 +19,15 @@ export const PROFESSOR_LOOK: LionLook = {
 };
 export type CharacterLook = Look | LionLook;
 
+/** 머리 위 말풍선 채팅 한 개 */
+export interface ActiveChat {
+  /** 받은 순서 번호 (React key) */
+  id: number;
+  text: string;
+  /** 받은 시각 performance.now() ms. 3초 뒤 사라진다 */
+  at: number;
+}
+
 export interface ActiveEmote {
   emoji: Emoji;
   /** 받은 시각 performance.now() ms. 3초 뒤 사라진다 */
@@ -35,6 +44,8 @@ export interface CharacterProps {
   name?: string;
   status?: string;
   emote?: ActiveEmote | null;
+  /** 머리 위 말풍선 (오래된 것부터, 최대 3개) */
+  chats?: readonly ActiveChat[];
   /** 내 캐릭터 발밑 링 */
   highlight?: boolean;
   /** 0~1, 출입 페이드 */

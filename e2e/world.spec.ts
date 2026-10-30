@@ -108,7 +108,15 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
   await page.getByRole('button', { name: '👋' }).click();
   await expect.poll(() => emoteOf(vpage, me.id)).toBe('👋');
 
-  // 8) 자동으로 돌아가면 조종 표시가 사라진다
+  // 8) 말풍선 채팅: Enter로 입력칸에 가서 보내면 구경꾼에게 보인다 (욕설은 가려진다)
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('안녕 씨발');
+  await page.keyboard.press('Enter');
+  await expect
+    .poll(() => vpage.evaluate((id) => window.__world!.chatsOf(id), me.id))
+    .toEqual(['안녕 **']);
+
+  // 9) 자동으로 돌아가면 조종 표시가 사라진다
   await page.getByRole('button', { name: /자동으로/ }).click();
   await vpage.waitForFunction((id) => !window.__world?.controlling().includes(id), me.id);
 

@@ -1,8 +1,11 @@
-import { useFrame } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
-import type { Group } from 'three';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Frustum, Matrix4, Vector3, type Group } from 'three';
 import { ADMIN_ID, CAMPUS, type PublicMember } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
+import { useSound } from '../../store/sound';
+import { speak } from '../../sound/audio';
+import { syllablesOf, voiceOf, volumeAt } from '../../sound/voice';
 import { useSession } from '../../store/session';
 import { useWeather } from '../../store/weather';
 import { useWorld } from '../../store/world';
@@ -40,6 +43,25 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   );
   const focusMember = useWorld((s) => s.focusMember);
   const emote = useRealtime((s) => s.emotes[member.id] ?? null);
+  const chats = useRealtime((s) => s.chats[member.id]);
+  const camera = useThree((s) => s.camera);
+  const voice = useMemo(() => voiceOf(member.look.animal, member.id), [member]);
+  const voiced = useRef(0);
+
+  // 새 말풍선이 오면 대사음: 소리를 켰고, 화면에 보이는 캐릭터만, 가까울수록 크게
+  useEffect(() => {
+    const latest = chats?.at(-1);
+    if (!latest || latest.id <= voiced.current) return;
+    voiced.current = latest.id;
+    const group = ref.current;
+    if (!useSound.getState().enabled || !group?.visible) return;
+    const p = group.getWorldPosition(new Vector3());
+    const frustum = new Frustum().setFromProjectionMatrix(
+      new Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse),
+    );
+    if (!frustum.containsPoint(p)) return;
+    speak(syllablesOf(latest.text, voice), voice, volumeAt(camera.position.distanceTo(p)));
+  }, [chats, camera, voice]);
 
   useEffect(() => {
     registerMember(member.id, ref.current);
@@ -86,6 +108,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       status={display.status}
       opacity={display.opacity}
       emote={emote}
+      chats={chats}
       highlight={isMe}
       umbrella={umbrella}
       onClick={() => focusMember(member.id)}
