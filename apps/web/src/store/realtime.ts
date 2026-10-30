@@ -52,9 +52,6 @@ export interface RealtimeState {
   shots: ActiveShot[];
   /** 멤버별 맞은 반응. at은 맞는 순간(날아오는 시간 뒤) performance.now() ms */
   hits: Record<string, ActiveHit>;
-  /** 고른 장난감 */
-  weapon: Weapon;
-  setWeapon: (weapon: Weapon) => void;
   /** 내 캐릭터가 보는 방향으로 쏜다 (조종 중·켜져 있을 때). 너무 빠르면 false */
   sendShot: () => boolean;
   /** 채팅 기록 (오래된 것부터, 최대 CHAT_HISTORY_MAX개). 접속하면 서버가 최근 기록을 준다 */
@@ -174,8 +171,6 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
   chats: {},
   shots: [],
   hits: {},
-  weapon: 'water',
-  setWeapon: (weapon) => set({ weapon }),
   chatLog: [],
   chatLogOpen: savedLogOpen(),
   chatUnread: false,
@@ -391,7 +386,8 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     const st = get();
     const me = myMemberId();
     const local = st.local;
-    if (!st.controlling || !me || !local || !useWorld.getState().features.shooting) return false;
+    const weapon = useWorld.getState().features.weapon;
+    if (!st.controlling || !me || !local || !weapon) return false;
     const t = Date.now();
     if (t - lastShotSent < 1000 / SOCKET_LIMITS.shotPerSec) return false;
     lastShotSent = t;
@@ -405,7 +401,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     }
     const hit = findHit(from, dir, targets);
     socket?.emit('shot', {
-      weapon: st.weapon,
+      weapon,
       from,
       dir,
       hit: hit?.id ?? null,

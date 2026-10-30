@@ -12,7 +12,7 @@ import {
   type ServerToClientEvents,
 } from '@4this/shared';
 import { resolveSession, SESSION_COOKIE } from './auth/session';
-import { getFeatures } from './features';
+import { getAdminSettings } from './adminSettings';
 import { RealtimeHub } from './realtime-hub';
 
 export type WorldServer = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -78,7 +78,8 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     const token = tokenOf(socket);
     tokens.set(socket.id, token);
     hub.connect(socket.id, approvedMemberId(token));
-    socket.emit('time', { serverTime: now() });
+    // 캠퍼스 시각: 관리자가 시간을 옮겼으면 그만큼
+    socket.emit('time', { serverTime: now() + getAdminSettings(app.db).clockOffsetMs });
     // 변동이 없어도(예: 같은 멤버의 두 번째 탭) 새로 들어온 소켓은 지금 접속자를 받아야 한다
     if (!sendPresence()) socket.emit('presence', hub.presence());
     // 누워 있는 사람들을 새로 온 사람에게도 보여 준다
@@ -126,9 +127,9 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     });
 
     socket.on('shot', (payload) => {
-      if (!getFeatures(app.db).shooting) return;
       const parsed = ShotRequestSchema.safeParse(payload);
-      if (!parsed.success) return;
+      // 관리자가 켜 둔 장난감만
+      if (!parsed.success || getAdminSettings(app.db).weapon !== parsed.data.weapon) return;
       const event = hub.shot(socket.id, parsed.data);
       if (event) io.emit('shot', event);
     });

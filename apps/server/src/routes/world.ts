@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { API, type WorldResponse } from '@4this/shared';
 import { getAdminLook } from '../adminLook';
-import { getFeatures } from '../features';
+import { getFeatures, worldNow } from '../adminSettings';
 import { listApprovedMembers, parseLook } from '../members';
 import { listSchedulesByMember } from '../schedules';
 
@@ -20,7 +20,8 @@ export function registerWorldRoutes(app: FastifyInstance): void {
       dorm: true,
     }));
     return {
-      serverTime: Date.now(),
+      // 관리자가 시간을 옮겼으면 그만큼 (모두의 캠퍼스 시계가 이 값에 맞춘다)
+      serverTime: worldNow(db),
       members,
       admin: { look: getAdminLook(db) },
       features: getFeatures(db),

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import {
-  CLEAR_WEATHER,
   WEATHER_KINDS,
+  fixedWeather,
   wetHoursOf,
   type WeatherKind,
   type WeatherNow,
@@ -26,19 +26,7 @@ interface WeatherState {
 export function overrideFromSearch(search: string): WeatherResponse | null {
   const kind = new URLSearchParams(search).get('weather');
   if (!kind || !(WEATHER_KINDS as readonly string[]).includes(kind)) return null;
-  const k = kind as WeatherKind;
-  const wet = k === 'rain' || k === 'snow' ? k : null;
-  return {
-    now: {
-      kind: k,
-      intensity: wet ? 0.7 : 0,
-      precipitation: wet ? 2.5 : 0,
-      temperature: k === 'snow' ? -2 : 12,
-      code: 0,
-    },
-    hours: CLEAR_WEATHER.hours.map(() => wet),
-    updatedAt: null,
-  };
+  return fixedWeather(kind as WeatherKind);
 }
 
 function apply(set: (s: Partial<WeatherState>) => void, w: WeatherResponse) {

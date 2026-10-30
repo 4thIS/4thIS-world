@@ -6,19 +6,19 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import {
   AdminLookSchema,
   AdminPatchMemberRequestSchema,
-  FeaturesSchema,
+  PatchAdminSettingsSchema,
   PutSchedulesRequestSchema,
   API,
   kstDate,
   type AdminLook,
   type AdminMember,
   type AdminMembersResponse,
-  type Features,
+  type AdminSettings,
   type MemberStatus,
   type SchedulesResponse,
 } from '@4this/shared';
 import { setAdminLook } from '../adminLook';
-import { setFeatures } from '../features';
+import { getAdminSettings, setAdminSettings } from '../adminSettings';
 import { listSchedules, replaceSchedules } from '../schedules';
 import { assertNoOverlap } from './me';
 import { hashPassword } from '../auth/password';
@@ -120,13 +120,21 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     return { look };
   });
 
-  /** 기능 켜기·끄기 (장난감 쏘기). 바꾸면 모두의 월드가 다시 불러온다 */
-  app.patch(API.adminFeatures, async (request): Promise<Features> => {
+  /** 관리자 설정 보기 (장난감 쏘기·날씨·시간) */
+  app.get(API.adminSettings, async (request): Promise<AdminSettings> => {
     requireAdmin(request);
-    const features = parse(FeaturesSchema, request.body);
-    setFeatures(db, features);
+    return getAdminSettings(db);
+  });
+
+  /** 관리자 설정 바꾸기. 모두의 월드를 다시 불러오게 하고, 날씨를 바꿨으면 날씨도 */
+  app.patch(API.adminSettings, async (request): Promise<AdminSettings> => {
+    requireAdmin(request);
+    const patch = parse(PatchAdminSettingsSchema, request.body);
+    const before = getAdminSettings(db);
+    const next = setAdminSettings(db, patch);
     events.emit('world:changed');
-    return features;
+    if (next.weather !== before.weather) events.emit('weather:changed');
+    return next;
   });
 
   /** 다른 사람 시간표 보기 */

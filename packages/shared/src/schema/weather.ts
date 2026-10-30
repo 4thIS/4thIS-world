@@ -61,3 +61,23 @@ export function intensityOf(kind: WeatherKind, precipitation: number): number {
 export function wetHoursOf(w: Pick<WeatherResponse, 'hours'>): boolean[] {
   return w.hours.map((h) => h !== null);
 }
+
+/** 관리자가 고르는 날씨: auto면 실제 날씨(Open-Meteo), 아니면 그 날씨로 고정 */
+export const WEATHER_MODES = ['auto', ...WEATHER_KINDS] as const;
+export type WeatherMode = (typeof WEATHER_MODES)[number];
+
+/** 그 날씨로 하루 종일 고정한 응답 (비·눈이면 모든 시간이 젖은 날) */
+export function fixedWeather(kind: WeatherKind): WeatherResponse {
+  const wet = kind === 'rain' || kind === 'snow' ? kind : null;
+  return {
+    now: {
+      kind,
+      intensity: wet ? 0.7 : 0,
+      precipitation: wet ? 2.5 : 0,
+      temperature: kind === 'snow' ? -2 : 12,
+      code: 0,
+    },
+    hours: CLEAR_WEATHER.hours.map(() => wet),
+    updatedAt: null,
+  };
+}

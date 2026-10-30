@@ -49,6 +49,7 @@ export function AccountMenu() {
         ]
       : [
           { label: '관리자 화면', run: go('admin') },
+          { label: '관리자 설정', run: go('adminSettings') },
           { label: '로그아웃', run: logout },
         ];
   const title =

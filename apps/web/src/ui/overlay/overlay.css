@@ -326,26 +326,14 @@
 }
 
 /* 장난감 쏘기: 조종 중에만 */
-.ov-weapons {
-  display: flex;
-  gap: 2px;
-  padding: 4px 6px;
-  border-radius: 999px;
-}
-
 .ov-weapon {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border: none;
   border-radius: 50%;
-  background: none;
-  font-size: 19px;
+  font-size: 21px;
   cursor: pointer;
   transition: transform 0.1s;
-}
-
-.ov-weapon[aria-pressed='true'] {
-  background: rgba(255, 143, 177, 0.2);
 }
 
 .ov-weapon:active {
