@@ -18,6 +18,8 @@ export const API = {
   adminMember: (id: string) => `/api/admin/members/${encodeURIComponent(id)}`,
   adminApprove: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/approve`,
   adminReject: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/reject`,
+  /** 관리자: 다른 사람 시간표 보기·바꾸기 */
+  adminSchedules: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/schedules`,
   adminBackup: '/api/admin/backup',
   adminLook: '/api/admin/look',
   weather: '/api/weather',
@@ -65,8 +67,6 @@ export type AdminLoginRequest = z.infer<typeof AdminLoginRequestSchema>;
 
 export const PatchMeRequestSchema = z.object({
   look: LookSchema.optional(),
-  /** 기숙사에 살아요 */
-  dorm: z.boolean().optional(),
   password: z.object({ current: z.string(), next: PasswordSchema }).optional(),
 });
 export type PatchMeRequest = z.infer<typeof PatchMeRequestSchema>;

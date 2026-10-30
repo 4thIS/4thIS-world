@@ -6,14 +6,18 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import {
   AdminLookSchema,
   AdminPatchMemberRequestSchema,
+  PutSchedulesRequestSchema,
   API,
   kstDate,
   type AdminLook,
   type AdminMember,
   type AdminMembersResponse,
   type MemberStatus,
+  type SchedulesResponse,
 } from '@4this/shared';
 import { setAdminLook } from '../adminLook';
+import { listSchedules, replaceSchedules } from '../schedules';
+import { assertNoOverlap } from './me';
 import { hashPassword } from '../auth/password';
 import { deleteMemberSessions, requireAdmin } from '../auth/session';
 import { HttpError, notFound, parse } from '../errors';
@@ -34,6 +38,7 @@ export const ADMIN_ROUTES = {
   member: `${API.adminMembers}/:id`,
   approve: `${API.adminMembers}/:id/approve`,
   reject: `${API.adminMembers}/:id/reject`,
+  schedules: `${API.adminMembers}/:id/schedules`,
 } as const;
 
 /** 백업 파일 이름: world-YYYYMMDD.db (KST 날짜) */
@@ -110,6 +115,22 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     setAdminLook(db, look);
     events.emit('world:changed');
     return { look };
+  });
+
+  /** 다른 사람 시간표 보기 */
+  app.get<IdParams>(ADMIN_ROUTES.schedules, async (request): Promise<SchedulesResponse> => {
+    const member = target(request);
+    return { items: listSchedules(db, member.id) };
+  });
+
+  /** 다른 사람 시간표를 통째로 바꾸기 (본인의 PUT /api/me/schedules와 같은 규칙) */
+  app.put<IdParams>(ADMIN_ROUTES.schedules, async (request): Promise<SchedulesResponse> => {
+    const member = target(request);
+    assertNoOverlap(request.body);
+    const { items } = parse(PutSchedulesRequestSchema, request.body);
+    replaceSchedules(db, member.id, items);
+    if (member.status === 'approved') events.emit('world:changed');
+    return { items: listSchedules(db, member.id) };
   });
 
   app.get(API.adminBackup, async (request, reply) => {

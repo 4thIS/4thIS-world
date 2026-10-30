@@ -7,7 +7,6 @@ import { MOBILE_QUERY, useMediaQuery } from '../common/useMediaQuery';
 import { errorMessage } from '../errors';
 import { useUi } from '../store';
 import { BlockEditor } from './BlockEditor';
-import { DormToggle } from './DormToggle';
 import { cleanItems, overlapping } from './grid';
 import { KindLegend } from './KindLegend';
 import { ScheduleListEditor } from './ScheduleListEditor';
@@ -93,7 +92,6 @@ export function ScheduleScreen() {
         {onboarding && (
           <p className="ui-note">마지막 단계예요! 매주 반복되는 일정을 넣어 주세요.</p>
         )}
-        <DormToggle />
         <KindLegend />
         {status.kind === 'loading' ? (
           <p className="ui-note">불러오는 중…</p>
