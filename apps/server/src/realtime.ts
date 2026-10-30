@@ -5,6 +5,7 @@ import {
   ChatRequestSchema,
   ControlMoveSchema,
   EmoteRequestSchema,
+  MotionRequestSchema,
   SOCKET_LIMITS,
   type ClientToServerEvents,
   type ServerToClientEvents,
@@ -66,6 +67,11 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     if (memberId) io.emit('control:released', { memberId });
   };
 
+  /** 눕기를 끝냈으면 모두에게 알린다 */
+  const motionCleared = (memberId: string | null) => {
+    if (memberId) io.emit('motion', { memberId, kind: null, pos: [0, 0], at: now() });
+  };
+
   io.on('connection', (socket) => {
     const token = tokenOf(socket);
     tokens.set(socket.id, token);
@@ -73,6 +79,8 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     socket.emit('time', { serverTime: now() });
     // 변동이 없어도(예: 같은 멤버의 두 번째 탭) 새로 들어온 소켓은 지금 접속자를 받아야 한다
     if (!sendPresence()) socket.emit('presence', hub.presence());
+    // 누워 있는 사람들을 새로 온 사람에게도 보여 준다
+    for (const e of hub.heldMotions()) socket.emit('motion', e);
 
     socket.on('control:start', () => {
       if (hub.startControl(socket.id)) sendPresence();
@@ -81,12 +89,15 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
     socket.on('control:stop', () => {
       const memberId = hub.stopControl(socket.id);
       released(memberId);
+      if (memberId) motionCleared(hub.clearMotion(memberId));
       if (memberId) sendPresence();
     });
 
     socket.on('control:move', (payload) => {
       const parsed = ControlMoveSchema.safeParse(payload);
-      if (parsed.success) hub.move(socket.id, parsed.data);
+      if (parsed.success && hub.move(socket.id, parsed.data)) {
+        motionCleared(hub.moveClearsMotion(socket.id, parsed.data));
+      }
     });
 
     socket.on('emote', (payload) => {
@@ -103,7 +114,15 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
       if (event) io.emit('chat', event);
     });
 
+    socket.on('motion', (payload) => {
+      const parsed = MotionRequestSchema.safeParse(payload);
+      if (!parsed.success) return;
+      const event = hub.motion(socket.id, parsed.data.kind, parsed.data.pos);
+      if (event) io.emit('motion', event);
+    });
+
     socket.on('disconnect', () => {
+      motionCleared(hub.disconnectClearsMotion(socket.id));
       tokens.delete(socket.id);
       released(hub.disconnect(socket.id));
       sendPresence();

@@ -1,8 +1,11 @@
 import {
   SOCKET_LIMITS,
+  HELD_MOTIONS,
   cleanChat,
   maskProfanity,
   type ChatEvent,
+  type Motion,
+  type MotionEvent,
   type ControlMove,
   type ControlState,
   type Emoji,
@@ -39,6 +42,9 @@ export class RealtimeHub {
   private controls = new Map<string, Control>();
   private lastEmote = new Map<string, number>();
   private lastChat = new Map<string, number>();
+  private lastMotion = new Map<string, number>();
+  /** 계속하는 모션(눕기). 새로 접속한 사람에게도 보낸다 */
+  private held = new Map<string, MotionEvent>();
   private dirty = false;
 
   constructor(private readonly now: () => number = Date.now) {}
@@ -155,6 +161,46 @@ export class RealtimeHub {
     if (last !== undefined && t - last < 1000 / SOCKET_LIMITS.chatPerSec) return null;
     this.lastChat.set(memberId, t);
     return { memberId, text: maskProfanity(text), at: t };
+  }
+
+  /** 모션. 승인 멤버만, 멤버당 초당 motionPerSec회. 보낼 이벤트 또는 null */
+  motion(socketId: string, kind: Motion, pos: [number, number]): MotionEvent | null {
+    const memberId = this.memberOf(socketId);
+    if (!memberId) return null;
+    const t = this.now();
+    const last = this.lastMotion.get(memberId);
+    if (last !== undefined && t - last < 1000 / SOCKET_LIMITS.motionPerSec) return null;
+    this.lastMotion.set(memberId, t);
+    const event: MotionEvent = { memberId, kind, pos, at: t };
+    if (HELD_MOTIONS.has(kind)) this.held.set(memberId, event);
+    else this.held.delete(memberId);
+    return event;
+  }
+
+  /** 지금 계속 중인 모션(눕기)들. 새로 접속한 소켓에 보낸다 */
+  heldMotions(): MotionEvent[] {
+    return [...this.held.values()];
+  }
+
+  /** 계속 중인 모션을 끝낸다. 끝낸 것이 있으면 memberId (모두에게 kind: null을 보낸다) */
+  clearMotion(memberId: string): string | null {
+    return this.held.delete(memberId) ? memberId : null;
+  }
+
+  /** 조종으로 움직이기 시작하면 눕기를 끝낸다 */
+  moveClearsMotion(socketId: string, m: ControlMove): string | null {
+    const memberId = this.memberOf(socketId);
+    return memberId && m.moving ? this.clearMotion(memberId) : null;
+  }
+
+  /** 그 멤버의 마지막 소켓이 끊기면 눕기를 끝낸다 (disconnect 전에 부른다) */
+  disconnectClearsMotion(socketId: string): string | null {
+    const memberId = this.memberOf(socketId);
+    if (!memberId) return null;
+    const others = [...this.conns.entries()].some(
+      ([id, c]) => id !== socketId && c.memberId === memberId,
+    );
+    return others ? null : this.clearMotion(memberId);
   }
 
   /** 10 Hz마다 부른다. 지난번 이후 바뀐 게 있으면 조종 중인 멤버 전체 위치, 없으면 null */
