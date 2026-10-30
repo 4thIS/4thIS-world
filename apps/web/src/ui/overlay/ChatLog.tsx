@@ -6,7 +6,7 @@ import type { ChatLogProps } from '../contracts';
 const STICK_PX = 40;
 
 /**
- * 채팅 기록. 채팅 바 오른쪽 ▲를 누르면 위로 반투명 창이 펼쳐진다(오래된 것부터, 최신이 맨 아래).
+ * 채팅 기록. 채팅 바 바로 오른쪽 삼각형(▲)을 누르면 위로 반투명 창이 펼쳐진다(오래된 것부터, 최신이 맨 아래).
  * 서버가 메모리에 들고 있는 최근 100개라 배포하면 비워진다. 닫혀 있을 때 새 채팅이 오면 ▲에 점.
  */
 export function ChatLog({ entries, open, unread, onToggle }: ChatLogProps) {
@@ -56,7 +56,7 @@ export function ChatLog({ entries, open, unread, onToggle }: ChatLogProps) {
       )}
       <button
         type="button"
-        className="ov-emoji__toggle ov-chatlog__toggle ui-card"
+        className="ov-chatlog__toggle"
         aria-label={
           open ? '채팅 기록 닫기' : unread ? '채팅 기록 열기 (새 채팅)' : '채팅 기록 열기'
         }

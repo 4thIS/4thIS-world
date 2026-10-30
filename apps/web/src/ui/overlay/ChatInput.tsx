@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CHAT_MAX } from '@4this/shared';
 import type { ChatInputProps } from '../contracts';
 import { useUi } from '../store';
@@ -15,8 +15,13 @@ function typingElsewhere(target: EventTarget | null, mine: HTMLInputElement | nu
 /**
  * 말풍선 채팅 입력칸 (이모지 바 옆). 아무 데서나 Enter를 누르면 여기로 오고,
  * Enter로 보내고 Esc로 비우고 빠져나간다. 한글 조합 중 Enter는 무시한다.
+ * children은 입력칸 오른쪽 끝(채팅 기록 ▲)에 붙는다.
  */
-export function ChatInput({ disabled, onSend }: ChatInputProps) {
+export function ChatInput({
+  disabled,
+  onSend,
+  children,
+}: ChatInputProps & { children?: ReactNode }) {
   const [text, setText] = useState('');
   const [shake, setShake] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
@@ -66,6 +71,7 @@ export function ChatInput({ disabled, onSend }: ChatInputProps) {
         }}
       />
       {text && <small className="ov-chat__left">{left}</small>}
+      {children}
     </div>
   );
 }
