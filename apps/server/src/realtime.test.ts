@@ -318,26 +318,27 @@ describe('실시간 (Socket.IO 통합)', () => {
     expect(seen.at(-1)).toMatchObject({ memberId: a.id, kind: null });
   });
 
-  it('장난감 쏘기는 조종 중에 모두에게 가고, 관리자가 끄면 막힌다', async () => {
+  it('장난감 쏘기는 조종 중에 모두에게 가고, 관리자가 켜 둔 장난감만 된다', async () => {
     const a = await signupAs(t, '철수', { approve: true });
     const guest = await connect();
     const me = await connect(a.cookie);
     const shots: ShotEvent[] = [];
     guest.socket.on('shot', (e) => shots.push(e));
-    const shot = { weapon: 'snow' as const, hit: null, dist: 12 };
+    const shot = { weapon: 'water' as const, hit: null, dist: 12 };
     me.socket.emit('control:start');
     me.socket.emit('shot', { ...shot, from: [0, 1, 0], dir: [1, 0] });
     await waitFor(() => shots.length === 1);
-    expect(shots[0]).toMatchObject({ memberId: a.id, weapon: 'snow' });
+    expect(shots[0]).toMatchObject({ memberId: a.id, weapon: 'water' });
 
+    // 관리자가 물총만 켜 두면 눈덩이는 막힌다
     await t.app.inject({
       method: 'PATCH',
-      url: API.adminFeatures,
+      url: API.adminSettings,
       headers: { cookie: await adminCookie(t) },
-      payload: { shooting: false },
+      payload: { weapon: 'water' },
     });
     clock += 1000;
-    me.socket.emit('shot', { ...shot, from: [0, 1, 0], dir: [1, 0] });
+    me.socket.emit('shot', { ...shot, weapon: 'snow', from: [0, 1, 0], dir: [1, 0] });
     await pause(80);
     expect(shots).toHaveLength(1);
   });

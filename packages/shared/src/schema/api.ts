@@ -1,5 +1,7 @@
 import { z } from 'zod';
-import { FeaturesSchema } from './shot';
+import { DAY_MS } from '../time';
+import { FeaturesSchema, WEAPONS } from './shot';
+import { WEATHER_MODES } from './weather';
 import { LookSchema } from './look';
 import { AdminMemberSchema, PasswordSchema, PublicMemberSchema, UsernameSchema } from './member';
 import { ScheduleItemSchema, ScheduleListSchema } from './schedule';
@@ -23,8 +25,8 @@ export const API = {
   adminSchedules: (id: string) => `/api/admin/members/${encodeURIComponent(id)}/schedules`,
   adminBackup: '/api/admin/backup',
   adminLook: '/api/admin/look',
-  /** 관리자: 기능 켜기·끄기 (장난감 쏘기) */
-  adminFeatures: '/api/admin/features',
+  /** 관리자 설정: 장난감 쏘기·날씨·시간 */
+  adminSettings: '/api/admin/settings',
   weather: '/api/weather',
 } as const;
 
@@ -95,3 +97,21 @@ export type AdminPatchMemberRequest = z.infer<typeof AdminPatchMemberRequestSche
 /** 관리자 캐릭터 생김새 바꾸기 (관리자만). 응답도 같은 모양 */
 export const AdminLookSchema = z.object({ look: LookSchema });
 export type AdminLook = z.infer<typeof AdminLookSchema>;
+
+/** 관리자 설정 (사이트 전체). 날씨·시간을 고정하면 모든 사람의 캠퍼스가 그 날씨·시각이 된다 */
+export const AdminSettingsSchema = z.object({
+  /** 쏠 수 있는 장난감 하나. null이면 끔 */
+  weapon: z.enum(WEAPONS).nullable(),
+  weather: z.enum(WEATHER_MODES),
+  /** 캠퍼스 시계를 실제보다 얼마나 앞뒤로 (ms). 0이면 실제 시각 */
+  clockOffsetMs: z
+    .number()
+    .int()
+    .min(-7 * DAY_MS)
+    .max(7 * DAY_MS),
+});
+export type AdminSettings = z.infer<typeof AdminSettingsSchema>;
+
+/** 바꿀 것만 보낸다 */
+export const PatchAdminSettingsSchema = AdminSettingsSchema.partial();
+export type PatchAdminSettings = z.infer<typeof PatchAdminSettingsSchema>;

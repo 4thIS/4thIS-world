@@ -3,7 +3,7 @@ import { z } from 'zod';
 /**
  * 장난감 쏘기 (조종 중에만): 물총·눈덩이·광선총. 셋 다 같은 방식으로 날아가 맞으면 반응만 한다(점수 없음).
  * 맞았는지는 쏜 사람 화면이 계산해 보내고, 서버는 횟수·조종 여부·켜짐만 확인해 모두에게 전한다.
- * 관리자가 켜고 끈다 (WorldResponse.features.shooting).
+ * 관리자 설정에서 셋 중 하나만 켜거나 끈다 (WorldResponse.features.weapon).
  */
 export const WEAPONS = ['water', 'snow', 'ray'] as const;
 export type Weapon = (typeof WEAPONS)[number];
@@ -32,11 +32,11 @@ export type ShotEvent = ShotRequest & {
   at: number;
 };
 
-/** 관리자가 켜고 끄는 기능 */
+/** 관리자 설정으로 정하는 기능 (모두에게 보낸다) */
 export const FeaturesSchema = z.object({
-  /** 장난감 쏘기 */
-  shooting: z.boolean(),
+  /** 쏠 수 있는 장난감 하나. null이면 쏘기 끔 */
+  weapon: z.enum(WEAPONS).nullable(),
 });
 export type Features = z.infer<typeof FeaturesSchema>;
 
-export const DEFAULT_FEATURES: Features = { shooting: true };
+export const DEFAULT_FEATURES: Features = { weapon: 'water' };

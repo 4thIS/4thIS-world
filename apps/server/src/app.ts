@@ -2,7 +2,8 @@ import { EventEmitter } from 'node:events';
 import fastifyCookie from '@fastify/cookie';
 import fastifyRateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { API, CLEAR_WEATHER } from '@4this/shared';
+import { API, CLEAR_WEATHER, fixedWeather } from '@4this/shared';
+import { getAdminSettings } from './adminSettings';
 import { readSessionToken, resolveSession, type Auth } from './auth/session';
 import type { Config } from './config';
 import type { Db } from './db';
@@ -67,7 +68,12 @@ export function buildApp({ config, db }: AppOptions): FastifyInstance {
       request.auth = resolveSession(db, readSessionToken(request));
     });
     api.get(API.health, async () => ({ ok: true }));
-    api.get(API.weather, async () => app.weather?.get() ?? CLEAR_WEATHER);
+    api.get(API.weather, async () => {
+      // 관리자가 날씨를 고정했으면 그 날씨, 아니면 실제 날씨
+      const mode = getAdminSettings(db).weather;
+      if (mode !== 'auto') return fixedWeather(mode);
+      return app.weather?.get() ?? CLEAR_WEATHER;
+    });
     registerAuthRoutes(api);
     registerWorldRoutes(api);
     registerMeRoutes(api);
