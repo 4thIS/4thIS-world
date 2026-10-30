@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ScheduleItem } from '@4this/shared';
 import { useSession } from '../../store/session';
@@ -71,15 +71,55 @@ describe('ScheduleScreen 격자', () => {
     expect(screen.getByLabelText('월 09:00~11:00 1학년 강의')).toBeTruthy();
   });
 
-  it('선택한 블록의 종류·제목을 바꾸고 지운다', async () => {
+  it('빈 칸을 끌어 만들면 일정 창이 떠서 종류·제목·시간을 넣는다', async () => {
+    await renderLoaded([]);
+    const grid = stubGridRect();
+    drag(grid, [150, 60], [150, 100]); // 화 07:30~09:00
+    const dialog = screen.getByRole('dialog', { name: '새 일정' });
+    fireEvent.click(within(dialog).getByRole('button', { name: '교양 강의' }));
+    fireEvent.change(within(dialog).getByLabelText(/^제목/), { target: { value: '심리학' } });
+    fireEvent.change(within(dialog).getByLabelText('끝'), { target: { value: '8' } }); // 10:00
+    fireEvent.click(within(dialog).getByRole('button', { name: '완료' }));
+    expect(screen.queryByRole('dialog', { name: '새 일정' })).toBeNull();
+    expect(screen.getByLabelText('화 07:30~10:00 교양 강의 심리학')).toBeTruthy();
+  });
+
+  it('새로 만든 일정 창에서 취소(또는 Esc)하면 그 일정은 지우고, 시간표 창은 그대로', async () => {
+    await renderLoaded([]);
+    const grid = stubGridRect();
+    drag(grid, [150, 60], [150, 100]);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: '새 일정' })).toBeNull();
+    expect(screen.queryByLabelText(/화 07:30/)).toBeNull();
+    expect(useUi.getState().screen).toBe('schedule');
+  });
+
+  it('블록을 누르면(끌지 않고) 일정 창이 떠서 고치거나 지운다', async () => {
     await renderLoaded([LECTURE]);
     stubGridRect();
     drag(screen.getByLabelText('월 09:00~10:00 1학년 강의'), [50, 130], [50, 130]);
-    fireEvent.click(screen.getByRole('button', { name: '교양 강의' }));
-    fireEvent.change(screen.getByLabelText(/^제목/), { target: { value: '심리학' } });
-    expect(screen.getByLabelText('월 09:00~10:00 교양 강의 심리학')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: '일정 삭제' }));
-    expect(screen.queryByLabelText(/교양 강의/)).toBeNull();
+    const dialog = screen.getByRole('dialog', { name: '일정 고치기' });
+    fireEvent.change(within(dialog).getByLabelText(/^제목/), { target: { value: '자료구조' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: '완료' }));
+    expect(screen.getByLabelText('월 09:00~10:00 1학년 강의 자료구조')).toBeTruthy();
+
+    drag(screen.getByLabelText('월 09:00~10:00 1학년 강의 자료구조'), [50, 130], [50, 130]);
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: '일정 고치기' })).getByRole('button', {
+        name: '삭제',
+      }),
+    );
+    expect(screen.queryByLabelText(/1학년 강의/)).toBeNull();
+  });
+
+  it('끝이 시작보다 빠르면 완료를 막고 알려 준다', async () => {
+    await renderLoaded([LECTURE]);
+    stubGridRect();
+    drag(screen.getByLabelText('월 09:00~10:00 1학년 강의'), [50, 130], [50, 130]);
+    const dialog = screen.getByRole('dialog', { name: '일정 고치기' });
+    fireEvent.change(within(dialog).getByLabelText('끝'), { target: { value: '4' } }); // 08:00
+    fireEvent.click(within(dialog).getByRole('button', { name: '완료' }));
+    expect(within(dialog).getByRole('alert').textContent).toContain('끝 시각');
   });
 
   it('겹치면 빨갛게 표시하고 저장을 막는다', async () => {
