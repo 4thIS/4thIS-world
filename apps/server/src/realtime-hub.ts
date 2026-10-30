@@ -1,5 +1,6 @@
 import {
   SOCKET_LIMITS,
+  CHAT_HISTORY_MAX,
   HELD_MOTIONS,
   cleanChat,
   maskProfanity,
@@ -42,6 +43,7 @@ export class RealtimeHub {
   private controls = new Map<string, Control>();
   private lastEmote = new Map<string, number>();
   private lastChat = new Map<string, number>();
+  private history: ChatEvent[] = [];
   private lastMotion = new Map<string, number>();
   /** 계속하는 모션(눕기). 새로 접속한 사람에게도 보낸다 */
   private held = new Map<string, MotionEvent>();
@@ -160,7 +162,15 @@ export class RealtimeHub {
     const last = this.lastChat.get(memberId);
     if (last !== undefined && t - last < 1000 / SOCKET_LIMITS.chatPerSec) return null;
     this.lastChat.set(memberId, t);
-    return { memberId, text: maskProfanity(text), at: t };
+    const event = { memberId, text: maskProfanity(text), at: t };
+    this.history.push(event);
+    if (this.history.length > CHAT_HISTORY_MAX) this.history.shift();
+    return event;
+  }
+
+  /** 최근 채팅 (오래된 것부터). 메모리에만 있어 서버를 다시 켜면 비워진다 */
+  chatHistory(): ChatEvent[] {
+    return [...this.history];
   }
 
   /** 모션. 승인 멤버만, 멤버당 초당 motionPerSec회. 보낼 이벤트 또는 null */

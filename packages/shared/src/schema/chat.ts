@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
 /**
- * 말풍선 채팅. 기록은 남기지 않는다: 서버는 확인·가리기만 하고 모두에게 전한다.
+ * 말풍선 채팅. DB에는 남기지 않는다: 서버는 확인·가리기 뒤 모두에게 전하고, 최근 CHAT_HISTORY_MAX개만 메모리에 둔다.
  * 한 말풍선은 CHAT_MAX자(이모지는 한 글자)까지, 멤버당 1초에 1번 (SOCKET_LIMITS.chatPerSec).
  */
 export const CHAT_MAX = 30;
+
+/** 서버가 메모리에 들고 있다가 새로 들어온 사람에게 주는 최근 채팅 수 (DB에는 남기지 않는다) */
+export const CHAT_HISTORY_MAX = 100;
 
 /** 보낼 때. 넉넉히 받고 길이는 서버가 cleanChat으로 다시 본다 */
 export const ChatRequestSchema = z.object({ text: z.string().max(200) });

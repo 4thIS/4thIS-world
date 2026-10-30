@@ -31,6 +31,27 @@ export interface EmoteBarProps {
   onEmote: (emoji: Emoji) => void;
 }
 
+/** 채팅 기록 한 줄 */
+export interface ChatLogEntry {
+  key: string;
+  /** 'HH:MM' (KST) */
+  time: string;
+  username: string;
+  /** 지금 없는 멤버면 null */
+  look: Look | null;
+  text: string;
+  isMe: boolean;
+}
+
+/** ChatLog: 채팅 바 오른쪽 ▲, 누르면 위로 펼쳐지는 채팅 기록 */
+export interface ChatLogProps {
+  entries: ChatLogEntry[];
+  open: boolean;
+  /** 닫혀 있는 동안 새 채팅이 왔다 */
+  unread: boolean;
+  onToggle: () => void;
+}
+
 /** MotionBar: 모션 버튼 (누르면 위로 8개가 펼쳐진다) */
 export interface MotionBarProps {
   disabled: boolean;
@@ -98,6 +119,8 @@ export interface OverlayProps {
   emoteBar: EmoteBarProps;
   chat: ChatInputProps;
   motionBar: MotionBarProps;
+  /** 채팅 기록 (구경꾼도 본다) */
+  chatLog: ChatLogProps;
   control: ControlButtonProps;
   connection: ConnectionBadgeProps;
   /** 게시판을 열었을 때만 */

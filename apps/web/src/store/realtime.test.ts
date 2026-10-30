@@ -256,3 +256,26 @@ describe('모션', () => {
     expect(sock.sentOf('motion')[0]).toMatchObject({ kind: 'cheer' });
   });
 });
+
+describe('채팅 기록', () => {
+  const event = (text: string) => ({ memberId: 'you', text, at: NOW });
+
+  it('접속하면 최근 기록을 받고, 새 채팅은 끝에 붙는다 (최대 100개)', () => {
+    sock.serverEmit('chat:history', [event('하나'), event('둘')]);
+    sock.serverEmit('chat', event('셋'));
+    expect(useRealtime.getState().chatLog.map((c) => c.text)).toEqual(['하나', '둘', '셋']);
+    for (let i = 0; i < 120; i++) sock.serverEmit('chat', event(`${i}`));
+    expect(useRealtime.getState().chatLog).toHaveLength(100);
+    expect(useRealtime.getState().chatLog.at(-1)!.text).toBe('119');
+  });
+
+  it('닫혀 있을 때 새 채팅이 오면 안 읽음 표시, 열면 지운다', () => {
+    useRealtime.setState({ chatLogOpen: false, chatUnread: false });
+    sock.serverEmit('chat', event('안녕'));
+    expect(useRealtime.getState().chatUnread).toBe(true);
+    useRealtime.getState().toggleChatLog();
+    expect(useRealtime.getState()).toMatchObject({ chatLogOpen: true, chatUnread: false });
+    sock.serverEmit('chat', event('또'));
+    expect(useRealtime.getState().chatUnread).toBe(false);
+  });
+});

@@ -117,6 +117,10 @@ test('가입 → 관리자 승인 → 캐릭터 등장 → 조종 → 다른 브
     .poll(() => vpage.evaluate((id) => window.__world!.chatsOf(id), me.id))
     .toEqual(['안녕 **']);
 
+  // 구경꾼도 ▲로 채팅 기록을 펼쳐 볼 수 있다
+  await vpage.getByRole('button', { name: /채팅 기록 열기/ }).click();
+  await expect(vpage.getByRole('log', { name: '채팅 기록' })).toContainText('안녕 **');
+
   // 9) 모션: 모션 버튼을 펼쳐 만세를 고르면 구경꾼에게도 보인다
   await page.getByRole('button', { name: '모션' }).click();
   await page.getByRole('button', { name: '만세' }).click();

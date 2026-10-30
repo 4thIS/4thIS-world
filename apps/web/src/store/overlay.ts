@@ -1,10 +1,16 @@
 import { useShallow } from 'zustand/react/shallow';
-import { ADMIN_ID, CAMPUS, boardAt, sampleAt } from '@4this/shared';
+import { ADMIN_ID, CAMPUS, boardAt, kstMinutes, sampleAt } from '@4this/shared';
 import type { BuildingPanelProps, OverlayProps, PresenceEntry } from '../ui/contracts';
 import { formatClock, skyIconAt } from '../world/sim/labels';
 import { peopleIn, snapshotAt } from '../world/sim/occupancy';
 import { CONTROL_STATUS } from '../world/sim/remote';
 import { useNow } from './clock';
+
+/** epoch ms → 'HH:MM' (KST) */
+function hhmm(at: number): string {
+  const m = Math.floor(kstMinutes(at));
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
 import { myMemberId, useRealtime } from './realtime';
 import { useSession } from './session';
 import { weatherIcon, weatherLabel } from '../world/campus/weatherSky';
@@ -44,6 +50,10 @@ export function useOverlayProps(): OverlayProps {
       startControl: s.startControl,
       stopControl: s.stopControl,
       closeBoard: s.closeBoard,
+      chatLog: s.chatLog,
+      chatLogOpen: s.chatLogOpen,
+      chatUnread: s.chatUnread,
+      toggleChatLog: s.toggleChatLog,
     })),
   );
   useSession((s) => s.session); // 로그인 상태가 바뀌면 다시 렌더
@@ -119,6 +129,22 @@ export function useOverlayProps(): OverlayProps {
     },
     emoteBar: { disabled: !online || !me, onEmote: rt.sendEmote },
     chat: { disabled: !online || !me, onSend: useRealtime.getState().sendChat },
+    chatLog: {
+      entries: rt.chatLog.map((c, i) => {
+        const m = byId.get(c.memberId);
+        return {
+          key: `${c.at}-${c.memberId}-${i}`,
+          time: hhmm(c.at),
+          username: m?.username ?? '떠난 멤버',
+          look: m?.look ?? null,
+          text: c.text,
+          isMe: c.memberId === me,
+        };
+      }),
+      open: rt.chatLogOpen,
+      unread: rt.chatUnread,
+      onToggle: rt.toggleChatLog,
+    },
     motionBar: {
       disabled: !online || !me,
       onMotion: (kind) => void useRealtime.getState().sendMotion(kind),
