@@ -214,6 +214,44 @@
   pointer-events: auto;
 }
 
+/* 말풍선 채팅 입력칸 (이모지 바 옆) */
+.ov-chat {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.ov-chat__input {
+  width: 190px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.ov-chat__input--shake {
+  animation: ov-shake 0.35s ease-in-out;
+}
+
+.ov-chat__left {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+@keyframes ov-shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
 .ov-control {
   padding: 12px 20px;
   font-size: 15px;

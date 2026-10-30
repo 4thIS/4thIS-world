@@ -12,6 +12,8 @@ export interface WorldDebug {
   controlling: () => string[];
   /** 지금 떠 있는 이모지 */
   emoteOf: (memberId: string) => string | null;
+  /** 지금 떠 있는 말풍선 채팅 (오래된 것부터) */
+  chatsOf: (memberId: string) => string[];
   /** 소켓 연결 상태 */
   connection: () => string;
 }
@@ -37,6 +39,7 @@ export function installWorldDebug(): void {
         .presence.members.filter((m) => m.controlling)
         .map((m) => m.id),
     emoteOf: (id) => useRealtime.getState().emotes[id]?.emoji ?? null,
+    chatsOf: (id) => (useRealtime.getState().chats[id] ?? []).map((c) => c.text),
     connection: () => useRealtime.getState().connection,
   };
 }

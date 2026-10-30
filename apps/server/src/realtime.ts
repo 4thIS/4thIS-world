@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { Server, type Socket } from 'socket.io';
 import {
   ADMIN_ID,
+  ChatRequestSchema,
   ControlMoveSchema,
   EmoteRequestSchema,
   SOCKET_LIMITS,
@@ -93,6 +94,13 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
       if (!parsed.success) return;
       const event = hub.emote(socket.id, parsed.data.emoji);
       if (event) io.emit('emote', event);
+    });
+
+    socket.on('chat', (payload) => {
+      const parsed = ChatRequestSchema.safeParse(payload);
+      if (!parsed.success) return;
+      const event = hub.chat(socket.id, parsed.data.text);
+      if (event) io.emit('chat', event);
     });
 
     socket.on('disconnect', () => {

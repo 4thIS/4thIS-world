@@ -2,7 +2,14 @@ import type { TopBarProps } from '../contracts';
 import { useUi } from '../store';
 
 /** 왼쪽 위: 로고(누르면 소개) · 요일과 시각 · 하늘 아이콘 · 🏠 처음 시야로 · ❔ 조작법 */
-export function TopBar({ clock, skyIcon, weatherLabel, onHome }: TopBarProps) {
+export function TopBar({
+  clock,
+  skyIcon,
+  weatherLabel,
+  soundOn = false,
+  onToggleSound,
+  onHome,
+}: TopBarProps) {
   const open = useUi((s) => s.open);
   return (
     <header className="ov-topbar ui-card">
@@ -38,6 +45,18 @@ export function TopBar({ clock, skyIcon, weatherLabel, onHome }: TopBarProps) {
       >
         ?
       </button>
+      {onToggleSound && (
+        <button
+          type="button"
+          className="ui-icon-btn"
+          aria-label={soundOn ? '대사음 끄기' : '대사음 켜기'}
+          aria-pressed={soundOn}
+          title={soundOn ? '대사음 끄기' : '대사음 켜기'}
+          onClick={onToggleSound}
+        >
+          {soundOn ? '🔊' : '🔈'}
+        </button>
+      )}
     </header>
   );
 }

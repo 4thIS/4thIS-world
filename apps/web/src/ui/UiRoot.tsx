@@ -3,6 +3,7 @@ import { AccountMenu } from './account/AccountMenu';
 import { PendingBanner } from './account/PendingBanner';
 import { BoardPanel } from './overlay/BoardPanel';
 import { BuildingPanel } from './overlay/BuildingPanel';
+import { ChatInput } from './overlay/ChatInput';
 import { ConnectionBadge } from './overlay/ConnectionBadge';
 import { ControlButton } from './overlay/ControlButton';
 import { EmoteBar } from './overlay/EmoteBar';
@@ -34,6 +35,7 @@ export function UiRoot() {
         <div className="ov-bottom">
           <ControlButton {...overlay.control} />
           <EmoteBar {...overlay.emoteBar} />
+          <ChatInput {...overlay.chat} />
         </div>
       )}
       <ScreenHost />

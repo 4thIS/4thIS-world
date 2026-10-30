@@ -62,6 +62,9 @@ export function useFocusExit() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
+      // 입력칸(말풍선 채팅 등)의 Esc는 그 칸을 비우는 데 쓴다
+      const el = e.target as HTMLElement | null;
+      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA') return;
       if (shouldClearOnEscape(currentState())) clearFocus();
     };
     // 캡처 단계에서 먼저 본다: 모달이 Esc로 닫히기 전 상태로 판단해야 모달과 포커스가 한 번에 같이 닫히지 않는다

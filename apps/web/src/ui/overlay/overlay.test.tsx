@@ -45,6 +45,15 @@ describe('TopBar', () => {
     useUi.getState().close();
   });
 
+  it('🔈을 누르면 대사음을 켠다', () => {
+    const onToggleSound = vi.fn();
+    render(
+      <TopBar clock="수 14:10" skyIcon="☀️" onHome={() => {}} onToggleSound={onToggleSound} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: '대사음 켜기' }));
+    expect(onToggleSound).toHaveBeenCalledOnce();
+  });
+
   it('🏠을 누르면 처음 시야로', () => {
     const onHome = vi.fn();
     render(<TopBar clock="수 14:10" skyIcon="☀️" onHome={onHome} />);

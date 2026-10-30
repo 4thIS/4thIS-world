@@ -8,6 +8,7 @@ import { useNow } from './clock';
 import { myMemberId, useRealtime } from './realtime';
 import { useSession } from './session';
 import { weatherIcon, weatherLabel } from '../world/campus/weatherSky';
+import { useSound } from './sound';
 import { useWeather } from './weather';
 import { useWorld } from './world';
 
@@ -23,6 +24,8 @@ export function useOverlayProps(): OverlayProps {
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
   const goHome = useWorld((s) => s.goHome);
   const weather = useWeather((s) => s.now);
+  const soundOn = useSound((s) => s.enabled);
+  const toggleSound = useSound((s) => s.toggle);
   const focusMember = useWorld((s) => s.focusMember);
   const setHiddenAboveFloor = useWorld((s) => s.setHiddenAboveFloor);
   // 조종 중에는 local이 매 프레임 바뀌므로 필요한 값만 골라 구독한다
@@ -98,6 +101,8 @@ export function useOverlayProps(): OverlayProps {
       clock: formatClock(t),
       skyIcon: weatherIcon(weather, skyIconAt(t)),
       weatherLabel: weatherLabel(weather),
+      soundOn,
+      onToggleSound: toggleSound,
       onHome: goHome,
     },
     presence: {
@@ -109,6 +114,7 @@ export function useOverlayProps(): OverlayProps {
       onSelect: (id) => focusMember(id),
     },
     emoteBar: { disabled: !online || !me, onEmote: rt.sendEmote },
+    chat: { disabled: !online || !me, onSend: useRealtime.getState().sendChat },
     control: {
       controlling: rt.controlling,
       disabled: !online || !me,

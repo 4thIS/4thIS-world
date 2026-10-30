@@ -2,11 +2,12 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
 import { rand01 } from '@4this/shared';
-import type { CharacterProps } from '../contracts';
+import type { ActiveChat, CharacterProps } from '../contracts';
 import { EyesAccessory } from './accessories/eyes';
 import { HeadAccessory } from './accessories/head';
 import { NeckAccessory } from './accessories/neck';
 import { characterColors } from './colors';
+import { ChatBubbles } from './ChatBubbles';
 import { EmoteBubble } from './EmoteBubble';
 import { geo } from './geometries';
 import { BookProp, HandProp } from './HeldProp';
@@ -34,12 +35,16 @@ const EMOTE_HEIGHT = 2.6 * CHARACTER_SCALE;
  * - Group 원점 = 발밑. 위치·방향은 sim(cw)이 ref로 받은 Group을 매 프레임 직접 움직인다.
  * - 지오메트리·재질은 캐시를 공유한다. 그래서 뿌리에 dispose={null}을 건다.
  */
+/** 말풍선이 없을 때 (렌더마다 새 배열을 만들지 않게) */
+const NO_CHATS: readonly ActiveChat[] = [];
+
 export function Character({
   look,
   pose,
   name,
   status,
   emote = null,
+  chats = NO_CHATS,
   highlight = false,
   opacity = 1,
   umbrella = false,
@@ -218,6 +223,9 @@ export function Character({
 
       <NameTag name={name} status={status} height={TAG_HEIGHT + lift} opacity={opacity} />
       {emote && <EmoteBubble key={emote.at} emote={emote} height={EMOTE_HEIGHT + lift} />}
+      {chats.length > 0 && (
+        <ChatBubbles chats={chats} height={EMOTE_HEIGHT + lift} aboveEmote={emote !== null} />
+      )}
     </group>
   );
 }
