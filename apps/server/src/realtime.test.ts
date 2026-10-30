@@ -5,6 +5,7 @@ import {
   ADMIN_ID,
   API,
   type ChatEvent,
+  type MotionEvent,
   type ClientToServerEvents,
   type ControlState,
   type EmoteEvent,
@@ -290,6 +291,30 @@ describe('실시간 (Socket.IO 통합)', () => {
     await waitFor(() => chats.length === 1);
     await pause(80);
     expect(chats).toEqual([{ memberId: a.id, text: '안녕하세요', at: clock }]);
+  });
+
+  it('모션은 모두에게 가고, 누워 있으면 새로 온 사람도 받으며, 움직이면 일어난다', async () => {
+    const a = await signupAs(t, '철수', { approve: true });
+    const guest = await connect();
+    const me = await connect(a.cookie);
+    const seen: MotionEvent[] = [];
+    guest.socket.on('motion', (e) => seen.push(e));
+    me.socket.emit('control:start');
+    me.socket.emit('motion', { kind: 'lie', pos: [1, 2] });
+    await waitFor(() => seen.length === 1);
+    expect(seen[0]).toMatchObject({ memberId: a.id, kind: 'lie', pos: [1, 2] });
+
+    // 나중에 들어온 사람도 누워 있는 걸 안다 (접속하자마자 받는다)
+    const third = await new Promise<MotionEvent>((resolve) => {
+      const c = connectClient(url, { transports: ['websocket'], forceNew: true });
+      clients.push(c);
+      c.on('motion', resolve);
+    });
+    expect(third).toMatchObject({ memberId: a.id, kind: 'lie' });
+
+    me.socket.emit('control:move', { x: 3, z: 3, facing: 0, moving: true });
+    await waitFor(() => seen.some((e) => e.kind === null));
+    expect(seen.at(-1)).toMatchObject({ memberId: a.id, kind: null });
   });
 
   it('시간표가 바뀌면 world:changed', async () => {

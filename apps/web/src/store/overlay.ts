@@ -119,6 +119,10 @@ export function useOverlayProps(): OverlayProps {
     },
     emoteBar: { disabled: !online || !me, onEmote: rt.sendEmote },
     chat: { disabled: !online || !me, onSend: useRealtime.getState().sendChat },
+    motionBar: {
+      disabled: !online || !me,
+      onMotion: (kind) => void useRealtime.getState().sendMotion(kind),
+    },
     control: {
       controlling: rt.controlling,
       disabled: !online || !me,

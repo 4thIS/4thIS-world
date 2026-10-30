@@ -144,6 +144,49 @@ describe('RealtimeHub', () => {
     expect(hub.chat('s1', '다시')?.text).toBe('다시');
   });
 
+  it('모션: 멤버만, 초당 1회. 눕기는 남겨 두었다가 새로 온 사람에게도 알린다', () => {
+    hub.connect('s1', 'm1');
+    hub.connect('g1', null);
+    expect(hub.motion('g1', 'wave', [0, 0])).toBeNull();
+    expect(hub.motion('s1', 'wave', [1, 2])).toEqual({
+      memberId: 'm1',
+      kind: 'wave',
+      pos: [1, 2],
+      at: Date.now(),
+    });
+    expect(hub.motion('s1', 'cheer', [1, 2])).toBeNull();
+    expect(hub.heldMotions()).toEqual([]);
+    vi.advanceTimersByTime(1000);
+    const lie = hub.motion('s1', 'lie', [3, 4]);
+    expect(hub.heldMotions()).toEqual([lie]);
+  });
+
+  it('눕기는 움직이거나 조종을 놓거나 다른 모션을 하거나 모두 떠나면 끝난다', () => {
+    hub.connect('s1', 'm1');
+    hub.startControl('s1');
+    hub.motion('s1', 'lie', [0, 0]);
+    // 제자리 입력(멈춤)은 그대로
+    expect(hub.moveClearsMotion('s1', { ...move(), moving: false })).toBeNull();
+    expect(hub.moveClearsMotion('s1', move())).toBe('m1');
+    expect(hub.heldMotions()).toEqual([]);
+
+    vi.advanceTimersByTime(1000);
+    hub.motion('s1', 'lie', [0, 0]);
+    expect(hub.stopControl('s1')).toBe('m1');
+    expect(hub.clearMotion('m1')).toBe('m1');
+    expect(hub.clearMotion('m1')).toBeNull();
+
+    vi.advanceTimersByTime(1000);
+    hub.motion('s1', 'lie', [0, 0]);
+    vi.advanceTimersByTime(1000);
+    hub.motion('s1', 'wave', [0, 0]);
+    expect(hub.heldMotions()).toEqual([]);
+
+    vi.advanceTimersByTime(1000);
+    hub.motion('s1', 'lie', [0, 0]);
+    expect(hub.disconnectClearsMotion('s1')).toBe('m1');
+  });
+
   it('승인 취소되면 구경꾼으로 바뀌고 조종이 풀린다', () => {
     hub.connect('s1', 'm1');
     hub.startControl('s1');

@@ -2,18 +2,21 @@ import { create } from 'zustand';
 import {
   ADMIN_ID,
   CAMPUS,
+  HELD_MOTIONS,
+  MOTION_DURATION_MS,
   SOCKET_LIMITS,
   cleanChat,
   sampleAt,
   type ControlMove,
   type Emoji,
+  type Motion,
   type PlaceId,
   type Presence,
   type Vec2,
 } from '@4this/shared';
 import { createSocket, type GameSocket } from '../api/socket';
 import { CHAT_DURATION_MS, CHAT_STACK_MAX } from '../world/characters/chatTiming';
-import type { ActiveChat, ActiveEmote } from '../world/contracts';
+import type { ActiveChat, ActiveEmote, ActiveMotion } from '../world/contracts';
 import { isIndoor, moverFloor, moverHeight, startMover } from '../world/sim/indoor';
 import { createThrottle } from '../world/sim/input';
 import { memberObjects } from '../world/sim/registry';
@@ -37,6 +40,8 @@ export interface RealtimeState {
   /** 조종이 풀려 placement 자리로 걸어서 돌아가는 중 */
   returning: Record<string, ReturnWalk>;
   emotes: Record<string, ActiveEmote>;
+  /** 멤버별 지금 하는 모션. 눕기는 pos(누운 자리)를 벗어나면 그리지 않는다 */
+  motions: Record<string, ActiveMotion & { pos: [number, number] }>;
   /** 멤버별 머리 위 말풍선 (오래된 것부터, 최대 CHAT_STACK_MAX개) */
   chats: Record<string, ActiveChat[]>;
   /** 내가 조종 중인가 */
@@ -55,6 +60,8 @@ export interface RealtimeState {
   sendEmote: (emoji: Emoji) => void;
   /** 말풍선 채팅 보내기. 다듬어 비었으면 'empty', 1초 안에 또 보내면 'tooFast' */
   sendChat: (text: string) => 'sent' | 'empty' | 'tooFast';
+  /** 모션 보내기 (내 캐릭터 자리를 붙인다). 1초 안에 또 보내면 false */
+  sendMotion: (kind: Motion) => boolean;
   togglePresence: () => void;
   openBoard: () => void;
   closeBoard: () => void;
@@ -76,6 +83,7 @@ let lastSent: ControlMove | null = null;
 /** 말풍선 번호 (React key)와 마지막으로 보낸 시각 */
 let chatSeq = 0;
 let lastChatSent = -Infinity;
+let lastMotionSent = -Infinity;
 
 const sameMove = (a: ControlMove | null, b: ControlMove) =>
   a !== null &&
@@ -121,6 +129,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
   returning: {},
   emotes: {},
   chats: {},
+  motions: {},
   controlling: false,
   local: null,
   presenceCollapsed: startCollapsed(),
@@ -184,6 +193,27 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
           return { chats };
         });
       }, CHAT_DURATION_MS);
+    });
+    s.on('motion', ({ memberId, kind, pos }) => {
+      if (kind === null) {
+        set((st) => {
+          const motions = { ...st.motions };
+          delete motions[memberId];
+          return { motions };
+        });
+        return;
+      }
+      const motion = { kind, pos, at: performance.now() };
+      set((st) => ({ motions: { ...st.motions, [memberId]: motion } }));
+      if (HELD_MOTIONS.has(kind)) return;
+      setTimeout(() => {
+        set((st) => {
+          if (st.motions[memberId] !== motion) return st;
+          const motions = { ...st.motions };
+          delete motions[memberId];
+          return { motions };
+        });
+      }, MOTION_DURATION_MS);
     });
     s.on('emote', ({ memberId, emoji }) => {
       const emote: ActiveEmote = { emoji, at: performance.now() };
@@ -266,6 +296,17 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
 
   sendEmote: (emoji) => {
     if (get().connection === 'connected') socket?.emit('emote', { emoji });
+  },
+
+  sendMotion: (kind) => {
+    const t = Date.now();
+    if (t - lastMotionSent < 1000 / SOCKET_LIMITS.motionPerSec) return false;
+    lastMotionSent = t;
+    const me = myMemberId();
+    const shown = me ? memberObjects.get(me) : undefined;
+    const pos: [number, number] = shown ? [shown.position.x, shown.position.z] : [0, 0];
+    socket?.emit('motion', { kind, pos });
+    return true;
   },
 
   sendChat: (raw) => {

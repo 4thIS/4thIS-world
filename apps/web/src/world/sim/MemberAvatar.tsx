@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Frustum, Matrix4, Vector3, type Group } from 'three';
-import { ADMIN_ID, CAMPUS, type PublicMember } from '@4this/shared';
+import { ADMIN_ID, CAMPUS, HELD_MOTIONS, type PublicMember } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
 import { useSound } from '../../store/sound';
 import { speak } from '../../sound/audio';
@@ -24,6 +24,9 @@ import { registerMember } from './registry';
 import { resolvePose } from './resolvePose';
 import { needsUmbrella } from './umbrella';
 
+/** 누운 자리에서 이만큼(m) 벗어나면 일어난 것으로 본다 */
+const LIE_RADIUS = 0.8;
+
 /**
  * 멤버 한 명. 매 프레임 resolvePose → ref의 위치·방향을 부드럽게 맞춘다.
  * 포즈·이름표·투명도는 바뀔 때만 React state로 올린다 (매 프레임 setState 금지).
@@ -44,6 +47,10 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const focusMember = useWorld((s) => s.focusMember);
   const emote = useRealtime((s) => s.emotes[member.id] ?? null);
   const chats = useRealtime((s) => s.chats[member.id]);
+  const motion = useRealtime((s) => s.motions[member.id] ?? null);
+  /** 눕기 자리를 벗어났으면(시간표대로 걷기 시작 등) 그리지 않는다 */
+  const lieValid = useRef(true);
+  const [motionShown, setMotionShown] = useState(true);
   const camera = useThree((s) => s.camera);
   const voice = useMemo(() => voiceOf(member.look.animal, member.id), [member]);
   const voiced = useRef(0);
@@ -84,6 +91,15 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       setDisplay(next);
     }
     group.visible = next.visible;
+    const m = useRealtime.getState().motions[member.id];
+    const valid =
+      !m ||
+      !HELD_MOTIONS.has(m.kind) ||
+      Math.hypot(group.position.x - m.pos[0], group.position.z - m.pos[1]) < LIE_RADIUS;
+    if (valid !== lieValid.current) {
+      lieValid.current = valid;
+      setMotionShown(valid);
+    }
     const u = pose !== null && needsUmbrella(pose, useWeather.getState().now?.kind ?? null);
     if (u !== umbrellaOn.current) {
       umbrellaOn.current = u;
@@ -112,6 +128,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       opacity={display.opacity}
       emote={emote}
       chats={chats}
+      motion={motionShown ? motion : null}
       highlight={isMe}
       umbrella={umbrella}
       onClick={() => focusMember(member.id)}

@@ -9,6 +9,8 @@ import { NeckAccessory } from './accessories/neck';
 import { characterColors } from './colors';
 import { ChatBubbles } from './ChatBubbles';
 import { EmoteBubble } from './EmoteBubble';
+import { Fireworks } from './Fireworks';
+import { motionFrame } from './motionFrames';
 import { geo } from './geometries';
 import { BookProp, HandProp } from './HeldProp';
 import { HighlightRing } from './HighlightRing';
@@ -45,6 +47,7 @@ export function Character({
   status,
   emote = null,
   chats = NO_CHATS,
+  motion = null,
   highlight = false,
   opacity = 1,
   umbrella = false,
@@ -88,9 +91,10 @@ export function Character({
     const t = clock.elapsedTime;
     let f = poseFrame(pose, t, phase);
     if (look.animal === 'lion' && pose === 'sitType') f = withStretch(f, t, phase);
+    if (motion) f = motionFrame(f, motion.kind, performance.now() - motion.at) ?? f;
     if (body.current) {
       body.current.position.y = f.bodyY;
-      body.current.rotation.set(f.bodyPitch, 0, f.bodyRoll);
+      body.current.rotation.set(f.bodyPitch, f.bodyYaw ?? 0, f.bodyRoll);
     }
     head.current?.rotation.set(f.headPitch, f.headYaw, f.headRoll);
     eyes.current?.scale.set(1, blinkScale(t, phase), 1);
@@ -222,6 +226,9 @@ export function Character({
       </OpacityStepContext>
 
       <NameTag name={name} status={status} height={TAG_HEIGHT + lift} opacity={opacity} />
+      {motion?.kind === 'firework' && (
+        <Fireworks key={motion.at} at={motion.at} height={EMOTE_HEIGHT + 0.6} />
+      )}
       {emote && <EmoteBubble key={emote.at} emote={emote} height={EMOTE_HEIGHT + lift} />}
       {chats.length > 0 && (
         <ChatBubbles chats={chats} height={EMOTE_HEIGHT + lift} aboveEmote={emote !== null} />

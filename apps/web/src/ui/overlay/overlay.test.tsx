@@ -7,6 +7,7 @@ import { BuildingPanel } from './BuildingPanel';
 import { ConnectionBadge } from './ConnectionBadge';
 import { ControlButton } from './ControlButton';
 import { EmoteBar } from './EmoteBar';
+import { MotionBar } from './MotionBar';
 import { PresencePanel } from './PresencePanel';
 import { TopBar } from './TopBar';
 
@@ -164,6 +165,25 @@ describe('EmoteBar (이모지 버튼)', () => {
     render(<EmoteBar disabled onEmote={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: '이모지' }));
     expect(screen.queryByRole('group', { name: '이모지 반응' })).toBeNull();
+  });
+});
+
+describe('MotionBar (모션 버튼)', () => {
+  it('누르면 위로 8개가 펼쳐지고, 고르면 그 모션을 보내고 닫힌다', () => {
+    const onMotion = vi.fn();
+    render(<MotionBar disabled={false} onMotion={onMotion} />);
+    fireEvent.click(screen.getByRole('button', { name: '모션' }));
+    const group = screen.getByRole('group', { name: '모션' });
+    expect(within(group).getAllByRole('button')).toHaveLength(8);
+    fireEvent.click(screen.getByRole('button', { name: '눕기' }));
+    expect(onMotion).toHaveBeenCalledWith('lie');
+    expect(screen.queryByRole('group', { name: '모션' })).toBeNull();
+  });
+
+  it('비활성이면 펼칠 수 없다', () => {
+    render(<MotionBar disabled onMotion={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: '모션' }));
+    expect(screen.queryByRole('group', { name: '모션' })).toBeNull();
   });
 });
 
