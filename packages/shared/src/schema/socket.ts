@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ChatEvent, ChatRequest } from './chat';
 import type { MotionEvent, MotionRequest } from './motion';
+import type { ShotEvent, ShotRequest } from './shot';
 
 export const EMOJIS = ['👋', '❤️', '😂', '👍', '😮', '😴', '🎉', '☕'] as const;
 export type Emoji = (typeof EMOJIS)[number];
@@ -14,6 +15,8 @@ export const SOCKET_LIMITS = {
   chatPerSec: 1,
   /** motion(모션) 멤버당 초당 최대 횟수 */
   motionPerSec: 1,
+  /** shot(장난감 쏘기) 멤버당 초당 최대 횟수 */
+  shotPerSec: 3,
   /** 이 시간 동안 control:move가 없으면 조종이 풀린다 */
   controlIdleMs: 60_000,
   /** control:state 묶음 전송 빈도 */
@@ -66,6 +69,8 @@ export interface ServerToClientEvents {
   'chat:history': (events: ChatEvent[]) => void;
   /** 모션. kind가 null이면 눕기 그만 */
   motion: (e: MotionEvent) => void;
+  /** 장난감 쏘기 */
+  shot: (e: ShotEvent) => void;
   /** 서버가 받은 날씨가 바뀌었다 → GET /api/weather를 다시 부른다 */
   'weather:changed': () => void;
   'control:state': (states: ControlState[]) => void;
@@ -81,4 +86,5 @@ export interface ClientToServerEvents {
   emote: (r: EmoteRequest) => void;
   chat: (r: ChatRequest) => void;
   motion: (r: MotionRequest) => void;
+  shot: (r: ShotRequest) => void;
 }

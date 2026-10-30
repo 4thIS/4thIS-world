@@ -6,6 +6,7 @@ import {
   API,
   type ChatEvent,
   type MotionEvent,
+  type ShotEvent,
   type ClientToServerEvents,
   type ControlState,
   type EmoteEvent,
@@ -315,6 +316,30 @@ describe('실시간 (Socket.IO 통합)', () => {
     me.socket.emit('control:move', { x: 3, z: 3, facing: 0, moving: true });
     await waitFor(() => seen.some((e) => e.kind === null));
     expect(seen.at(-1)).toMatchObject({ memberId: a.id, kind: null });
+  });
+
+  it('장난감 쏘기는 조종 중에 모두에게 가고, 관리자가 끄면 막힌다', async () => {
+    const a = await signupAs(t, '철수', { approve: true });
+    const guest = await connect();
+    const me = await connect(a.cookie);
+    const shots: ShotEvent[] = [];
+    guest.socket.on('shot', (e) => shots.push(e));
+    const shot = { weapon: 'snow' as const, hit: null, dist: 12 };
+    me.socket.emit('control:start');
+    me.socket.emit('shot', { ...shot, from: [0, 1, 0], dir: [1, 0] });
+    await waitFor(() => shots.length === 1);
+    expect(shots[0]).toMatchObject({ memberId: a.id, weapon: 'snow' });
+
+    await t.app.inject({
+      method: 'PATCH',
+      url: API.adminFeatures,
+      headers: { cookie: await adminCookie(t) },
+      payload: { shooting: false },
+    });
+    clock += 1000;
+    me.socket.emit('shot', { ...shot, from: [0, 1, 0], dir: [1, 0] });
+    await pause(80);
+    expect(shots).toHaveLength(1);
   });
 
   it('시간표가 바뀌면 world:changed', async () => {

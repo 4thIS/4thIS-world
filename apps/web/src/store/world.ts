@@ -4,11 +4,13 @@ import {
   ADMIN_NAME,
   CAMPUS,
   DAY_MS,
+  DEFAULT_FEATURES,
   computeDay,
   kstDate,
   kstMidnight,
   type BuildingId,
   type DayPlan,
+  type Features,
   type PublicMember,
   type WorldResponse,
 } from '@4this/shared';
@@ -33,6 +35,8 @@ export interface WorldState {
   focusedMember: string | null;
   /** goHome()마다 1씩 오른다. 카메라가 보고 처음 시야로 돌아간다 */
   homeNonce: number;
+  /** 관리자가 켜고 끄는 기능 (장난감 쏘기) */
+  features: Features;
   /** 오늘 0~23시 각 시간에 비·눈이 오나 (날씨 스토어가 넣는다). placement가 공원 대신 실내로 보낸다 */
   wetHours: readonly boolean[];
 
@@ -68,6 +72,7 @@ export const useWorld = create<WorldState>()((set, get) => ({
   hiddenAboveFloor: null,
   focusedMember: null,
   homeNonce: 0,
+  features: DEFAULT_FEATURES,
   wetHours: [],
 
   load: async () => {
@@ -91,6 +96,7 @@ export const useWorld = create<WorldState>()((set, get) => ({
       clock: { base: world.serverTime, realBase, speed: s.clock.speed },
       plan: null,
       planUntil: 0,
+      features: world.features ?? DEFAULT_FEATURES,
     }));
     get().ensurePlan();
   },

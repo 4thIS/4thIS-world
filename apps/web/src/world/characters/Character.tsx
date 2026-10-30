@@ -10,6 +10,8 @@ import { characterColors } from './colors';
 import { ChatBubbles } from './ChatBubbles';
 import { EmoteBubble } from './EmoteBubble';
 import { Fireworks } from './Fireworks';
+import { HitBurst } from './HitBurst';
+import { hitFrame } from '../sim/shots';
 import { motionFrame } from './motionFrames';
 import { geo } from './geometries';
 import { BookProp, HandProp } from './HeldProp';
@@ -48,6 +50,7 @@ export function Character({
   emote = null,
   chats = NO_CHATS,
   motion = null,
+  hit = null,
   highlight = false,
   opacity = 1,
   umbrella = false,
@@ -92,6 +95,7 @@ export function Character({
     let f = poseFrame(pose, t, phase);
     if (look.animal === 'lion' && pose === 'sitType') f = withStretch(f, t, phase);
     if (motion) f = motionFrame(f, motion.kind, performance.now() - motion.at) ?? f;
+    if (hit) f = hitFrame(f, hit.weapon, performance.now() - hit.at) ?? f;
     if (body.current) {
       body.current.position.y = f.bodyY;
       body.current.rotation.set(f.bodyPitch, f.bodyYaw ?? 0, f.bodyRoll);
@@ -226,6 +230,7 @@ export function Character({
       </OpacityStepContext>
 
       <NameTag name={name} status={status} height={TAG_HEIGHT + lift} opacity={opacity} />
+      {hit && <HitBurst key={hit.at} weapon={hit.weapon} at={hit.at} height={TAG_HEIGHT * 0.75} />}
       {motion?.kind === 'firework' && (
         <Fireworks key={motion.at} at={motion.at} height={EMOTE_HEIGHT + 0.6} />
       )}

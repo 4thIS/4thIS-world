@@ -6,16 +6,19 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import {
   AdminLookSchema,
   AdminPatchMemberRequestSchema,
+  FeaturesSchema,
   PutSchedulesRequestSchema,
   API,
   kstDate,
   type AdminLook,
   type AdminMember,
   type AdminMembersResponse,
+  type Features,
   type MemberStatus,
   type SchedulesResponse,
 } from '@4this/shared';
 import { setAdminLook } from '../adminLook';
+import { setFeatures } from '../features';
 import { listSchedules, replaceSchedules } from '../schedules';
 import { assertNoOverlap } from './me';
 import { hashPassword } from '../auth/password';
@@ -115,6 +118,15 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     setAdminLook(db, look);
     events.emit('world:changed');
     return { look };
+  });
+
+  /** 기능 켜기·끄기 (장난감 쏘기). 바꾸면 모두의 월드가 다시 불러온다 */
+  app.patch(API.adminFeatures, async (request): Promise<Features> => {
+    requireAdmin(request);
+    const features = parse(FeaturesSchema, request.body);
+    setFeatures(db, features);
+    events.emit('world:changed');
+    return features;
   });
 
   /** 다른 사람 시간표 보기 */

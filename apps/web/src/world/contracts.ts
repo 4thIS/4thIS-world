@@ -1,6 +1,6 @@
 import type { Ref } from 'react';
 import type { Group } from 'three';
-import type { BuildingId, Emoji, Look, Motion, PoseKind, WeatherNow } from '@4this/shared';
+import type { BuildingId, Emoji, Look, Motion, PoseKind, WeatherNow, Weapon } from '@4this/shared';
 
 /** 사자 교수님 전용 생김새 (학생은 고를 수 없다) */
 export interface LionLook {
@@ -51,6 +51,8 @@ export interface CharacterProps {
   name?: string;
   status?: string;
   emote?: ActiveEmote | null;
+  /** 장난감에 맞은 반응 (at: 맞는 순간 performance.now() ms) */
+  hit?: { weapon: Weapon; at: number } | null;
   /** 모션 버튼으로 하는 동작 (없으면 null) */
   motion?: ActiveMotion | null;
   /** 머리 위 말풍선 (오래된 것부터, 최대 3개) */

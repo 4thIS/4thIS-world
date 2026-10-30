@@ -5,6 +5,7 @@ import {
   CHAT_HISTORY_MAX,
   HELD_MOTIONS,
   MOTION_DURATION_MS,
+  SHOT_RANGE,
   SOCKET_LIMITS,
   cleanChat,
   sampleAt,
@@ -12,6 +13,8 @@ import {
   type ControlMove,
   type Emoji,
   type Motion,
+  type ShotEvent,
+  type Weapon,
   type PlaceId,
   type Presence,
   type Vec2,
@@ -22,6 +25,7 @@ import type { ActiveChat, ActiveEmote, ActiveMotion } from '../world/contracts';
 import { isIndoor, moverFloor, moverHeight, startMover } from '../world/sim/indoor';
 import { createThrottle } from '../world/sim/input';
 import { memberObjects } from '../world/sim/registry';
+import { HAND_Y, HIT_MS, findHit, travelSec, type Target } from '../world/sim/shots';
 import { planReturn, pushSample, type RemoteTrack, type ReturnWalk } from '../world/sim/remote';
 import { useSession } from './session';
 import { useWeather } from './weather';
@@ -44,6 +48,15 @@ export interface RealtimeState {
   emotes: Record<string, ActiveEmote>;
   /** 멤버별 지금 하는 모션. 눕기는 pos(누운 자리)를 벗어나면 그리지 않는다 */
   motions: Record<string, ActiveMotion & { pos: [number, number] }>;
+  /** 지금 날아가는 장난감 (물총·눈덩이·광선총) */
+  shots: ActiveShot[];
+  /** 멤버별 맞은 반응. at은 맞는 순간(날아오는 시간 뒤) performance.now() ms */
+  hits: Record<string, ActiveHit>;
+  /** 고른 장난감 */
+  weapon: Weapon;
+  setWeapon: (weapon: Weapon) => void;
+  /** 내 캐릭터가 보는 방향으로 쏜다 (조종 중·켜져 있을 때). 너무 빠르면 false */
+  sendShot: () => boolean;
   /** 채팅 기록 (오래된 것부터, 최대 CHAT_HISTORY_MAX개). 접속하면 서버가 최근 기록을 준다 */
   chatLog: ChatEvent[];
   /** 채팅 기록 창이 열렸나 (브라우저에 기억) */
@@ -93,6 +106,17 @@ let lastSent: ControlMove | null = null;
 let chatSeq = 0;
 let lastChatSent = -Infinity;
 let lastMotionSent = -Infinity;
+let lastShotSent = -Infinity;
+let shotSeq = 0;
+
+/** 날아가는 장난감 하나. start는 받은 시각 performance.now() ms */
+export type ActiveShot = ShotEvent & { id: number; start: number };
+
+/** 맞은 반응 */
+export interface ActiveHit {
+  weapon: Weapon;
+  at: number;
+}
 
 /** 채팅 기록 창을 열어 두었는지 (브라우저에 기억) */
 const LOG_OPEN_KEY = '4this-chat-log-open';
@@ -148,6 +172,10 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
   returning: {},
   emotes: {},
   chats: {},
+  shots: [],
+  hits: {},
+  weapon: 'water',
+  setWeapon: (weapon) => set({ weapon }),
   chatLog: [],
   chatLogOpen: savedLogOpen(),
   chatUnread: false,
@@ -206,6 +234,28 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
         returning,
         ...(isMe ? { controlling: false, local: null } : {}),
       });
+    });
+    s.on('shot', (event) => {
+      const now = performance.now();
+      const travelMs = travelSec(event.weapon, event.dist) * 1000;
+      const shot: ActiveShot = { ...event, id: ++shotSeq, start: now };
+      set((st) => ({ shots: [...st.shots, shot] }));
+      setTimeout(
+        () => set((st) => ({ shots: st.shots.filter((x) => x.id !== shot.id) })),
+        travelMs + 50,
+      );
+      if (!event.hit) return;
+      const target = event.hit;
+      const hit: ActiveHit = { weapon: event.weapon, at: now + travelMs };
+      set((st) => ({ hits: { ...st.hits, [target]: hit } }));
+      setTimeout(() => {
+        set((st) => {
+          if (st.hits[target] !== hit) return st;
+          const hits = { ...st.hits };
+          delete hits[target];
+          return { hits };
+        });
+      }, travelMs + HIT_MS);
     });
     s.on('chat:history', (events) =>
       set({ chatLog: events.slice(-CHAT_HISTORY_MAX), chatUnread: false }),
@@ -335,6 +385,33 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
 
   sendEmote: (emoji) => {
     if (get().connection === 'connected') socket?.emit('emote', { emoji });
+  },
+
+  sendShot: () => {
+    const st = get();
+    const me = myMemberId();
+    const local = st.local;
+    if (!st.controlling || !me || !local || !useWorld.getState().features.shooting) return false;
+    const t = Date.now();
+    if (t - lastShotSent < 1000 / SOCKET_LIMITS.shotPerSec) return false;
+    lastShotSent = t;
+    const from: [number, number, number] = [local.x, local.y + HAND_Y, local.z];
+    // facing 0 = +z
+    const dir: [number, number] = [Math.sin(local.facing), Math.cos(local.facing)];
+    const targets: Target[] = [];
+    for (const [id, o] of memberObjects) {
+      if (id === me || !o.visible) continue;
+      targets.push({ id, x: o.position.x, y: o.position.y, z: o.position.z });
+    }
+    const hit = findHit(from, dir, targets);
+    socket?.emit('shot', {
+      weapon: st.weapon,
+      from,
+      dir,
+      hit: hit?.id ?? null,
+      dist: hit?.dist ?? SHOT_RANGE,
+    });
+    return true;
   },
 
   sendMotion: (kind) => {

@@ -30,6 +30,7 @@ export function useOverlayProps(): OverlayProps {
   const focusedBuilding = useWorld((s) => s.focusedBuilding);
   const hiddenAboveFloor = useWorld((s) => s.hiddenAboveFloor);
   const goHome = useWorld((s) => s.goHome);
+  const shooting = useWorld((s) => s.features.shooting);
   const weather = useWeather((s) => s.now);
   const soundOn = useSound((s) => s.enabled);
   const toggleSound = useSound((s) => s.toggle);
@@ -55,6 +56,7 @@ export function useOverlayProps(): OverlayProps {
       chatLogOpen: s.chatLogOpen,
       chatUnread: s.chatUnread,
       toggleChatLog: s.toggleChatLog,
+      weapon: s.weapon,
     })),
   );
   const session = useSession((s) => s.session); // 로그인 상태가 바뀌면 다시 렌더
@@ -151,6 +153,14 @@ export function useOverlayProps(): OverlayProps {
       unread: rt.chatUnread,
       onToggle: rt.toggleChatLog,
     },
+    weaponBar:
+      rt.controlling && shooting
+        ? {
+            weapon: rt.weapon,
+            onPick: useRealtime.getState().setWeapon,
+            onFire: () => void useRealtime.getState().sendShot(),
+          }
+        : null,
     motionBar: {
       disabled: !online || !me,
       onMotion: (kind) => void useRealtime.getState().sendMotion(kind),
