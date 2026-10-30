@@ -45,12 +45,23 @@ describe('ScheduleScreen 격자', () => {
     expect(screen.getByLabelText('월 09:00~10:00 1학년 강의')).toBeTruthy();
   });
 
-  it('빈 칸을 끌어 일정을 만든다', async () => {
+  it('빈 칸을 끌어 일정을 만든다 (종류는 일정 창에서 고른다)', async () => {
     await renderLoaded([]);
     const grid = stubGridRect();
-    fireEvent.click(screen.getByRole('button', { name: '연구' }));
     drag(grid, [150, 60], [150, 100]);
+    const dialog = screen.getByRole('dialog', { name: '새 일정' });
+    fireEvent.click(within(dialog).getByRole('button', { name: '연구' }));
+    expect(within(dialog).getByText('📍 연구동 2층에서 보내요')).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole('button', { name: '완료' }));
     expect(screen.getByLabelText('화 07:30~09:00 연구')).toBeTruthy();
+  });
+
+  it('위에 종류 목록 대신 종류별 위치 안내가 있다', async () => {
+    await renderLoaded([]);
+    const legend = screen.getByRole('list', { name: '일정 종류별 위치' });
+    expect(legend.textContent).toContain('1학년 강의공학관 1층');
+    expect(legend.textContent).toContain('외부 일정카페');
+    expect(screen.queryByRole('group', { name: '종류' })).toBeNull();
   });
 
   it('블록을 끌어 다른 요일로 옮긴다', async () => {

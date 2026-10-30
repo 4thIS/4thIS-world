@@ -196,3 +196,34 @@
 .sch-editor {
   width: min(420px, 100%);
 }
+
+/* 일정 종류별 위치 안내 */
+.sch-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 4px 14px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: rgba(255, 240, 246, 0.6);
+  list-style: none;
+  font-size: 13px;
+}
+
+.sch-legend li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sch-legend__place {
+  color: var(--ink-soft);
+}
+
+.sch-legend__place::before {
+  content: '· ';
+}
+
+.sch-editor__place {
+  margin: -4px 0 0;
+}

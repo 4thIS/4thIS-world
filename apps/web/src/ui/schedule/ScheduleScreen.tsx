@@ -9,10 +9,13 @@ import { useUi } from '../store';
 import { BlockEditor } from './BlockEditor';
 import { DormToggle } from './DormToggle';
 import { cleanItems, overlapping } from './grid';
-import { KindChips } from './KindChips';
+import { KindLegend } from './KindLegend';
 import { ScheduleListEditor } from './ScheduleListEditor';
 import { WeekGrid } from './WeekGrid';
 import './schedule.css';
+
+/** 끌어 만들 때 처음 종류 (일정 창에서 바꾼다) */
+const NEW_KIND: Kind = 'lecture1';
 
 type Status =
   { kind: 'loading' } | { kind: 'ready' } | { kind: 'saved' } | { kind: 'error'; message: string };
@@ -24,7 +27,6 @@ export function ScheduleScreen() {
   const mobile = useMediaQuery(MOBILE_QUERY);
   const [items, setItems] = useState<ScheduleItem[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
-  const [kind, setKind] = useState<Kind>('lecture1');
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
   /** 겹쳐 뜨는 일정 창: 고치는 일정 번호와 방금 만든 것인지 */
   const [editing, setEditing] = useState<{ index: number; isNew: boolean } | null>(null);
@@ -69,16 +71,6 @@ export function ScheduleScreen() {
     if (status.kind === 'saved') setStatus({ kind: 'ready' });
   };
 
-  const updateSelected = (patch: Partial<ScheduleItem>) => {
-    if (selected === null) return;
-    change(items.map((it, i) => (i === selected ? { ...it, ...patch } : it)));
-  };
-
-  const pickKind = (k: Kind) => {
-    setKind(k);
-    updateSelected({ kind: k });
-  };
-
   const save = async () => {
     setBusy(true);
     try {
@@ -95,8 +87,6 @@ export function ScheduleScreen() {
     }
   };
 
-  const current = selected === null ? null : (items[selected] ?? null);
-
   return (
     <Modal title="내 시간표" onClose={close} wide>
       <div className="ui-form">
@@ -104,6 +94,7 @@ export function ScheduleScreen() {
           <p className="ui-note">마지막 단계예요! 매주 반복되는 일정을 넣어 주세요.</p>
         )}
         <DormToggle />
+        <KindLegend />
         {status.kind === 'loading' ? (
           <p className="ui-note">불러오는 중…</p>
         ) : mobile ? (
@@ -119,12 +110,11 @@ export function ScheduleScreen() {
               빈 칸을 끌어 만들고, 블록을 끌어 옮기고, 위·아래 끝을 끌어 길이를 바꿔요. 블록을
               누르면 제목·시간·종류를 고칠 수 있어요.
             </p>
-            <KindChips value={current?.kind ?? kind} onChange={pickKind} />
             <WeekGrid
               items={items}
               overlaps={overlaps}
               selected={selected}
-              kind={kind}
+              kind={NEW_KIND}
               onChange={change}
               onSelect={setSelected}
               onCreated={(index) => setEditing({ index, isNew: true })}
