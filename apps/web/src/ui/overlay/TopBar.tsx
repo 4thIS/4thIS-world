@@ -1,5 +1,9 @@
-import type { TopBarProps } from '../contracts';
+import { useCallback, useState } from 'react';
+import type { SoundChannel, TopBarProps } from '../contracts';
 import { useUi } from '../store';
+import { SoundPanel } from './SoundPanel';
+
+const DEFAULT_VOLUMES: Record<SoundChannel, number> = { music: 0.5, sfx: 0.7, voice: 0.7 };
 
 /** 왼쪽 위: 로고(누르면 소개) · 요일과 시각 · 하늘 아이콘 · 🏠 처음 시야로 · ❔ 조작법 */
 export function TopBar({
@@ -8,11 +12,13 @@ export function TopBar({
   weatherLabel,
   soundOn = false,
   onToggleSound,
-  volume = 0.7,
+  volumes = DEFAULT_VOLUMES,
   onVolume,
   onHome,
 }: TopBarProps) {
   const open = useUi((s) => s.open);
+  const [panel, setPanel] = useState(false);
+  const closePanel = useCallback(() => setPanel(false), []);
   return (
     <header className="ov-topbar ui-card">
       <button
@@ -48,27 +54,27 @@ export function TopBar({
         ?
       </button>
       {onToggleSound && (
-        <button
-          type="button"
-          className="ui-icon-btn"
-          aria-label={soundOn ? '대사음 끄기' : '대사음 켜기'}
-          aria-pressed={soundOn}
-          title={soundOn ? '대사음 끄기' : '대사음 켜기'}
-          onClick={onToggleSound}
-        >
-          {soundOn ? '🔊' : '🔈'}
-        </button>
-      )}
-      {soundOn && onVolume && (
-        <input
-          type="range"
-          className="ov-topbar__volume"
-          aria-label="대사음 크기"
-          min={0}
-          max={100}
-          value={Math.round(volume * 100)}
-          onChange={(e) => onVolume(Number(e.target.value) / 100)}
-        />
+        <span className="ov-topbar__soundwrap">
+          <button
+            type="button"
+            className="ui-icon-btn ov-topbar__sound"
+            aria-label="소리"
+            aria-expanded={panel}
+            title="소리"
+            onClick={() => setPanel((p) => !p)}
+          >
+            {soundOn ? '🔊' : '🔈'}
+          </button>
+          {panel && onVolume && (
+            <SoundPanel
+              soundOn={soundOn}
+              onToggleSound={onToggleSound}
+              volumes={volumes}
+              onVolume={onVolume}
+              onClose={closePanel}
+            />
+          )}
+        </span>
       )}
     </header>
   );

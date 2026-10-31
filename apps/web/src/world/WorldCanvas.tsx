@@ -11,6 +11,7 @@ import { MAX_DISTANCE, MIN_DISTANCE, OVERVIEW } from './sim/camera';
 import { CameraRig } from './sim/CameraRig';
 import { FocusMarker } from './sim/FocusMarker';
 import { Projectiles } from './sim/Projectiles';
+import { SoundListener } from './sim/SoundListener';
 import { CanvasBoundary } from './sim/CanvasBoundary';
 import { ControlDriver } from './sim/ControlDriver';
 import { installWorldDebug } from './sim/debug';
@@ -57,6 +58,7 @@ function WorldScene() {
       <ControlDriver />
       <CameraRig />
       <FocusMarker />
+      <SoundListener />
       <Projectiles />
     </>
   );

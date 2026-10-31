@@ -86,6 +86,20 @@ describe('실시간 (Socket.IO 통합)', () => {
     return rec;
   }
 
+  it('새 가입 신청은 관리자 탭에만 알린다', async () => {
+    const admin = await connect(await adminCookie(t));
+    const guest = await connect();
+    const got: string[] = [];
+    const guestGot: string[] = [];
+    admin.socket.on('signup:pending', (p) => got.push(p.username));
+    guest.socket.on('signup:pending', (p) => guestGot.push(p.username));
+    await signupAs(t, '새내기');
+    await waitFor(() => got.length === 1);
+    expect(got).toEqual(['새내기']);
+    await pause(50);
+    expect(guestGot).toEqual([]);
+  });
+
   it('접속하면 서버 시각과 접속자를 받는다. 멤버는 탭 수와 상관없이 한 번', async () => {
     const a = await signupAs(t, '철수', { approve: true });
     const pending = await signupAs(t, '대기');

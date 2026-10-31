@@ -5,7 +5,7 @@ import type { GameSocket } from '../api/socket';
 import { registerMember } from '../world/sim/registry';
 import { resolvePose } from '../world/sim/resolvePose';
 import { CONTROL_STATUS } from '../world/sim/remote';
-import { useRealtime } from './realtime';
+import { approvedJustNow, useRealtime } from './realtime';
 import { useSession } from './session';
 import { useWorld } from './world';
 
@@ -319,5 +319,16 @@ describe('장난감 쏘기', () => {
     vi.advanceTimersByTime(3000);
     expect(useRealtime.getState().shots).toHaveLength(0);
     expect(useRealtime.getState().hits['you']).toBeUndefined();
+  });
+});
+
+describe('승인 알림', () => {
+  const me = (status: 'pending' | 'approved') =>
+    ({ kind: 'member', me: { id: 'm1', username: '새내기', status } }) as unknown as Session;
+
+  it('승인 대기였던 내 가입이 승인되면 알린다', () => {
+    expect(approvedJustNow(me('pending'), me('approved'))).toBe(true);
+    expect(approvedJustNow(me('approved'), me('approved'))).toBe(false);
+    expect(approvedJustNow({ kind: 'guest' }, me('approved'))).toBe(false);
   });
 });

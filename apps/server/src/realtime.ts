@@ -162,11 +162,19 @@ export function attachRealtime(app: FastifyInstance, opts: RealtimeOptions = {})
   app.events.on('world:changed', onWorldChanged);
   const onWeatherChanged = () => io.emit('weather:changed');
   app.events.on('weather:changed', onWeatherChanged);
+  // 새 가입 신청은 관리자 탭에만
+  const onSignup = (username: string) => {
+    for (const socketId of hub.socketIds()) {
+      if (hub.memberOf(socketId) === ADMIN_ID) io.to(socketId).emit('signup:pending', { username });
+    }
+  };
+  app.events.on('signup:pending', onSignup);
 
   app.addHook('preClose', async () => {
     clearInterval(timer);
     app.events.off('world:changed', onWorldChanged);
     app.events.off('weather:changed', onWeatherChanged);
+    app.events.off('signup:pending', onSignup);
     // 소켓에 끊김 패킷을 보내지 않고 전송만 닫는다. 그래야 클라이언트가 자동으로 다시 붙는다 (io server disconnect면 재연결하지 않는다)
     io.engine.close();
   });

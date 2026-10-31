@@ -1,12 +1,26 @@
-import { LEAD_SEC, SLOT_SEC, VOICE_URL, type Syllable } from './voice';
+import { Vector3 } from 'three';
+import { SFX, SfxLimiter, sfxDuration, type SfxName } from './sfx';
+import { LEAD_SEC, SLOT_SEC, VOICE_URL, volumeAt, type Syllable } from './voice';
 
 /**
- * Web Audio로 대사음을 낸다. AudioContext는 소리를 켤 때(사용자가 누를 때) 만든다:
- * 브라우저는 사용자 조작 전에는 소리를 내지 못하게 한다. 재료(voice.mp3, 약 64 KB)도 그때 받는다.
+ * Web Audio로 소리를 낸다. AudioContext는 소리를 켤 때(사용자가 누를 때) 만든다:
+ * 브라우저는 사용자 조작 전에는 소리를 내지 못하게 한다. 대사음 재료(voice.mp3, 약 64 KB)도 그때 받는다.
+ * 소리는 갈래(배경음악·효과음·목소리)마다 크기 손잡이(GainNode)를 거쳐 나간다.
  */
+export const SOUND_CHANNELS = ['music', 'sfx', 'voice'] as const;
+export type SoundChannel = (typeof SOUND_CHANNELS)[number];
+
 let ctx: AudioContext | null = null;
 let voice: AudioBuffer | null = null;
+let noise: AudioBuffer | null = null;
 let loading: Promise<void> | null = null;
+let enabled = false;
+const volumes: Record<SoundChannel, number> = { music: 0.5, sfx: 0.7, voice: 0.7 };
+const buses = new Map<SoundChannel, GainNode>();
+const limiter = new SfxLimiter();
+
+/** 다른 캐릭터 소리의 크기를 정하는 카메라 위치 (SoundListener가 매 프레임 기록) */
+export const listener = new Vector3(0, 40, 60);
 
 function loadVoice(c: AudioContext): Promise<void> {
   loading ??= fetch(VOICE_URL)
@@ -21,6 +35,29 @@ function loadVoice(c: AudioContext): Promise<void> {
   return loading;
 }
 
+function bus(c: AudioContext, ch: SoundChannel): GainNode {
+  let g = buses.get(ch);
+  if (!g) {
+    g = c.createGain();
+    g.gain.value = volumes[ch];
+    g.connect(c.destination);
+    buses.set(ch, g);
+  }
+  return g;
+}
+
+/** 갈래 크기 0~1 (useSound가 부른다) */
+export function setChannelVolume(ch: SoundChannel, v: number): void {
+  volumes[ch] = v;
+  const g = buses.get(ch);
+  if (g && ctx) g.gain.setTargetAtTime(v, ctx.currentTime, 0.03);
+}
+
+/** 전체 켜기/끄기 (useSound가 부른다) */
+export function setSoundEnabled(on: boolean): void {
+  enabled = on;
+}
+
 /** 소리를 켤 때 부른다 (버튼 클릭 안에서) */
 export function unlockAudio(): void {
   if (typeof window === 'undefined' || !('AudioContext' in window)) return;
@@ -29,7 +66,11 @@ export function unlockAudio(): void {
   void loadVoice(ctx);
 }
 
-/** 소리 조각들을 이어서 낸다. volume 0~1. 재료를 받는 중이면 받은 뒤에 낸다 */
+function ready(): AudioContext | null {
+  return enabled && ctx && ctx.state === 'running' ? ctx : null;
+}
+
+/** 소리 조각들을 이어서 낸다. volume 0~1(거리). 재료를 받는 중이면 받은 뒤에 낸다 */
 export function speak(syllables: readonly Syllable[], volume: number): void {
   if (!ctx || volume <= 0.01) return;
   if (!voice) {
@@ -45,7 +86,7 @@ export function speak(syllables: readonly Syllable[], volume: number): void {
   round.type = 'lowpass';
   round.frequency.value = 2800;
   round.Q.value = 0.5;
-  round.connect(out).connect(ctx.destination);
+  round.connect(out).connect(bus(ctx, 'voice'));
 
   let t = ctx.currentTime + 0.02;
   for (const s of syllables) {
@@ -65,4 +106,61 @@ export function speak(syllables: readonly Syllable[], volume: number): void {
     }
     t += s.dur + 0.008;
   }
+}
+
+/** 1초짜리 흰 잡음 (처음 한 번 만든다) */
+function noiseBuffer(c: AudioContext): AudioBuffer {
+  if (!noise) {
+    noise = c.createBuffer(1, c.sampleRate, c.sampleRate);
+    const data = noise.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  }
+  return noise;
+}
+
+/** 합성 효과음. volume 0~1, rate는 높이 배율 */
+export function playSfx(name: SfxName, volume = 1, rate = 1): void {
+  const c = ready();
+  if (!c || volume <= 0.01) return;
+  if (!limiter.tryPlay(name, performance.now(), sfxDuration(name) * 1000)) return;
+  const out = bus(c, 'sfx');
+  const start = c.currentTime + 0.01;
+  for (const l of SFX[name]) {
+    const t = start + (l.at ?? 0);
+    const env = c.createGain();
+    // 짧게 들어가고 지수로 사라진다 (딸깍 소리 없이)
+    env.gain.setValueAtTime(0.0001, t);
+    env.gain.exponentialRampToValueAtTime(l.gain * volume, t + 0.008);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + l.dur);
+    let src: AudioScheduledSourceNode;
+    if (l.wave === 'noise') {
+      const n = c.createBufferSource();
+      n.buffer = noiseBuffer(c);
+      n.loop = true;
+      src = n;
+    } else {
+      const o = c.createOscillator();
+      o.type = l.wave;
+      o.frequency.setValueAtTime(l.f0 * rate, t);
+      if (l.f1 !== undefined) o.frequency.exponentialRampToValueAtTime(l.f1 * rate, t + l.dur);
+      src = o;
+    }
+    let node: AudioNode = src;
+    if (l.filter) {
+      const f = c.createBiquadFilter();
+      f.type = l.filter.type;
+      f.frequency.value = l.filter.freq * rate;
+      f.Q.value = l.filter.q ?? 0.7;
+      node = node.connect(f);
+    }
+    node.connect(env).connect(out);
+    src.start(t);
+    src.stop(t + l.dur + 0.02);
+  }
+}
+
+/** 캠퍼스 어딘가에서 나는 효과음: 카메라에서 멀수록 작게, 너무 멀면 내지 않는다 */
+export function playSfxAt(name: SfxName, at: { x: number; y: number; z: number }, rate = 1): void {
+  if (!ready()) return;
+  playSfx(name, volumeAt(listener.distanceTo(new Vector3(at.x, at.y, at.z))), rate);
 }

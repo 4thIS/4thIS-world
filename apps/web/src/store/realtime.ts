@@ -13,6 +13,7 @@ import {
   type ControlMove,
   type Emoji,
   type Motion,
+  type Session,
   type ShotEvent,
   type Weapon,
   type PlaceId,
@@ -24,6 +25,8 @@ import { CHAT_DURATION_MS, CHAT_STACK_MAX } from '../world/characters/chatTiming
 import type { ActiveChat, ActiveEmote, ActiveMotion } from '../world/contracts';
 import { isIndoor, moverFloor, moverHeight, startMover } from '../world/sim/indoor';
 import { createThrottle } from '../world/sim/input';
+import { playSfx, playSfxAt } from '../sound/audio';
+import { emoteRate, hitSfx, motionSfx, shotSfx, type SfxName } from '../sound/sfx';
 import { memberObjects } from '../world/sim/registry';
 import { HAND_Y, HIT_MS, findHit, travelSec, type Target } from '../world/sim/shots';
 import { planReturn, pushSample, type RemoteTrack, type ReturnWalk } from '../world/sim/remote';
@@ -105,6 +108,23 @@ let lastChatSent = -Infinity;
 let lastMotionSent = -Infinity;
 let lastShotSent = -Infinity;
 let shotSeq = 0;
+
+/** 그 멤버 캐릭터가 화면에 있으면 그 자리에서 효과음 */
+function soundAtMember(memberId: string, name: SfxName, rate = 1): void {
+  const o = memberObjects.get(memberId);
+  if (o?.visible) playSfxAt(name, o.position, rate);
+}
+
+/** 승인 대기였던 내 가입이 방금 승인됐다 */
+export function approvedJustNow(prev: Session, now: Session): boolean {
+  return (
+    prev.kind === 'member' &&
+    prev.me.status === 'pending' &&
+    now.kind === 'member' &&
+    now.me.id === prev.me.id &&
+    now.me.status === 'approved'
+  );
+}
 
 /** 날아가는 장난감 하나. start는 받은 시각 performance.now() ms */
 export type ActiveShot = ShotEvent & { id: number; start: number };
@@ -199,7 +219,15 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     s.on('disconnect', () => set({ connection: 'reconnecting', controlling: false, local: null }));
     s.on('time', ({ serverTime }) => useWorld.getState().syncClock(serverTime));
     s.on('presence', (presence) => set({ presence }));
-    s.on('world:changed', () => void useWorld.getState().load());
+    s.on('world:changed', () => {
+      void useWorld.getState().load();
+      // 승인 대기 중이면 승인됐는지 다시 확인한다
+      const session = useSession.getState().session;
+      if (session.kind === 'member' && session.me.status === 'pending') {
+        void useSession.getState().refresh();
+      }
+    });
+    s.on('signup:pending', () => playSfx('notify'));
     s.on('weather:changed', () => void useWeather.getState().load());
     s.on('control:state', (states) => {
       const me = myMemberId();
@@ -234,6 +262,8 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
       const now = performance.now();
       const travelMs = travelSec(event.weapon, event.dist) * 1000;
       const shot: ActiveShot = { ...event, id: ++shotSeq, start: now };
+      const [fx, fy, fz] = event.from;
+      playSfxAt(shotSfx(event.weapon), { x: fx, y: fy, z: fz });
       set((st) => ({ shots: [...st.shots, shot] }));
       setTimeout(
         () => set((st) => ({ shots: st.shots.filter((x) => x.id !== shot.id) })),
@@ -243,6 +273,10 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
       const target = event.hit;
       const hit: ActiveHit = { weapon: event.weapon, at: now + travelMs };
       set((st) => ({ hits: { ...st.hits, [target]: hit } }));
+      setTimeout(() => {
+        const o = memberObjects.get(target);
+        if (o?.visible) playSfxAt(hitSfx(event.weapon), o.position);
+      }, travelMs);
       setTimeout(() => {
         set((st) => {
           if (st.hits[target] !== hit) return st;
@@ -288,6 +322,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
         return;
       }
       const motion = { kind, pos, at: performance.now() };
+      soundAtMember(memberId, motionSfx(kind));
       set((st) => ({ motions: { ...st.motions, [memberId]: motion } }));
       if (HELD_MOTIONS.has(kind)) return;
       setTimeout(() => {
@@ -301,6 +336,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
     });
     s.on('emote', ({ memberId, emoji }) => {
       const emote: ActiveEmote = { emoji, at: performance.now() };
+      soundAtMember(memberId, 'emote', emoteRate(emoji));
       set((st) => ({ emotes: { ...st.emotes, [memberId]: emote } }));
       setTimeout(() => {
         set((st) => {
@@ -314,6 +350,7 @@ export const useRealtime = create<RealtimeState>()((set, get) => ({
 
     // 로그인·로그아웃하면 새 쿠키로 다시 연결한다
     const unsub = useSession.subscribe((now, prev) => {
+      if (approvedJustNow(prev.session, now.session)) playSfx('notify');
       if (now.session !== prev.session) {
         s.disconnect();
         s.connect();

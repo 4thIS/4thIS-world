@@ -77,6 +77,8 @@ export interface ServerToClientEvents {
   'control:released': (p: { memberId: string }) => void;
   emote: (e: EmoteEvent) => void;
   time: (p: { serverTime: number }) => void;
+  /** 새 가입 신청 (관리자 소켓에만) */
+  'signup:pending': (p: { username: string }) => void;
 }
 
 export interface ClientToServerEvents {

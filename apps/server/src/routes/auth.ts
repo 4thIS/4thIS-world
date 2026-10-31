@@ -55,6 +55,7 @@ export function registerAuthRoutes(app: FastifyInstance): void {
     dropCurrent(request);
     const sessionId = createSession(db, { memberId: member.id });
     setSessionCookie(reply, sessionId, config);
+    app.events.emit('signup:pending', member.username);
     return toSession({ kind: 'member', sessionId, member });
   });
 

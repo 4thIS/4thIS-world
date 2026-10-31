@@ -34,7 +34,7 @@ export function useOverlayProps(): OverlayProps {
   const weather = useWeather((s) => s.now);
   const soundOn = useSound((s) => s.enabled);
   const toggleSound = useSound((s) => s.toggle);
-  const volume = useSound((s) => s.volume);
+  const volumes = useSound((s) => s.volumes);
   const setVolume = useSound((s) => s.setVolume);
   const focusMember = useWorld((s) => s.focusMember);
   const setHiddenAboveFloor = useWorld((s) => s.setHiddenAboveFloor);
@@ -118,7 +118,7 @@ export function useOverlayProps(): OverlayProps {
       weatherLabel: weatherLabel(weather),
       soundOn,
       onToggleSound: toggleSound,
-      volume,
+      volumes,
       onVolume: setVolume,
       onHome: goHome,
     },
