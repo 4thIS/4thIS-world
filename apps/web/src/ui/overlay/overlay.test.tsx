@@ -47,25 +47,28 @@ describe('TopBar', () => {
     useUi.getState().close();
   });
 
-  it('🔈을 누르면 대사음을 켠다', () => {
+  it('🔈을 누르면 소리 창이 열리고, 전체 켜기·갈래별 크기를 바꾼다', () => {
     const onToggleSound = vi.fn();
-    render(
-      <TopBar clock="수 14:10" skyIcon="☀️" onHome={() => {}} onToggleSound={onToggleSound} />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: '대사음 켜기' }));
-    expect(onToggleSound).toHaveBeenCalledOnce();
-  });
-
-  it('대사음을 켜면 크기 막대가 나오고, 움직이면 0~1로 알린다', () => {
     const onVolume = vi.fn();
-    const props = { clock: '수 14:10', skyIcon: '☀️', onHome: () => {}, onToggleSound: () => {} };
-    const { rerender } = render(<TopBar {...props} onVolume={onVolume} />);
-    expect(screen.queryByRole('slider', { name: '대사음 크기' })).toBeNull();
-    rerender(<TopBar {...props} soundOn volume={0.7} onVolume={onVolume} />);
-    const slider = screen.getByRole('slider', { name: '대사음 크기' }) as HTMLInputElement;
-    expect(slider.value).toBe('70');
-    fireEvent.change(slider, { target: { value: '30' } });
-    expect(onVolume).toHaveBeenCalledWith(0.3);
+    const props = { clock: '수 14:10', skyIcon: '☀️', onHome: () => {}, onToggleSound, onVolume };
+    const { rerender } = render(<TopBar {...props} />);
+    expect(screen.queryByRole('dialog', { name: '소리' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '소리' }));
+    fireEvent.click(screen.getByRole('switch'));
+    expect(onToggleSound).toHaveBeenCalledOnce();
+    rerender(<TopBar {...props} soundOn volumes={{ music: 0.5, sfx: 0.7, voice: 0.4 }} />);
+    const voice = screen.getByRole('slider', { name: '목소리 크기' }) as HTMLInputElement;
+    expect(voice.value).toBe('40');
+    fireEvent.change(screen.getByRole('slider', { name: '효과음 크기' }), {
+      target: { value: '30' },
+    });
+    expect(onVolume).toHaveBeenCalledWith('sfx', 0.3);
+    // 배경음악은 준비 중
+    expect(
+      (screen.getByRole('slider', { name: '배경음악 크기' }) as HTMLInputElement).disabled,
+    ).toBe(true);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: '소리' })).toBeNull();
   });
 
   it('🏠을 누르면 처음 시야로', () => {

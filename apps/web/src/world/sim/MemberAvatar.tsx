@@ -4,7 +4,7 @@ import { Frustum, Matrix4, Vector3, type Group } from 'three';
 import { ADMIN_ID, CAMPUS, HELD_MOTIONS, type PublicMember } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
 import { useSound } from '../../store/sound';
-import { speak } from '../../sound/audio';
+import { playSfxAt, speak } from '../../sound/audio';
 import { syllablesOf, voiceOf, volumeAt } from '../../sound/voice';
 import { useSession } from '../../store/session';
 import { useWeather } from '../../store/weather';
@@ -55,6 +55,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const camera = useThree((s) => s.camera);
   const voice = useMemo(() => voiceOf(member.look.animal, member.id), [member]);
   const voiced = useRef(0);
+  const lastOpacity = useRef(1);
 
   // 새 말풍선이 오면 대사음: 소리를 켰고, 화면에 보이는 캐릭터만, 가까울수록 크게
   useEffect(() => {
@@ -68,10 +69,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       new Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse),
     );
     if (!frustum.containsPoint(p)) return;
-    speak(
-      syllablesOf(latest.text, voice),
-      volumeAt(camera.position.distanceTo(p)) * useSound.getState().volume,
-    );
+    speak(syllablesOf(latest.text, voice), volumeAt(camera.position.distanceTo(p)));
   }, [chats, camera, voice]);
 
   useEffect(() => {
@@ -106,6 +104,12 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
       umbrellaOn.current = u;
       setUmbrella(u);
     }
+    // 건물·정문을 드나들며 흐려지기 시작하면 '딸랑'
+    const fade = pose?.opacity ?? 1;
+    if (placed.current && lastOpacity.current >= 1 && fade < 1 && fade > 0) {
+      playSfxAt('door', group.position);
+    }
+    lastOpacity.current = fade;
     if (!pose) {
       placed.current = false;
       return;

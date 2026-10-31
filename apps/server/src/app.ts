@@ -16,7 +16,12 @@ import { registerWebStatic } from './static';
 import { WeatherService } from './weather';
 
 /** 서버 안에서 주고받는 이벤트. wj#3의 소켓 계층이 world:changed를 받아 브로드캐스트한다 */
-export type ServerEvents = { 'world:changed': []; 'weather:changed': [] };
+export type ServerEvents = {
+  'world:changed': [];
+  'weather:changed': [];
+  /** 새 가입 신청 (관리자에게 알린다) */
+  'signup:pending': [username: string];
+};
 
 declare module 'fastify' {
   interface FastifyInstance {

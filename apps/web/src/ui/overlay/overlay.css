@@ -37,9 +37,54 @@
   font-weight: 800;
 }
 
-.ov-topbar__volume {
-  width: 80px;
+/* 소리 창: 🔈 아래로 펼쳐진다 */
+.ov-topbar__soundwrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ov-sound {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: -12px;
+  z-index: 5;
+  display: grid;
+  gap: 8px;
+  width: 230px;
+  padding: 12px 14px;
+}
+
+.ov-sound__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ov-sound__row[aria-disabled='true'] {
+  opacity: 0.5;
+}
+
+.ov-sound__row span {
+  white-space: nowrap;
+}
+
+.ov-sound__row small {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.ov-sound__row input[type='range'] {
+  width: 100px;
   accent-color: #ff8fb1;
+}
+
+.ov-sound__all input {
+  accent-color: #ff8fb1;
+  width: 18px;
+  height: 18px;
 }
 
 .ov-topbar__clock {
@@ -499,6 +544,17 @@
 
 /* 모바일: 접속자 패널은 하단 시트, 조종·이모지는 그 위 */
 @media (max-width: 639px) {
+  /* 좁은 화면: 소리 창을 🔈 오른쪽 끝에 맞춰 화면 안에 */
+  .ov-sound {
+    right: -12px;
+    left: auto;
+    width: min(230px, calc(100vw - 32px));
+  }
+
+  .ov-sound__row input[type='range'] {
+    width: 80px;
+  }
+
   .ov-topbar {
     top: 10px;
     left: 10px;
@@ -511,10 +567,6 @@
   }
 
   /* 상단 바가 좁아 크기 막대는 숨긴다 (휴대폰은 기기 음량으로 조절) */
-  .ov-topbar__volume {
-    display: none;
-  }
-
   .ov-presence {
     top: auto;
     right: 0;

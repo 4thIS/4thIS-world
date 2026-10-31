@@ -102,6 +102,9 @@ export interface BuildingPanelProps {
   onClose: () => void;
 }
 
+/** 소리 갈래: 배경음악·효과음·목소리 */
+export type SoundChannel = 'music' | 'sfx' | 'voice';
+
 /** TopBar: 로고·시각·로그인/메뉴 */
 export interface TopBarProps {
   /** '수 14:10' */
@@ -110,12 +113,12 @@ export interface TopBarProps {
   skyIcon: string;
   /** 마우스를 올리면 보이는 날씨 설명: '서대문구 · 비 2.1mm · 12°C' */
   weatherLabel?: string;
-  /** 대사음 켜짐 (🔊/🔈) */
+  /** 소리 켜짐 (🔊/🔈). 버튼을 누르면 소리 창이 열린다 */
   soundOn?: boolean;
   onToggleSound?: () => void;
-  /** 대사음 크기 0~1 (켜져 있을 때 옆에 막대) */
-  volume?: number;
-  onVolume?: (v: number) => void;
+  /** 갈래별 크기 0~1 (소리 창의 막대) */
+  volumes?: Record<SoundChannel, number>;
+  onVolume?: (ch: SoundChannel, v: number) => void;
   /** 🏠 처음 시야로 (포커스를 풀고 캠퍼스 전체를 본다) */
   onHome: () => void;
 }
