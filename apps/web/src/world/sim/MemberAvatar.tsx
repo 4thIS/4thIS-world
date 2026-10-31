@@ -4,7 +4,8 @@ import { Frustum, Matrix4, Vector3, type Group } from 'three';
 import { ADMIN_ID, CAMPUS, HELD_MOTIONS, type PublicMember } from '@4this/shared';
 import { useRealtime } from '../../store/realtime';
 import { useSound } from '../../store/sound';
-import { playSfxAt, speak } from '../../sound/audio';
+import { playSfxAt, playStep, speak } from '../../sound/audio';
+import { stepTick, surfaceAt } from '../../sound/steps';
 import { syllablesOf, voiceOf, volumeAt } from '../../sound/voice';
 import { useSession } from '../../store/session';
 import { useWeather } from '../../store/weather';
@@ -21,6 +22,7 @@ import {
 } from './motion';
 import { hiddenByCutaway } from './occupancy';
 import { registerMember } from './registry';
+import { makesSteps } from './SoundListener';
 import { resolvePose } from './resolvePose';
 import { needsUmbrella } from './umbrella';
 
@@ -56,6 +58,7 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
   const voice = useMemo(() => voiceOf(member.look.animal, member.id), [member]);
   const voiced = useRef(0);
   const lastOpacity = useRef(1);
+  const stride = useRef(0);
 
   // 새 말풍선이 오면 대사음: 소리를 켰고, 화면에 보이는 캐릭터만, 가까울수록 크게
   useEffect(() => {
@@ -116,6 +119,12 @@ export function MemberAvatar({ member }: { member: PublicMember }) {
     }
     const p = group.position;
     const [x, y, z] = stepPosition([p.x, p.y, p.z], pose.position, dt, !placed.current);
+    // 발소리: 걸은 거리를 모아 한 걸음마다 (내 캐릭터와 카메라 가까운 몇 명만)
+    const step = stepTick(stride.current, placed.current ? Math.hypot(x - p.x, z - p.z) : 0);
+    stride.current = step.carry;
+    if (step.step && group.visible && (isMe || makesSteps(member.id))) {
+      playStep(surfaceAt(x, y, z), { x, y, z }, isMe ? 1 : 0.6);
+    }
     p.set(x, y, z);
     group.rotation.y = placed.current
       ? dampAngle(group.rotation.y, pose.facing, FACING_RATE, dt)
