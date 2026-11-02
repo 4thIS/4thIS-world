@@ -34,6 +34,11 @@ export const SFX_NAMES = [
   'door',
   'click',
   'notify',
+  'stepPath',
+  'stepGrass',
+  'stepIndoor',
+  'chirp',
+  'cricket',
 ] as const;
 export type SfxName = (typeof SFX_NAMES)[number];
 
@@ -139,7 +144,45 @@ export const SFX: Record<SfxName, Layer[]> = {
     { wave: 'triangle', f0: 988, dur: 0.16, gain: 0.35 },
     { wave: 'triangle', f0: 1319, at: 0.13, dur: 0.38, gain: 0.35 },
   ],
+  // 아래(발소리·새·귀뚜라미)에서 채운다
+  stepPath: [],
+  stepGrass: [],
+  stepIndoor: [],
+  chirp: [],
+  cricket: [],
 };
+
+/** 합성 발소리 (Kenney 파일이 없을 때) */
+SFX.stepPath = [
+  {
+    wave: 'noise',
+    f0: 2200,
+    dur: 0.05,
+    gain: 0.35,
+    filter: { type: 'bandpass', freq: 2200, q: 1.5 },
+  },
+  { wave: 'sine', f0: 180, f1: 120, dur: 0.04, gain: 0.15 },
+];
+SFX.stepGrass = [
+  { wave: 'noise', f0: 3000, dur: 0.09, gain: 0.25, filter: { type: 'highpass', freq: 2500 } },
+];
+SFX.stepIndoor = [
+  { wave: 'sine', f0: 140, f1: 80, dur: 0.07, gain: 0.4 },
+  { wave: 'noise', f0: 900, dur: 0.04, gain: 0.2, filter: { type: 'lowpass', freq: 900 } },
+];
+/** 새 한 마리 '찌르릇' */
+SFX.chirp = [
+  { wave: 'sine', f0: 2600, f1: 3900, dur: 0.07, gain: 0.12 },
+  { wave: 'sine', f0: 2800, f1: 4200, at: 0.1, dur: 0.07, gain: 0.1 },
+];
+/** 귀뚜라미 '르르르' */
+SFX.cricket = [0, 0.06, 0.12].map((at) => ({
+  wave: 'sine' as const,
+  f0: 4300,
+  at,
+  dur: 0.035,
+  gain: 0.05,
+}));
 
 /** 소리 길이 (초) */
 export function sfxDuration(name: SfxName): number {

@@ -1,5 +1,7 @@
 import { Vector3 } from 'three';
+import type { AmbientMix } from './ambient';
 import { SFX, SfxLimiter, sfxDuration, type SfxName } from './sfx';
+import { STEP_FILE_COUNT, STEP_FILE_PREFIX, type Surface } from './steps';
 import { LEAD_SEC, SLOT_SEC, VOICE_URL, volumeAt, type Syllable } from './voice';
 
 /**
@@ -64,6 +66,7 @@ export function unlockAudio(): void {
   ctx ??= new AudioContext();
   void ctx.resume();
   void loadVoice(ctx);
+  loadSteps(ctx);
 }
 
 function ready(): AudioContext | null {
@@ -163,4 +166,120 @@ export function playSfx(name: SfxName, volume = 1, rate = 1): void {
 export function playSfxAt(name: SfxName, at: { x: number; y: number; z: number }, rate = 1): void {
   if (!ready()) return;
   playSfx(name, volumeAt(listener.distanceTo(new Vector3(at.x, at.y, at.z))), rate);
+}
+
+/** Kenney 발소리 파일 (앞부분 → 받은 소리들). 파일이 없으면 비어 있고 합성 발소리를 쓴다 */
+const stepBuffers = new Map<string, AudioBuffer[]>();
+let stepsRequested = false;
+
+function loadSteps(c: AudioContext): void {
+  if (stepsRequested) return;
+  stepsRequested = true;
+  for (const prefix of new Set(Object.values(STEP_FILE_PREFIX))) {
+    const urls = Array.from(
+      { length: STEP_FILE_COUNT },
+      (_, i) => `/sound/steps/${prefix}_${String(i).padStart(3, '0')}.ogg`,
+    );
+    void Promise.all(
+      urls.map((u) =>
+        fetch(u)
+          .then((res) => (res.ok ? res.arrayBuffer() : Promise.reject(new Error(u))))
+          .then((buf) => c.decodeAudioData(buf))
+          .catch(() => null),
+      ),
+    ).then((list) => {
+      const ok = list.filter((b): b is AudioBuffer => b !== null);
+      if (ok.length > 0) stepBuffers.set(prefix, ok);
+    });
+  }
+}
+
+const SYNTH_STEP: Record<Surface, SfxName> = {
+  path: 'stepPath',
+  grass: 'stepGrass',
+  indoor: 'stepIndoor',
+  stairs: 'stepIndoor',
+};
+
+/** 한 걸음. volume 0~1 (내 캐릭터 1, 다른 캐릭터는 작게). 계단은 조금 높고 또렷하게 */
+export function playStep(
+  surface: Surface,
+  at: { x: number; y: number; z: number },
+  volume: number,
+) {
+  const c = ready();
+  if (!c) return;
+  const v = volume * volumeAt(listener.distanceTo(new Vector3(at.x, at.y, at.z)));
+  if (v <= 0.01) return;
+  const stairs = surface === 'stairs';
+  const rate = (stairs ? 1.15 : 1) * (0.94 + Math.random() * 0.12);
+  const bufs = stepBuffers.get(STEP_FILE_PREFIX[surface]);
+  if (!bufs) {
+    playSfx(SYNTH_STEP[surface], v * (stairs ? 1.2 : 1), rate);
+    return;
+  }
+  const buf = bufs[Math.floor(Math.random() * bufs.length)]!;
+  if (!limiter.tryPlay(`step:${surface}`, performance.now(), (buf.duration / rate) * 1000)) return;
+  const src = c.createBufferSource();
+  const g = c.createGain();
+  src.buffer = buf;
+  src.playbackRate.value = rate;
+  g.gain.value = 0.5 * v * (stairs ? 1.2 : 1);
+  src.connect(g).connect(bus(c, 'sfx'));
+  src.start();
+}
+
+/** 계속 깔리는 빗소리·바람 (잡음 하나를 걸러 두 갈래로) */
+let ambient: { rain: GainNode; wind: GainNode } | null = null;
+
+function startAmbient(c: AudioContext): { rain: GainNode; wind: GainNode } {
+  const src = c.createBufferSource();
+  src.buffer = noiseBuffer(c);
+  src.loop = true;
+  const out = bus(c, 'sfx');
+
+  // 빗소리: 높은 쪽 잡음
+  const rainHi = c.createBiquadFilter();
+  rainHi.type = 'highpass';
+  rainHi.frequency.value = 500;
+  const rainLo = c.createBiquadFilter();
+  rainLo.type = 'lowpass';
+  rainLo.frequency.value = 2600;
+  const rain = c.createGain();
+  rain.gain.value = 0;
+  src.connect(rainHi).connect(rainLo).connect(rain).connect(out);
+
+  // 바람: 낮은 쪽 잡음을 천천히 부풀렸다 줄인다
+  const windLo = c.createBiquadFilter();
+  windLo.type = 'lowpass';
+  windLo.frequency.value = 380;
+  const swell = c.createGain();
+  swell.gain.value = 0.6;
+  const lfo = c.createOscillator();
+  lfo.frequency.value = 0.13;
+  const lfoDepth = c.createGain();
+  lfoDepth.gain.value = 0.4;
+  lfo.connect(lfoDepth).connect(swell.gain);
+  const wind = c.createGain();
+  wind.gain.value = 0;
+  src.connect(windLo).connect(swell).connect(wind).connect(out);
+
+  src.start();
+  lfo.start();
+  return { rain, wind };
+}
+
+/** 환경 소리 양을 맞춘다 (1초마다). 소리가 꺼져 있으면 조용히 */
+export function setAmbient(mix: AmbientMix): void {
+  const c = ready();
+  if (!c) {
+    if (ambient && ctx) {
+      ambient.rain.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
+      ambient.wind.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
+    }
+    return;
+  }
+  ambient ??= startAmbient(c);
+  ambient.rain.gain.setTargetAtTime(mix.rain * 0.16, c.currentTime, 1);
+  ambient.wind.gain.setTargetAtTime(mix.wind * 0.3, c.currentTime, 1.5);
 }
